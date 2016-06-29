@@ -37,33 +37,35 @@
 
 Improvements in molecular dynamics (MD) algorithms, along with advances in software and hardware, have allowed researchers to extend both the time and length scales attainable in their atomistic simulations. This progress has fomented the ambitious attempt to elucidate complex physical phenomena such as the mechanisms underlying molecular motors, pathways for nanoparticle assembly, and interfacial phenomena, to name just a few. Because of its complexity and large computational demand, such a challenging task requires strategies to enlarge the achievable scales even further.
 
-One of the strategies employed to speed up MD simulations is the suppression of unimportant degrees of freedom, as might be the case of intramolecular vibrations. Iterative methods such as SHAKE\cite{Ryckaert1977} and RATTLE\cite{Andersen1983} achieved this suppression by adding constraints to the equations of motion. This is the standard approach in the common case of molecular models with fixed bond lengths and bending angles, but flexible dihedral angles. However, for molecules modeled as rigid structures or those containing rigid substructures,\cite{Miller2002} the dynamics of rigid bodies emerges a suitable approach. It is expected to be computationally more efficient because the constraints are treated implicitly. In addition, and most importantly, it is possible to devise symplectic integrators for simulations in the microcanonical ensemble. Being symplectic implies phase-space volume preservation and time reversibility, which are mandatory properties for numerical integrators to used in hybrid Monte Carlo (HMC) methods.\cite{Duane1987} In this sense, Miller \textit{et al}.\cite{Miller2002} have introduced a symplectic integrator for the rotational motion represented in terms of unit quaternions. This approach has been successfully used in pure MD as well as in HMC methods to simulate a wide range of systems containing rigid molecules, including liquid water, \cite{Sakamaki2011, Reinhardt2012, Palmer2014, Gonzales2014} ice,\cite{Geiger2014} hydrates,\cite{Tribello2009, Gorman2012} gases diffusing in metal-organic frameworks,\cite{Ghoufi2010} etc. It has also been applied for molecules designed as collections of interconnected rigid bodies, which is a coarse-graining strategy often used for proteins,\cite{Terada2003}, molecular machines,\cite{Akimov2008, Konyukhov2010} nanoparticles,\cite{Knorowski2012, Patra2013} etc.
+One of the strategies employed to speed up MD simulations is the suppression of unimportant degrees of freedom, as might be the case of intramolecular vibrations. Iterative methods such as SHAKE\cite{Ryckaert1977} and RATTLE\cite{Andersen1983} achieved this suppression by adding constraints to the equations of motion. This is the standard approach in the common case of molecular models with fixed bond lengths and bending angles, but flexible dihedral angles. However, for molecules modeled as rigid structures or those containing rigid substructures,\cite{Miller2002} the dynamics of rigid bodies emerges a suitable approach. It is expected to be computationally more efficient because the constraints are treated implicitly. In addition, and most importantly, it is possible to devise symplectic integrators for simulations in the microcanonical ensemble. Being symplectic implies phase-space volume preservation and time reversibility, which are sufficient conditions for numerical integrators to used in hybrid Monte Carlo (HMC) methods.\cite{Duane1987} In this context, Miller \textit{et al}.\cite{Miller2002} have introduced a symplectic integrator for the rotational motion represented in terms of unit quaternions. This approach has been successfully used in pure MD as well as in HMC methods to simulate a wide range of systems containing rigid molecules, including liquid water, \cite{Sakamaki2011, Reinhardt2012, Palmer2014, Gonzales2014} ice,\cite{Geiger2014} hydrates,\cite{Tribello2009, Gorman2012} gases diffusing in metal-organic frameworks,\cite{Ghoufi2010} etc. It has also been applied for molecules designed as collections of interconnected rigid bodies, which is a coarse-graining strategy often used for proteins,\cite{Terada2003}, molecular machines,\cite{Akimov2008, Konyukhov2010} nanoparticles,\cite{Knorowski2012, Patra2013} etc.
 
 In this paper, we present a simplified formulation for the motion of rigid bodies in the microcanonical (NVE) and canonical (NVT) ensembles, as well as corresponding numerical integrators. The contribution in the NVE case relies on a factorization of the rotation matrix that allows a Hamiltonian formalism without the need of extending the rotational phase space, thus simplifying the formulation of Miller \textit{et al}.\cite{Miller2002} In the NVT case, both the translational and rotational degrees of freedom are simultaneously coupled to a unique Nos\'{e}-Hoover chain (NHC) thermostat. This differs from the approach of Kamberaj \textit{et al}.,\cite{Kamberaj2005} in which two independent thermostat chains act separately on the rotational and the translational degrees of freedom. We have also simplified the calculation of pressure for systems with rigid bodies whose constituent atoms interact via a pairwise potential under periodic boundary conditions (PBC). The expression we derive depends on the resultant interaction forces between body pairs. This avoids the evaluation of constraint forces, which are necessary if the pressure is calculated in terms of the interatomic forces.
 
-This paper is organized as follows: in Sec.~\ref{sec:mechanics} we present a mathematical reformulation of the equations of motion followed by the Hamiltonian formalism. In Sec.~\ref{sec:moleculardynamics} we present the numerical integrators for both the NVE and NVT ensembles, whose performance we discuss in terms of the conservation of the total energy. Additionally, for the NVE case we present some results related to the partition of kinetic energy and for the NVT case, we also analyze the statistical distributions of the sampled energy. Following this, in Sec.~\ref{sec:pressure} we show the equation for the pressure developed in this work. Along this paper, we employ the word quaternion as a synonym for a vector in $R^4$ and avoid other interpretations. Only ordinary matrix/vector operations are present in the formulation. Some mathematical details are given in the Appendix.
+This paper is organized as follows: in Sec.~\ref{sec:mechanics} we present a mathematical reformulation of the equations of motion of rigid bodies using a Hamiltonian formalism. In Sec.~\ref{sec:moleculardynamics} we devise numerical integrators for both the NVE and NVT ensembles, whose correctness we discuss in terms of conserved quantities. Additionally, for the NVE case we present some results related to kinetic energy partition and, for the NVT case, we also analyze the statistical distributions of the sampled energy. After that, in Sec.~\ref{sec:pressure} we present the equation developed for the pressure.
+
+Note that, throughout this paper, we employ the word ``quaternion'' as a synonym for a four-dimensional vector and avoid other interpretations. Only ordinary matrix/vector operations are present in the formulation. Some mathematical details are given in the Appendix.
 
 \section{Mechanics of Rigid Body Motion}
 \label{sec:mechanics}
 
-In this section we first review certain aspects of the kinematics or rigid bodies we consider relevant to this study. In Sec~\ref{sec:eulerparameters}, we introduce one particular factorization of the rotation matrix from which we obtain a mathematical relation between the rate of change of the four-dimensional quaternion and the angular velocity vector, while automatically satisfying the restriction imposed on the quaternion.
+In this section, we first review certain aspects of the kinematics of rigid bodies which are relevant to the present study. Unity quaternions are employed to represent the orientations of rigid bodies. Then, we introduce the use of a particular factorization of the rotation matrix, from which a mathematical relation arises between the rate of change of a four-dimensional quaternion and a three-dimensional angular velocity vector. An important feature of this relation is that it preserves the unit-norm constraint of the quaternion upon infinitesimal motion.
 
 \subsection{Kinematics}
 
-Consider a rigid body composed of $n_p$ individual particles, each particle $j$ with mass $M_j$ and located at a Cartesian coordinate $\vt R_j$. The center of mass of this body is located at
+Consider a rigid body composed of $n_p$ individual particles, with each particle $j$ having mass $M_j$ and being located at a Cartesian coordinate $\vt R_j$. The center of mass of this body is located at
 \[
 \vt r = \frac{1}{m}\sum_{j=1}^{n_p} M_j {\vt R}_j,
 \]
-where $m = \sum_{j=1}^{n_p} M_j$ is the total mass of the body. The position of each particle $j$ in a space-fixed reference frame whose origin coincides with the body's center of mass is ${\vt \delta}_j = \tr{ [\begin{array}{ccc} {\delta_j}_x & {\delta_j}_y & {\delta_j}_z \end{array}]} = {\vt R}_j - {\vt r}$. In such frame, the symmetric inertia tensor for rotations of the body about the origin is\cite{Goldstein2002}
+where $m = \sum_{j=1}^{n_p} M_j$ is the total mass of the body. The position of each particle $j$ in a space-fixed frame of reference, whose origin coincides with the body's center of mass, is ${\vt \delta}_j = \tr{ [\begin{array}{ccc} {\delta_j}_x & {\delta_j}_y & {\delta_j}_z \end{array}]} = {\vt R}_j - {\vt r}$. In such frame, the symmetric inertia tensor for rotations of the body about the origin is\cite{Goldstein2002}
 \[
 {\mt I}^\ast = \sum_{j=1}^N M_j \left[ \begin{array}{ccc}
 {\delta_j}_y^2 + {\delta_j}_z^2 & -{\delta_j}_x {\delta_j}_y & -{\delta_j}_x {\delta_j}_z \\
 -{\delta_j}_y {\delta_j}_x & {\delta_j}_x^2 + {\delta_j}_z^2 & -{\delta_j}_y {\delta_j}_z \\
 -{\delta_j}_z {\delta_j}_x & -{\delta_j}_z {\delta_j}_y & {\delta_j}_x^2 + {\delta_j}_y^2 \\
-\end{array} \right],
+\end{array} \right].
 \]
 
-For every non-collinear rigid body, there exists a particular frame of reference in which its inertia tensor is diagonal. The corresponding axes are known as the principal inertia axes and the formulation of the equations of motion in this frame of reference is notably simplified. Conversions from the space-fixed frame to such a body-fixed frame are performed by a rotation matrix $\mt A$ that satisfies the similarity relation\citep{Goldstein2002}
+For every non-collinear rigid body, there exists a particular frame of reference in which its inertia tensor is diagonal. The corresponding axes are known as the principal axes and the formulation of the equations of motion in this frame of reference is notably simplified. Conversions from the space-fixed frame to such a body-fixed frame are performed by a rotation matrix $\mt A$ that satisfies the similarity relation\citep{Goldstein2002}
 \[
 {\mt I} = {\mt A} {\mt I}^\ast \tr{\mt A} = \left[ \begin{array}{ccc}
 I_1 &   0 &   0 \\
@@ -71,7 +73,7 @@ I_1 &   0 &   0 \\
   0 &   0 & I_3 \\
 \end{array} \right],
 \]
-where $I_1$, $I_2$, and $I_3$ (the principal moments of inertia) are the eigenvalues of ${\mt I}^\ast$ and the columns of $\tr{\mt A}$ (the principal axes of rotation) are the corresponding eigenvectors. Algorithms for calculating $\mt A$ from $\mt I^\ast$ can be found, for example, in Ref.~\onlinecite{Kopp2008}. Once this is done, the position of every particle $j$ in the body-fixed frame can be obtained by ${\vt d}_j = {\mt A} {\vt \delta}_j$. Since $\mt A$ represents an orthogonal transformation, a conversion in the opposite direction is done by ${\vt \delta}_j = \tr{\mt A} {\vt d}_j$.\cite{Goldstein2002} This is so because $\mt A \tr{\mt A} = \mt 1_3$, where $\mt 1_k$ represents a $k \times k$ identity matrix. If we differentiate both sides of this relation with respect to time, we conclude that $\mt A \tr{\dot {\mt A}} = - \dot{\mt A} \tr{\mt A}$, which means that $\mt A \tr{\dot{\mt A}}$ results in a skew-symmetric matrix. This product is related to $\vt \omega$, the angular velocity in the body-fixed frame, by\cite{Haug1989}
+where $I_1$, $I_2$, and $I_3$ (the principal moments of inertia) are the eigenvalues of ${\mt I}^\ast$ and the columns of $\tr{\mt A}$ (the principal axes of rotation) are their corresponding eigenvectors. Algorithms for calculating $\mt A$ from $\mt I^\ast$ can be found, for example, in Ref.~\onlinecite{Kopp2008}. Once this is done, the position of every particle $j$ in the body-fixed frame can be obtained by ${\vt d}_j = {\mt A} {\vt \delta}_j$. Since $\mt A$ represents an orthogonal transformation, a conversion in the opposite direction is done by ${\vt \delta}_j = \tr{\mt A} {\vt d}_j$.\cite{Goldstein2002} This is so because $\mt A \tr{\mt A} = \mt 1_3$, where $\mt 1_k$ represents an identity matrix in $\mathbb{R}^{k \times k}$ . By differentiating both sides of this relation with respect to time, we conclude that $\mt A \tr{\dot {\mt A}} = - \dot{\mt A} \tr{\mt A}$, which means that $\mt A \tr{\dot{\mt A}}$ results in a skew-symmetric matrix. This product is related to $\vt \omega$, the angular velocity of the body in the body-fixed frame, by\cite{Haug1989}
 \begin{equation}
 \label{eq:relation_A_omega}
 \mt S(\vt \omega) = \mt A \tr{\dot{\mt A}} = -\dot{\mt A} \tr{\mt A},
@@ -85,18 +87,20 @@ where $\mt S(\cdot)$ is the skew-symmetric operator defined as
 -x_2 &  x_1 &  0
 \end{array}\right].
 \end{equation}
-The operator  $\mt S(\cdot)$ can be used to represent the cross-product of two vectors $\vt x$ and $\vt y$ as a matrix-vector product, since $\vt x \times \vt y = \mt S(\vt x)\vt y$.
+
+The operator  $\mt S(\cdot)$ is able to represent the cross-product of two vectors $\vt x$ and $\vt y$ as a matrix-vector product, since $\vt x \times \vt y = \mt S(\vt x)\vt y$. This property is explored in the Appendix.
 
 %\subsection{Euler Parameters and Unit Quaternions}
-\subsection{The Rate of change of Euler Parameters}
+\subsection{The Rate of Change of Unit Quaternions}
 \label{sec:eulerparameters}
 
-Euler's rotation theorem establishes that an arbitrary rotation can be described using three independent parameters. One can use, for instance, the so-called Euler angles, but mathematical singularities arise when the equations of motion are described in terms of those angles. Instead, we consider an alternative representation, in which the orientation of a rigid body is given by the Euler parameters $q_0$, $q_1$, $q_2$, and $q_3$, which form a quaternion $\vt q = \tr {[\begin{array}{cccc} q_0 & q_1 & q_2 & q_3 \end{array}]}$. The mathematical relationship between the Euler angles and the quaternion places the restriction over $\boldsymbol{q}$:\cite{Goldstein2002}
+Euler's rotation theorem establishes that an arbitrary rotation can be described using three independent parameters. One can use, for instance, the so-called Euler angles, but mathematical singularities arise when the equations of motion are described in such terms. Instead, we consider an alternative representation, in which the orientation of a rigid body is given by the Euler parameters $q_0$, $q_1$, $q_2$, and $q_3$, which form a quaternion $\vt q = \tr {[\begin{array}{cccc} q_0 & q_1 & q_2 & q_3 \end{array}]}$. The mathematical relation between the Euler angles and the Euler parameters requires that\cite{Goldstein2002}
 \begin{equation}
 \label{eq:norm_eq_1}
 \tr{\vt q}{\vt q} = \|\vt q\|^2 = q_0^2 + q_1^2 + q_2^2 + q_3^2 = 1.
 \end{equation}
-Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $R^4$. Appendix~\ref{sec:quat_from_A} describes how one can compute the unit quaternion related to a given rotation matrix. Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
+
+Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Appendix~\ref{sec:quat_from_A} describes how one can compute the unit quaternion related to a given rotation matrix. Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
 \begin{widetext}
 \begin{equation}
 \label{eq:A_from_q}
@@ -108,12 +112,12 @@ q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1 q_2 + q_0 q_3) & 2(q_1 q_3 - q_0 q_2) \\
 \end{equation}
 \end{widetext}
 
-The rate of change of the Euler parameters is denoted by $\dot{\vt q}$. Differentiating Eq.~\ref{eq:norm_eq_1} with respect to time yields
+The rate of change of a quaternion is denoted by $\dot{\vt q}$. Differentiating Eq.~\ref{eq:norm_eq_1} with respect to time yields
 \begin{equation}
 \label{eq:diff_qTq}
-\tr{\vt q}\dot{\vt q} = 0.
+\tr{\vt q}\dot{\vt q} = 0,
 \end{equation}
-This equation implies that, for Eq.~\ref{eq:norm_eq_1} to be preserved, $\dot{\vt q}$ must lie in the hyperplane orthogonal to $\vt q$.
+which implies that, for Eq.~\ref{eq:norm_eq_1} to be preserved upon an infinitesimal motion, $\dot{\vt q}$ must lie in the hyperplane orthogonal to $\vt q$.
 
 Let us now introduce two new matrices that also depend on the Euler parameters, which are
 \begin{subequations}
@@ -137,12 +141,14 @@ Let us now introduce two new matrices that also depend on the Euler parameters, 
 \right].
 \end{align}
 \end{subequations}
-Some important properties of these matrices (or transposes thereof) have been reported in the literature\cite{Haug1989, Shuster1993, Dichmann1999, Ravishankar2004, Nielsen2012} and are revisited in Appendix \ref{sec:auxiliary_math} with our notation. The most remarkable feature is that
+
+Some important properties of these matrices (or transposes thereof) have been reported in the literature\cite{Haug1989, Shuster1993, Dichmann1999, Ravishankar2004, Nielsen2012} and are revisited with our particular notation in Appendix~\ref{sec:auxiliary_math}. The most remarkable feature is that
 \begin{equation}
 \label{eq:factorization_of_A}
 {\mt A} = \tr{\mt B}{\mt C}.
 \end{equation}
-This is a simple and convenient factorization, since the entries of both $\mt B$ and $\mt C$ depend linearly on the Euler parameters. As demonstrated in Appendix~\ref{sec:auxiliary_math}, this factorization provides a relation between the angular velocity vector $\vt \omega$ and the rates of change of the Euler parameters. Such relation is
+
+The equation above is a simple and convenient factorization of matrix $\mt A$, since the entries of both $\mt B$ and $\mt C$ depend linearly on the Euler parameters. As demonstrated in Appendix~\ref{sec:auxiliary_math}, this factorization provides a relation between the angular velocity vector $\vt \omega$ and the rates of change of the Euler parameters. Such relation is
 \begin{equation}
 \label{eq:relation_qdot_omega}
 \dot{\vt q} = \frac{1}{2} \mt B \vt \omega.
@@ -152,9 +158,10 @@ As explained in the appendix, premultiplication with either $\mt B$ or $\mt C$ t
 
 \subsection{Hamiltonian Dynamics}
 \label{sec:hamiltonian}
-In the previous subsection we obtained the relation between $\dot{\boldsymbol{q}}$ and $\boldsymbol{\omega}$ (Eq.~\ref{eq:relation_qdot_omega}), which is used in this part to develop the Hamiltonian formalism of the equations of motion. As usual, the dynamics of a rigid body can be described by detaching translation and rotation, represented by ${\vt r}(t)$ and ${\vt q}(t)$, respectively. The position of each particle $j$ will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$. Several authors have obtained Hamiltonian equations of motion for the rotation of rigid bodies using Euler parameters as generalized coordinates.\cite{Maciejewski1985, Dichmann1996, Miller2002, Ravishankar2004, Nielsen2012} Here we try to combine convenient features of their formulations.
 
-We start by defining the Lagrangian $\mathcal{L} = K - U$ as a function of $\vt r$, $\dot{\vt r}$, $\vt q$, and $\dot{\vt q}$, where $K$ and $U$ are the kinetic and potential energies of the body, respectively. Since $K = 1/2 m \tr{\dot{\vt r}} \dot{\vt r} + 1/2 \tr{\vt \omega} \mt I \vt \omega$,\cite{Goldstein2002} we can resort to Eq.~\ref{eq:relation_qdot_omega} to write
+The relation between $\dot{\boldsymbol{q}}$ and $\boldsymbol{\omega}$ (Eq.~\ref{eq:relation_qdot_omega}) obtained in the previous subsection is used here to develop a Hamiltonian formalism for the motion of rigid body. As usual, it can be described by detaching translation and rotation, represented by ${\vt r}(t)$ and ${\vt q}(t)$, respectively. The position of each particle $j$ will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$. Several authors have obtained Hamiltonian equations for the rotation of rigid bodies using Euler parameters as generalized coordinates.\cite{Maciejewski1985, Dichmann1996, Miller2002, Ravishankar2004, Nielsen2012} Here we try to combine convenient features of their formulations.
+
+We start by defining the Lagrangian $\mathcal{L} = K - U$ as a function of $\vt r$, $\dot{\vt r}$, $\vt q$, and $\dot{\vt q}$, where $K$ and $U$ are the kinetic and potential energies of the body, respectively. Since $K = \frac{1}{2} m \tr{\dot{\vt r}} \dot{\vt r} + \frac{1}{2} \tr{\vt \omega} \mt I \vt \omega$,\cite{Goldstein2002} we can resort to Eq.~\ref{eq:relation_qdot_omega} to write
 \[
 \mathcal{L} = \frac{1}{2} m \tr{\dot{\vt r}} \dot{\vt r} + 2 \tr{\dot{\vt q}} \mt B \mt I \tr{\mt B} \dot{\vt q} - U(\vt r, \vt q).
 \]
@@ -164,7 +171,8 @@ To employ the Hamiltonian approach, besides the linear momentum $\vt p = \partia
 \label{eq:conj_momentum}
 \vt \pi = 4 \mt B \mt I \tr{\mt B} \dot{\vt q} = 2 \mt B \mt I \vt \omega.
 \end{equation}
-Hence, the conjugated momentum $\vt \pi$ is also orthogonal to $\vt q$. Using the relation above, we can write down the Hamiltonian $\mathcal{H} = K + U$ as a function of $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$, which is
+
+Hence, the conjugated momentum $\vt \pi$ is also orthogonal to $\vt q$ (premultiplication of $\mt I \vt \omega$ by $\mt B$). Using the relation above, we can write down the Hamiltonian $\mathcal{H} = K + U$ as a function of $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$, which is
 \begin{equation}
 \label{eq:H_with_B}
 \mathcal{H} = \frac{1}{2m} \tr{\vt p} \vt p + \frac{1}{8} \tr{\vt \pi} {\mt B} {\mt I}^{-1} \tr{\mt B} \vt \pi + U(\vt r, \vt q).
@@ -181,36 +189,38 @@ The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \par
 \end{array}
 \right],
 \]
-it follows that $\tr{\mt B}{\vt \pi} = -\tr{\mt \Omega}{\vt q}$ and, therefore,
+it follows that $\tr{\mt B}{\vt \pi} = \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
 \begin{equation}
 \label{eq:H_with_Omega}
 \mathcal{H} = \frac{1}{2m} \tr{\vt p} \vt p + \frac{1}{8} \tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q + U(\vt r, \vt q).
 \end{equation}
-Now this is convenient for differentiation with respect to $\vt q$.  Hence, after carrying out the differentiations as described in Appendix \ref{sec:Diff_Rules} and substituting $\vt \omega = (1/2) {\mt I}^{-1} \tr{\mt B} \vt \pi = (1/2) {\mt I}^{-1} \tr{\mt \Omega} \vt q$, we obtain the following system of differential equations to describe the dynamics of a rigid body:
-\begin{subequations}
-\label{eq:EDO_system}
-\begin{align}
-&\dot{\vt r} = \frac{1}{m} \vt p \\
-&\dot{\vt p} = -\diff{U}{\vt r} \\
-&\dot{\vt q} = \frac{1}{2} \mt B \vt \omega \\
-&\dot{\vt \pi} = \frac{1}{2} \mt \Omega \vt \omega - \diff{U}{\vt q}
-\end{align}
-\end{subequations}
 
 For a rigid body composed of $n_p$ individual particles, the derivative $\partial U/\partial \vt r$ is obtained by
 \[
 \diff{U}{\vt r} = -\vt F = -\sum_{j=1}^{n_p} {\vt F_j},
 \]
-where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference (see Appendix \ref{sec:Diff_PotEng}), and thus $\vt F$ is the resultant force on the body. To obtain the derivative $\partial U/\partial \vt q$, one must take into account that the entries of $\vt q$ are not independent, due to the constraint imposed by Eq.~\ref{eq:norm_eq_1}. As demonstrated in Appendix \ref{sec:Diff_PotEng}, we have
+where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference (see Appendix \ref{sec:Diff_PotEng}), and thus $\vt F$ is the resultant force on the body. To obtain the derivative $\partial U/\partial \vt q$, one must take into account that the entries of $\vt q$ are not independent, due to the constraint imposed by Eq.~\ref{eq:norm_eq_1}. The correct way of performing differentiation with respect to a constrained vector is described in Ref.~\onlinecite{Schay1995}. As demonstrated in Appendix \ref{sec:Diff_PotEng}, we have
 \[
 \diff{U}{\vt q} = -2 \mt C \vt \tau = -2 \mt C \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
 \]
-where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed frame.
+where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed reference frame.
 
-Anticipating a feature that will be convenient in the forthcoming sections, we now consider the entries of $\vt \omega$ individually. Given that $2{\mt I}{\vt \omega} = \tr{\mt B}{\vt \pi}$ and according to Eq.~\ref{eq:vector_entries}, each entry of $\vt \omega$ is obtained by
+Finally, after carrying out the needed differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\vt \omega = (1/2) {\mt I}^{-1} \tr{\mt B} \vt \pi = (1/2) {\mt I}^{-1} \tr{\mt \Omega} \vt q$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
+\begin{subequations}
+\label{eq:EDO_system}
+\begin{align}
+&\dot{\vt r} = \frac{1}{m} \vt p \\
+&\dot{\vt p} = \mt F \\
+&\dot{\vt q} = \frac{1}{2} \mt B \vt \omega \\
+&\dot{\vt \pi} = \frac{1}{2} \mt \Omega \vt \omega + 2 \mt C \vt \tau
+\end{align}
+\end{subequations}
+
+
+Anticipating a feature that will be convenient in the forthcoming sections, we now consider the entries of $\vt \omega$ individually. Given that $2{\mt I}{\vt \omega} = \tr{\mt B}{\vt \pi}$, according to Eq.~\ref{eq:vector_entries}, each entry of $\vt \omega$ is obtained by
 \begin{equation}
 \label{eq:omega_entry}
-\omega_k = \frac{\tr{\vt \pi} {\mt B}_k \vt q}{2 I_k},
+\omega_k = \frac{\tr{\vt \pi} \hat{\mt B}_k \vt q}{2 I_k},
 \end{equation}
 where $\mt B_k$ is the corresponding permutation matrix among those presented in Appendix \ref{sec:auxiliary_math}. In this context, the Hamiltonian of the rigid body becomes
 \[
