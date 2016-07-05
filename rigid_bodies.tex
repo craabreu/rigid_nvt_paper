@@ -233,7 +233,7 @@ In order to rewrite Eq.~\ref{eq:EDO_system}, we open the products $\mt B \vt \om
 \end{subequations}
 
 \subsection{Symplectic Numerical Integration}  
-\label{symplectic}
+\label{sec:symplectic}
 
 An exact solution of Eq.~\ref{eq:EDO_system_alternative} would be symplectic in the phase space determined by $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$. Hence, the described dynamics would be time-reversible and preserve both the Hamiltonian and the phase-space volume element. However, no closed-form solution is known, even in the simplest case of free motion (i.e., when $U$ is constant), due to the dependence of $\omega_k$ with $\vt q$ and $\vt \pi$ (Eq.~\ref{eq:omega_entry}) and the consequent coupling of Eqs.~\ref{eq:edo_q} and \ref{eq:edo_pi}. Nevertheless, it is possible to derive a symplectic approximate solution by applying the Liouville operator formalism.\cite{Tuckerman2010}
 
@@ -294,35 +294,41 @@ e^{t(i\!L_A + i\!L_B)} \approx \left( e^{\frac{\Delta t}{2} i\!L_B} e^{\Delta t 
 \]
 where $\Delta t = t/N$ is the time step size and $N$ is the number of steps. We recall that each exponential operator above will act having as initial condition the result of the operator at its right-hand side. Splitting schemes with higher-order approximations have been used for rigid body dynamics,\cite{Omelyan2007, Omelyan2008, vanZon2008} but they result in methods which are more complex and often require expensive force-gradient calculations. Moreover, it is unclear whether their benefits would extend to non-Hamiltonian numerical integrators, as required for molecular dynamics in ensembles other than NVE.
 
-By defining $i\!L_r = i\!L_1 + i\!L_2 + i\!L_3$ as the Liouville operator for a complete free rotation and realizing that the operators $i\!L_r$ and $i\!L_t$ commute, the factorization we employ here for the Liouville operator in Eq.~\ref{eq:full_operator} is
+By defining $i\!L_r = \sum_{k=1}^3 i\!L_k$ as the Liouville operator for a complete free rotation and realizing that the operators $i\!L_r$ and $i\!L_t$ commute, the factorization we employ here for the Liouville operator in Eq.~\ref{eq:full_operator} is
 \begin{equation}
 \label{eq:trotter_splitting_NVE}
-e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_t} \left[ \prod_{j=1}^n e^{{\delta t}_j i\!L_{r}} \right] e^{\frac{\Delta t}{2} i\!L_b},
+e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t} e^{\frac{\Delta t}{2} i\!L_b}.
 \end{equation}
-where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Each complete rotation is split as\cite{Miller2002}
+
+Update of forces and torques is required only after the free translation and free rotation have been carried out. Each complete rotation is split as\cite{Miller2002}
 \begin{equation}
 \label{eq:splitting_rot}
-e^{\delta t_j i\!L_r} = e^{\frac{\delta t_j}{2} i\!L_3} e^{\frac{\delta t_j}{2} i\!L_2} e^{\delta t_j i\!L_1} e^{\frac{\delta t_j}{2} i\!L_2} e^{\frac{\delta t_j}{2} i\!L_3}.
+e^{\Delta t i\!L_r} = \prod_{j=1}^n \left( e^{\frac{\delta t_j}{2} i\!L_3} e^{\frac{\delta t_j}{2} i\!L_2} e^{\delta t_j i\!L_1} e^{\frac{\delta t_j}{2} i\!L_2} e^{\frac{\delta t_j}{2} i\!L_3} \right),
 \end{equation}
-
-Following Ref.~\onlinecite{Miller2002}, one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
+where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Following Ref.~\onlinecite{Miller2002}, one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
 
 \section{Molecular Dynamics}
-\label{sec:moleculardynamics}
+\label{sec:molecular_dynamics}
 
-In this section, we present the factorization schemes we considered for generating molecular dynamics algorithms in both the NVE and NVT ensembles.
+In this section, we present factorization schemes for generating molecular dynamics algorithms in the microcanonical (NVE) and canonical (NVT) ensembles. In both cases, a three-dimensional system is considered as consisting of $N$ interacting, non-collinear rigid bodies occupying a fixed volume $V$. An index $i$ ranging from $1$ to $N$ indicates the quantities related to each body, including its generalized coordinates ($\vt r_i$ and $\vt q_i$) and conjugate momenta ($\vt p_i$ and $\vt \pi_i$). Thus, the phase space of the whole system now contains $3N$ spatial coordinates and $4N$ quaternion components, along with their conjugate momenta. Of course, at least $2N$ integrals of motion are known to exist, as $\tr{\vt q}_i{\vt q}_i = 1$ and $\tr{\vt q}_i{\vt \pi}_i = 0$ for all $i$.
 
 \subsection{Microcanonical Ensemble}
 
+Considering the system described above, with $\vt r^N$ and $\vt q^N$ representing the combined sets of all coordinates and quaternion components, we define the Hamiltonian
+\[
+\mathcal{H} = U(\vt r^N,\vt q^N) + \sum_{i=1}^N \left(\frac{\tr{\vt p}_i{\vt p}_i}{2m_i} + \frac{\tr{\vt \pi}_i {\mt B}_i {\mt I}_i^{-1} \tr{\mt B}_i {\vt \pi}_i}{8}\right).
+\]
+
+As usual, sampling of a microcanonical ensemble can be carried out by a Hamiltonian dynamics in phase space, which will have $\mathcal{H} = E$ as an integral of motion. The dynamics of this system is governed by a Liouville operator expressed as in Eq.~\ref{eq:full_operator}, but now with individual operators defined as
 \[
 \begin{split}
-i\!L_b &= \sum_{i=1}^N \left( \tr{\vt F}_i \diff{}{\vt p_i} + 2 \tr{\vt \tau}_i \tr{\mt C}_i \diff{}{\vt \pi_i} \right) \\
-i\!L_t &= \sum_{i=1}^N \frac{\tr{\vt p}_i}{m_i}\diff{}{\vt r_i} \\
-i\!L_k &= \frac{1}{2} \sum_{i=1}^N {\omega_i}_k \left( \tr{\vt q}_i\tr{\hat{\mt B}_k} \diff{}{\vt q_i} + \tr{\vt \pi_i}\tr{\hat{\mt B}_k} \diff{}{\vt \pi_i} \right)
+i\!L_b &= \sum_{i=1}^N \left( \tr{\vt F}_i \diff{}{\vt p_i} + 2 \tr{\vt \tau}_i \tr{\mt C}_i \diff{}{\vt \pi_i} \right), \\
+i\!L_t &= \sum_{i=1}^N \frac{\tr{\vt p}_i}{m_i}\diff{}{\vt r_i}, \quad \text{and} \\
+i\!L_k &= \frac{1}{2} \sum_{i=1}^N {\omega_i}_k \left( \tr{\vt q}_i\tr{\hat{\mt B}_k} \diff{}{\vt q_i} + \tr{\vt \pi_i}\tr{\hat{\mt B}_k} \diff{}{\vt \pi_i} \right).
 \end{split}
 \]
 
-The same actions, but simultaneously for all rigid bodies present in the system.
+Therefore, a symplectic integrator can be devised using the same splitting scheme as described in Sec.~\ref{sec:symplectic}. The only difference is that the action of each propagator (boost, free translation, and free uniaxial rotation) must now occur simultaneously for all rigid bodies in the system. If there are no external forces acting on the bodies, then additional conserved quantities are the total linear momentum $\vt P = \sum_{i=1}^N \vt p_i$ and the generator of infinitesimal Galilean boosts\cite{Ray1999, Schwichtenberg2015} $\vt G = \sum_{i=1}^N(\vt p_i t - m_i \vt r_i)$. If periodic boundary conditions are employed, as it is usual in molecular dynamics simulations, then there is no rotational symmetry and, consequently, no conservation of the total angular momentum.
 
 \subsection{Canonical Ensemble}
 \label{sec:canonical}
