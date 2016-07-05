@@ -1,6 +1,7 @@
 %\documentclass[prb,preprint,preprintnumbers,amsmath,amssymb]{revtex4-1}
 %\documentclass[prb,twocolumn,preprintnumbers,amsmath,amssymb]{revtex4-1}
 \documentclass[aip,jcp,reprint,amsmath,amssymb,amsfont]{revtex4-1}
+
 \usepackage[pdftex]{graphicx}
 \usepackage{epstopdf}
 \usepackage{caption}
@@ -8,15 +9,15 @@
 \usepackage[]{units}
 \usepackage[]{natbib}
 \usepackage[]{threeparttable}
+\usepackage{booktabs}
+\usepackage{multirow}
+
 \newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}           % matrix symbol
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}           % vector symbol
 \newcommand{\tr}[1]{#1^t}                               % transposition
 \newcommand{\diff}[2]{\dfrac{\partial #1}{\partial #2}} % partial derivative
 
 \raggedbottom
-
-\usepackage{booktabs}
-\usepackage{multirow}
 
 \begin{document}
 
@@ -313,6 +314,16 @@ In this section, we present the factorization schemes we considered for generati
 
 \subsection{Microcanonical Ensemble}
 
+\[
+\begin{split}
+i\!L_b &= \sum_{i=1}^N \left( \tr{\vt F}_i \diff{}{\vt p_i} + 2 \tr{\vt \tau}_i \tr{\mt C}_i \diff{}{\vt \pi_i} \right) \\
+i\!L_t &= \sum_{i=1}^N \frac{\tr{\vt p}_i}{m_i}\diff{}{\vt r_i} \\
+i\!L_k &= \frac{1}{2} \sum_{i=1}^N {\omega_i}_k \left( \tr{\vt q}_i\tr{\hat{\mt B}_k} \diff{}{\vt q_i} + \tr{\vt \pi_i}\tr{\hat{\mt B}_k} \diff{}{\vt \pi_i} \right)
+\end{split}
+\]
+
+The same actions, but simultaneously for all rigid bodies present in the system.
+
 \subsection{Canonical Ensemble}
 \label{sec:canonical}
 
@@ -398,7 +409,7 @@ with $\mathcal{H}$ defined in Eq.~\ref{eq:H_with_Omega}.
 
 \subsection{Integration Schemes for NVT Molecular Dynamics}
 
-As done in the Hamiltonian case, the evolution of an extended phase space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t i\!L}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999} This implies that we can employ the Trotter-Suzuki splitting to devise a strategy for integrating the equations of motion. First, we consider the usual separation of the non-Hamiltonian components of the equations of motion from the Hamiltonian components. In this case, the Liouville operator can be written as
+As done in the Hamiltonian case, the evolution of a phase-space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t i\!L}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999} This implies that we can employ the Trotter-Suzuki splitting to devise a strategy for integrating the equations of motion. First, we consider the usual separation of the non-Hamiltonian components of the equations of motion from the Hamiltonian components. In this case, the Liouville operator can be written as
 \[
 i\!L = i\!L_\text{NHC} + i\!L_\text{NVE},
 \]
@@ -414,36 +425,35 @@ As pointed out by Martyna~\textit{et al}.,\cite{Martyna1996} the part of the ope
 \begin{equation}
 \label{eq:p_eta}
 \begin{split}
-&p_{\eta_j} = p_{\eta_j}^0 + \left( G_j - \alpha_{j+1} p_{\eta_j}^0 \right) \phi(\alpha_{j+1} t) t, \\
+&p_{\eta_j} = p_{\eta_j}^0 + \left( G_j - \alpha_{j+1}^0 p_{\eta_j}^0 \right) \phi(\alpha_{j+1}^0 t) t, \\
 \end{split}
 \end{equation}
 where $\phi(x) = (1-e^{-x})/x$. For small absolute values of $x$, this function can be evaluated by truncating its Taylor series form $\phi(x) = \sum_{n=0}^\infty \frac{(-1)^n x^n}{(n+1)!}$. Four terms result in a sufficiently precise value if $\|x\| \leq 10^{-4}$. Considering the analytical solution above, the NHC operator is factorized as
-\begin{widetext}
 \begin{equation}
 \begin{split}
-e^{i\!L_\text{NHC} \frac{\Delta t}{2}} =  &\prod_{j=M}^{1} \exp\left[\frac{\Delta t}{4} \left( G_j - \frac{p_{\eta_{j+1}}}{Q_{j+1}} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right] \\
-&  \times \prod_{j=1}^{M} \exp\left(\frac{\Delta t}{2} \frac{p_{\eta_j}}{Q_j}\diff{}{\eta_j}\right)  \prod_{i=1}^{N} \exp\left(-\frac{\Delta t}{2} \frac{p_{\eta_1}}{Q_1}\tr{\vt p}_i \diff{}{\vt p_i}\right) \prod_{i=1}^{N} \exp\left(-\frac{\Delta t}{2} \frac{p_{\eta_1}}{Q_1}\tr{\vt \pi}_i \diff{}{\vt \pi_i}\right)  \\
-& \times \prod_{j=1}^{M} \exp\left[\frac{\Delta t}{4} \left( G_j - \frac{p_{\eta_{j+1}}}{Q_{j+1}} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right].\\
+e^{\frac{\Delta t}{2} i\!L_\text{NHC}} &= \prod_{j=M}^1 \exp\left[\frac{\Delta t}{4} \left(G_j - \alpha_{j+1} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right] \\
+&\times \prod_{j=1}^M \exp\left(\frac{\Delta t}{2} \alpha_j \diff{}{\eta_j}\right) \\
+&\times \prod_{i=1}^N \exp\left[-\frac{\Delta t}{2} \alpha_1 \left(\tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right)\right] \\
+&\times \prod_{j=1}^M \exp\left[\frac{\Delta t}{4} \left( G_j - \alpha_{j+1} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right].\\
 \end{split}
 \end{equation}
-\end{widetext}
+
 The remaining factors that appear in the second line of the equation above are evaluated according to\cite{Martyna1996}
 \begin{equation}
-\vt \pi_i \leftarrow \vt \pi_i \, exp\left(-\frac{\Delta t}{2}\frac{p_{\eta_1}}{Q_1}\right)
+\vt \pi_i = \vt \pi_i^0 \exp\left(-\alpha_1^0 \frac{\Delta t}{2} \right)
 \end{equation}
 \begin{equation}
-\vt p_i \leftarrow \vt p_i \, exp\left(-\frac{\Delta t}{2}\frac{p_{\eta_1}}{Q_1}\right)
+\vt p_i = \vt p_i^0 \exp\left(-\alpha_1^0 \frac{\Delta t}{2} \right)
 \end{equation}
 \begin{equation}
-\eta_j  \leftarrow \eta_j + \frac{p_{\eta_j}}{ Q_j} \frac{\Delta t}{2} 
+\eta_j = \eta_j^0 + \alpha_j^0 \frac{\Delta t}{2} 
 \end{equation}
 
 Retaining the NVE factorization scheme defined in Eq.~\ref{eq:trotter_splitting_NVE}, we write the full operator as
 
 \begin{equation}
 \label{eq:trotter_splitting_NHC}
-e^{i L \Delta t} =
-e^{i L_{NHC} \frac{\Delta t}{2}} e^{i L_a \frac{\Delta t}{2}} e^{i L_r \Delta t} e^{i L_t \Delta t}  e^{i L_a \frac{\Delta t}{2}} e^{i L_{NHC} \frac{\Delta t}{2}}.
+e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}} e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t}  e^{\frac{\Delta t}{2} i\!L_b} e^{\frac{\Delta t}{2} i\!L_\text{NHC}}.
 \end{equation}
  
 It is worth noting that analytical solutions exist also for the equations
@@ -479,23 +489,23 @@ respectively, with $\phi(x)$ given by Eq.~\ref{eq:phi}. Therefore, one of the ai
 %\end{equation}
 \begin{equation}
 \begin{split}
-e^{iL^\ast_a \frac{\Delta t}{2}} = &\prod_{i=1}^{N} exp\left[-\frac{\Delta t}{2} \left( \vt F_i^T - \frac{p_{\eta_1}}{Q_1}\vt p_i^T \right) \diff{}{\vt p_i} \right] \\
-&\times \prod_{i=1}^{N} exp\left[-\frac{\Delta t}{2} \left(2 \vt \tau_i^T \mt C_i^T -  \frac{p_{\eta_1}}{Q_1}\vt \pi_i^T \right)  \diff{}{\vt \pi_i}   \right]
+e^{\frac{\Delta t}{2} i\!L_b^\ast} &= \prod_{i=1}^N \exp\left[-\frac{\Delta t}{2} \left( \tr{\vt F}_i - \alpha_1 \tr{\vt p}_i \right) \diff{}{\vt p_i} \right] \\
+&\times \prod_{i=1}^N \exp\left[-\frac{\Delta t}{2} \left(2 \tr{\vt \tau}_i \tr{\mt C}_i -  \alpha_1 \tr{\vt \pi}_i \right)  \diff{}{\vt \pi_i}   \right]
 \end{split}
 \end{equation}
 
 \begin{equation}
 \begin{split}
-e^{iL^\ast_{NHC} \frac{\Delta t}{2}} = &\prod_{j=M}^{1} exp\left[\frac{\Delta t}{4} \left( G_j - \frac{p_{\eta_{j+1}}}{Q_{j+1}} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right] \\
-&\times\prod_{j=1}^{M} exp\left(-\frac{\Delta t}{2}  \frac{p_{\eta_j}}{Q_j}\diff{}{\eta_j}\right)   \\
-&\times \prod_{j=1}^{M} exp\left[\frac{\Delta t}{4} \left( G_j - \frac{p_{\eta_{j+1}}}{Q_{j+1}} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right]
+e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast } &= \prod_{j=M}^1 \exp\left[\frac{\Delta t}{4} \left( G_j - \alpha_{j+1} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right] \\
+&\times \prod_{j=1}^M \exp\left(-\frac{\Delta t}{2} \alpha_j \diff{}{\eta_j}\right) \\
+&\times \prod_{j=1}^M \exp\left[\frac{\Delta t}{4} \left( G_j - \alpha_{j+1} p_{\eta_j} \right) \diff{}{p_{\eta_j}}\right]
 \end{split}
 \end{equation}
 Finally, the complete propagator scheme is
 \begin{equation}
 \label{eq:trotter_splitting_*}
 \begin{split}
-e^{i L \Delta t} = &e^{i L^\ast_{NHC} \frac{\Delta t}{2}} e^{i L^\ast_a \frac{\Delta t}{2}} e^{i L_r \Delta t} e^{i L_t \Delta t} e^{i L^\ast_a \frac{\Delta t}{2}} e^{i L^\ast_{NHC} \frac{\Delta t}{2}}.
+e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta t}{2} i\!L_b^\ast} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t}  e^{\frac{\Delta t}{2} i\!L_b^\ast} e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast}.
 \end{split}
 \end{equation}
 
@@ -553,6 +563,13 @@ where $\vt r = {{\vt R}_i}_k - {{\vt R}_j}_l$. Notice that, inside the double su
 P = \frac{(N-1) k_B T}{V} + \frac{1}{3V} \left\langle \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty}{\vt F}_{ij} \cdot {\vt r}_{ij}  \right\rangle.
 \end{equation}
 This expression resembles the equation normally used to compute pressure in atomic systems, except that the internal virial is defined in terms of resultant interaction forces between rigid body pairs. Thus, an atom located outside the central box will contribute to this virial if it belongs to a body whose center lies in the box, and vice-versa.
+
+\subsection{To do}
+
+Write about minimum image convention considering rigid bodies instead of atoms and about how to compute the internal virial directly using the equation below:
+\[
+W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^{\infty} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ij}.
+\]
 
 \section{Numerical Results}
 
@@ -833,13 +850,6 @@ In Figure~\ref{fig:pressure} we compare the results using Eq.~\ref{eq:pressure} 
 \includegraphics[width=0.5\textwidth,keepaspectratio]{FiguraAna}
 \captionof{figure}{Histogram of pressure values obtained using Eq.~\ref{eq:pressure} (filled bars), along with the results from a simulation using LAMMPS (unfilled bars). The average pressures are $\bar{P} = -0.60 $ bar and $\bar{P} = 2.14 $ bar, respectively. Simulation of liquid water with NVE integration, $\Delta t = 1$ fs, $n_{ys} = 1$}
 \end{center}
-
-\subsection{To do}
-
-Write about minimum image convention considering rigid bodies instead of atoms and about how to compute the internal virial directly using the equation below:
-\[
-W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^{\infty} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ij}.
-\]
 
 \appendix
 
