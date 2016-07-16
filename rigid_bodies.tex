@@ -466,56 +466,87 @@ In this sense, Ezra \cite{Ezra2006} has introduced a systematic method for deriv
 \subsection{Pressure of a System of Rigid Bodies}
 \label{sec:pressure}
 
-The usual way of computing pressure in molecular dynamics is based on..... 
+The pressure of a system with constant $NVT$, for which $\sum_{i=1}^N{\vt F}_i = 0$, is calculated by\cite{Louwerse2006, Tuckerman2001}
+\[
+P = \frac{(N-1) k_B T}{V} - \left\langle \frac{dU}{dV} \right\rangle.
+\]
 
-We now derive an expression for calculating the pressure of a rigid body system under periodic boundary conditions. For the sake of simplicity, we consider that the interaction potential is pairwise additive with respect to the atoms that form the rigid bodies. This enables us to follow the approach of Louwerse and Baerends.\cite{Louwerse2006} If multibody interactions are present, the approach of Thompson \textit{et al}.\cite{Thompson2009} is recommended. For a pairwise additive model, the potential energy of the $N$ rigid bodies whose centers of mass lie in a simulation box with periodic boundary conditions is
+For simplicity, we consider a system of rigid bodies under periodic boundary conditions whose potential energy function is pairwise additive with respect to individual atoms, so that the approach of Louwerse and Baerends\cite{Louwerse2006} can be applied (otherwise, one can employ the approach of Thompson \textit{et al.}\cite{Thompson2009}) Assuming the minimum image convention, the potential energy per unit box is given by
 \begin{equation}
 \label{eq:U_pairwise_pbc}
-U({\vt r}, {\vt q}) = \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty} u({\vt r}_{ij},{\vt q}_i,{\vt q}_j),
+U({\vt r}, {\vt q}) = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \upsilon(r_{ijkl}),
 \end{equation}
-where ${\vt r}_{ij} = {\vt r}_i - {\vt r}_j$ and
+where $\upsilon(r)$ is a pair interaction potential and $r_{ijkl}$ is the distance between the $l$-th atom of body $j$ and the nearest image of the $k$-th atom of body $i$. Such distance is the norm of a vector ${\vt r}_{ijkl} = \hat{\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_k}_i - {\mt A}({\vt q}_j){{\vt d}_l}_k$, where $\hat{\vt r}_{ij}$ points from the center of mass of body $j$ to that of the body which contains the mentioned atom image. We note that $U$ does not depend explicitly on $V$, which makes ${\partial U}/{\partial V} = 0$. In addition, we consider that an isotropic change in volume would only displace the centers of mass of the bodies, without any rotation. This makes\cite{Louwerse2006, Tuckerman2010}
+\[
+\frac{\partial \hat{\vt r}_{ij}}{\partial V} = \frac{\tr{\hat{\vt r}}_{ij}}{3V} \quad \text{and} \quad \frac{\partial {\vt q}_i}{\partial V} = \frac{\partial {\vt q}_j}{\partial V} = 0.
+\]
+
+Therefore, applying the chain rule to Eq.~\ref{eq:U_pairwise_pbc} yields
+\[
+\frac{dU}{dV} = \frac{1}{3V} \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \tr{\hat{\vt r}}_{ij} \upsilon^\prime(r_{ijkl})\diff{r_{ijkl}}{\vt r_{ijkl}},
+\]
+where $\upsilon^\prime(r) = \partial \upsilon/\partial r$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+: the one whose $k$-th particle is nearest to the $l$-th particle of body $j$.
+
+
+
+$\vt r_{ijkl} = \hat{\vt r}_{ij} + {\vt \delta_k}_i - {\vt \delta_l}_j$
+
+${\vt \delta_k}_i$ and ${\vt \delta_l}_j$ respectively depend on $\vt q_i$ and $\vt q_j$ as defined in Sec.~\ref{sec:kinematics}, while $\hat{\vt r}_{ij}$ is the vector pointing from the center of mass of body $j$ to that of an image of body $i$: the one whose $k$-th particle is nearest to the $l$-th particle of body $j$.
+
+defi
+
+atom $jl$ (the $l$-th particle of body $j$) to the nearest image of atom $ik$ (the $k$-th particle of body $i$). If $\hat{\vt r}_{ij}$ is the vector pointing from the center of mass of body $j$ to the center of mass of the body $i$ that co
+
+\begin{equation}
+\diff{U}{V} = \frac{1}{3V} \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \upsilon(\|\vt r_{ijkl}\|),
+\end{equation}
+
+
+where ${\vt r}_{ijkl} = {\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l$
+
+where ${\vt r}_{ij} = {\vt r}_i - {\vt r}_j$ is the vector pointing from the center of mass of body $j$ to that of body $i$. Given that $U$ does not depend explicitly on $V$ and that the bodies would neither deform nor rotate by an isotropic change in volume, we have that $\partial {\vt q}_i / \partial L = \partial {\vt q}_j / \partial L = 0$ and $\partial {\vt r}_{ij}/\partial V = \tr{\vt r}_{ij}/(3V)$.\cite{Louwerse2006} Therefore,
+\[
+\diff{U}{V} = \frac{1}{6V} \sum_{i=1}^N \sum_{\substack{j=1 \\ j\neq i}}^{\infty} \tr{\vt r}_{ij} \diff{u}{{\vt r}_{ij}}.
+\]
+
+Now let us define ${\vt r}_{ijkl}$ as the vector pointing from the $k$-th atom of body $i$ to the $l$-th atom of body $j$, that is, ${\vt r}_{ijkl} = {\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l$. For a pair potential $\upsilon(r)$, whose dependence on the atom identities is omitted for simplicity, we have that
 \begin{equation}
 \label{eq:u_rigid_body_pair}
-u({\vt r}_{ij},{\vt q}_i,{\vt q}_j) = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon \left( \|{{\vt R}_i}_k - {{\vt R}_j}_l\| \right).
+u({\vt r}_{ij},{\vt q}_i,{\vt q}_j) = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon \left( \|{\vt r}_{ijkl}\| \right).
 \end{equation}
-
-\begin{equation}
-\label{eq:u_rigid_body_pair}
-u({\vt r}_{ij},{\vt q}_i,{\vt q}_j) = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon \left( \|{\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l\| \right).
-\end{equation}
-
-In the equation above, ${{\vt R}_i}_k$ is the position of the $k$-th particle of body $i$ and $\upsilon(r)$ is the interaction potential between two atoms separated by a distance $r$. The dependence of this potential on the types of these two atoms is omitted for simplicity. From Sec.~\ref{sec:kinematics}, one can deduce that
-
-The difference ${{\vt R}_i}_k - {{\vt R}_j}_l$ is given by
+where $r_{ijkl} = \|{\vt r}_{ijkl}\|$. Then, by the chain rule,
 \[
-{{\vt R}_i}_k - {{\vt R}_j}_l = {\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l.
+\diff{u}{{\vt r}_{ij}} = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \diff{\vt r_{ijkl}}{\vt r_{ij}} \diff{\upsilon}{\vt r_{ijkl}}.
 \]
 
-The system pressure, considering a unit cell with constant volume $V$, is\cite{Louwerse2006,Tuckerman2010}
-\[
-P = \frac{(3N-3) k_B T}{3V} - \left\langle \diff{U}{V} \right\rangle.
-\]
-
-The first term in the expression above accounts for the ideal gas contribution. Applying the chain rule with Eq.~\ref{eq:U_pairwise_pbc}, the derivative of $U$ with respect to $V$, considering a cubic box with side length $L$, becomes
-\[
-%\diff{U}{V} = \diff{L}{V} \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty} \left( \diff{u}{{\vt r}_{ij}} \cdot \diff{{\vt r}_{ij}}{L} + \right. \\ \left. \diff{u}{{\vt q}_i} \cdot \diff{{\vt q}_i}{L} + \diff{u}{{\vt q}_j} \cdot \diff{{\vt q}_j}{L}\right).
-\diff{U}{V} = \diff{L}{V} \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty} \left( \diff{{\vt r}_{ij}}{L} \diff{u}{{\vt r}_{ij}} + \diff{{\vt q}_i}{L} \diff{u}{{\vt q}_i} + \diff{{\vt q}_j}{L} \diff{u}{{\vt q}_j} \right).
-\]
-
-Given that $L = V^\frac{1}{3}$ and that the bodies would neither deform nor rotate by a box volume change, we have that $\partial L / \partial V = 1/3L^2$, $\partial {\vt r}_{ij}/\partial L = \tr{\vt r}_{ij}/L$ (see Ref.~\onlinecite{Louwerse2006}) and $\partial {\vt q}_i / \partial L = \partial {\vt q}_j / \partial L = 0$. Therefore,
-\[
-\diff{U}{V} = \frac{1}{3V} \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty} \tr{\vt r}_{ij} \diff{u}{{\vt r}_{ij}}.
-\]
-
-We can now use Eq.~\ref{eq:u_rigid_body_pair} to obtain the term inside the double summation above. By the chain rule, we have
-\[
-\diff{u}{{\vt r}_{ij}} = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \diff{\vt r}{\vt r_{ij}} \diff{\upsilon}{\vt r},
-\]
-where $\vt r = {{\vt R}_i}_k - {{\vt R}_j}_l$. Notice that, inside the double summation above, the first derivative is the identity matrix and the second one is $-{\vt f}_{ijkl}$, with this force being the action of the $l$-th particle of body $j$ over the $k$-th particle of body $i$. Therefore, the equation above results in $-\vt F_{ij}$, with this force being the resultant action of body $j$ over body $i$. Finally, we conclude that
-
+Inside the double summation above, the first derivative is the identity matrix and the second one is the $-{\vt F}_{ijkl}$, with this force being the action of the $l$-th particle of body $j$ over the $k$-th particle of body $i$. Therefore, the equation above results in $-\vt F_{ij}$, with this force being the resultant action of body $j$ over body $i$. Finally, we conclude that
 \begin{equation}
 \label{eq:pressure}
-P = \frac{(N-1) k_B T}{V} + \frac{1}{3V} \left\langle \sum_{i=1}^{N-1} \sum_{j=i+1}^{\infty}{\vt F}_{ij} \cdot {\vt r}_{ij}  \right\rangle.
+P = \frac{(N-1) k_B T}{V} - \frac{1}{6V} \left\langle \sum_{i=1}^N \sum_{\substack{j=1 \\ j\neq i}}^{\infty} {\vt r}_{ij} \cdot {\vt F}_{ij} \right\rangle.
+\end{equation}
+
+With minimum image convention:
+\begin{equation}
+\label{eq:pressure_minimum_image}
+P = \frac{(N-1) k_B T}{V} - \frac{1}{3V} \left\langle \sum_{i=1}^{N-1} \sum_{j=i+1}^N {\vt r}_{ij}^\ast \cdot {\vt F}_{ij}^\ast \right\rangle.
 \end{equation}
 
 This expression resembles the equation normally used to compute pressure in atomic systems, except that the internal virial is defined in terms of resultant interaction forces between rigid body pairs. Thus, an atom located outside the central box will contribute to this virial if it belongs to a body whose center lies in the box, and vice-versa.
@@ -523,6 +554,18 @@ This expression resembles the equation normally used to compute pressure in atom
 \textbf{To do}: Write about minimum image convention considering rigid bodies instead of atoms and about how to compute the internal virial directly using the equation below:
 \[
 W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^{\infty} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ij}.
+\]
+
+\[
+W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot \left[ {\vt r}_{ijkl} - {\mt A}({\vt q}_i){{\vt d}_i}_k + {\mt A}({\vt q}_j){{\vt d}_j}_l \right].
+\]
+
+\[
+\begin{split}
+W = \sum_{i=1}^N \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ijkl} \\
+- \sum_{i=1}^N \sum_{k=1}^{{n_p}_i} \left( \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \right) \cdot {\mt A}({\vt q}_i){{\vt d}_i}_k \\
++ \sum_{i=1}^N \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\mt A}({\vt q}_j){{\vt d}_j}_l.
+\end{split}
 \]
 
 \section{Numerical Results}
