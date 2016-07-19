@@ -304,7 +304,7 @@ Update of forces and torques is required only after the free translation and fre
 \label{eq:splitting_rot}
 e^{\Delta t i\!L_r} = \prod_{j=1}^n \left( e^{\frac{\delta t_j}{2} i\!L_3} e^{\frac{\delta t_j}{2} i\!L_2} e^{\delta t_j i\!L_1} e^{\frac{\delta t_j}{2} i\!L_2} e^{\frac{\delta t_j}{2} i\!L_3} \right),
 \end{equation}
-where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Following Ref.~\onlinecite{Miller2002}, one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
+where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Following Miller \textit{et al}.,\cite{Miller2002} one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
 
 \section{Molecular Dynamics}
 \label{sec:molecular_dynamics}
@@ -313,10 +313,10 @@ In this section, we present factorization schemes for generating molecular dynam
 
 \subsection{Microcanonical Ensemble}
 
-Considering the system described above, with $\vt r^N$ and $\vt q^N$ representing the combined sets of all coordinates and quaternion components, we define the Hamiltonian
+Considering the system described above, with $\vt r$ and $\vt q$ representing the combined sets of all coordinates and quaternion components, we define the Hamiltonian
 \begin{equation}
 \label{eq:H_NVE}
-\mathcal{H} = U(\vt r^N,\vt q^N) + \sum_{i=1}^N \left(\frac{\tr{\vt p}_i{\vt p}_i}{2m_i} + \frac{\tr{\vt \pi}_i {\mt B}_i {\mt I}_i^{-1} \tr{\mt B}_i {\vt \pi}_i}{8}\right).
+\mathcal{H} = U(\vt r,\vt q) + \sum_{i=1}^N \left(\frac{\tr{\vt p}_i{\vt p}_i}{2m_i} + \frac{\tr{\vt \pi}_i {\mt B}_i {\mt I}_i^{-1} \tr{\mt B}_i {\vt \pi}_i}{8}\right).
 \end{equation}
 
 As usual, sampling of a microcanonical ensemble can be carried out by a Hamiltonian dynamics in phase space, which will have $\mathcal{H} = E$ as an integral of motion. The dynamics of this system is governed by a Liouville operator expressed as in Eq.~\ref{eq:full_operator}, but now with individual operators defined as
@@ -466,198 +466,122 @@ In this sense, Ezra \cite{Ezra2006} has introduced a systematic method for deriv
 \subsection{Pressure of a System of Rigid Bodies}
 \label{sec:pressure}
 
-The pressure of a system with constant $NVT$, for which $\sum_{i=1}^N{\vt F}_i = 0$, is calculated by\cite{Louwerse2006, Tuckerman2001}
+The pressure of a system with constant NVT, for which $\sum_{i=1}^N{\vt F}_i = 0$, is calculated by\cite{Louwerse2006, Tuckerman2001}
 \[
-P = \frac{(N-1) k_B T}{V} - \left\langle \frac{dU}{dV} \right\rangle.
+P = \frac{(N-1) k_B T + \left\langle W \right\rangle}{V},
 \]
-
-For simplicity, we consider a system of rigid bodies under periodic boundary conditions whose potential energy function is pairwise additive with respect to individual atoms, so that the approach of Louwerse and Baerends\cite{Louwerse2006} can be applied (otherwise, one can employ the approach of Thompson \textit{et al.}\cite{Thompson2009}) Assuming the minimum image convention, the potential energy per unit box is given by
+where $W$ is the internal virial of the system, defined as $W = - V \frac{dU}{dV}$. For simplicity, we consider a system of rigid bodies under periodic boundary conditions whose potential energy function is pairwise additive with respect to individual atoms, so that the approach of Louwerse and Baerends\cite{Louwerse2006} can be applied (otherwise, one can employ the approach of Thompson \textit{et al.}\cite{Thompson2009}). Due to the rigidity of the bodies, interactions amongst companion atoms (i.e., atoms belonging to the same body) are irrelevant. Assuming that the minimum image convention\cite{Allen1989} applies for entire bodies, meaning that the simulation box is large enough to preclude any atom from having their own images or images of its companion atoms within its cutoff radius, the potential energy per unit box is given by
 \begin{equation}
 \label{eq:U_pairwise_pbc}
-U({\vt r}, {\vt q}) = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \upsilon(r_{ijkl}),
+U({\vt r}, {\vt q}) = \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon(r_{ijkl}),
 \end{equation}
-where $\upsilon(r)$ is a pair interaction potential and $r_{ijkl}$ is the distance between the $l$-th atom of body $j$ and the nearest image of the $k$-th atom of body $i$. Such distance is the norm of a vector ${\vt r}_{ijkl} = \hat{\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_k}_i - {\mt A}({\vt q}_j){{\vt d}_l}_k$, where $\hat{\vt r}_{ij}$ points from the center of mass of body $j$ to that of the body which contains the mentioned atom image. We note that $U$ does not depend explicitly on $V$, which makes ${\partial U}/{\partial V} = 0$. In addition, we consider that an isotropic change in volume would only displace the centers of mass of the bodies, without any rotation. This makes\cite{Louwerse2006, Tuckerman2010}
-\[
-\frac{\partial \hat{\vt r}_{ij}}{\partial V} = \frac{\tr{\hat{\vt r}}_{ij}}{3V} \quad \text{and} \quad \frac{\partial {\vt q}_i}{\partial V} = \frac{\partial {\vt q}_j}{\partial V} = 0.
-\]
-
-Therefore, applying the chain rule to Eq.~\ref{eq:U_pairwise_pbc} yields
-\[
-\frac{dU}{dV} = \frac{1}{3V} \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \tr{\hat{\vt r}}_{ij} \upsilon^\prime(r_{ijkl})\diff{r_{ijkl}}{\vt r_{ijkl}},
-\]
-where $\upsilon^\prime(r) = \partial \upsilon/\partial r$.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-: the one whose $k$-th particle is nearest to the $l$-th particle of body $j$.
-
-
-
-$\vt r_{ijkl} = \hat{\vt r}_{ij} + {\vt \delta_k}_i - {\vt \delta_l}_j$
-
-${\vt \delta_k}_i$ and ${\vt \delta_l}_j$ respectively depend on $\vt q_i$ and $\vt q_j$ as defined in Sec.~\ref{sec:kinematics}, while $\hat{\vt r}_{ij}$ is the vector pointing from the center of mass of body $j$ to that of an image of body $i$: the one whose $k$-th particle is nearest to the $l$-th particle of body $j$.
-
-defi
-
-atom $jl$ (the $l$-th particle of body $j$) to the nearest image of atom $ik$ (the $k$-th particle of body $i$). If $\hat{\vt r}_{ij}$ is the vector pointing from the center of mass of body $j$ to the center of mass of the body $i$ that co
-
+where $\upsilon(r)$ is a pair interaction potential and $r_{ijkl}$ is the distance between the $k$-th atom of body $i$ to its nearest image of the $l$-th atom of body $j$. Such distance is the norm of a vector ${\vt r}_{ijkl} = \hat{\vt r}_{ij} + \tr{[{\mt A}({\vt q}_i)]}{{\vt d}_k}_i - \tr{[{\mt A}({\vt q}_j)]}{{\vt d}_l}_k$, where $\hat{\vt r}_{ij}$ is the minimum-image vector pointing from the center of mass of body $j$ to that of body $i$. We note that $U$ does not depend explicitly on $V$, which makes ${\partial U}/{\partial V} = 0$. If the atoms were free to move individually, an isotropic change in volume would displace all atoms and we would have ${\partial {\vt r}_{ijkl}}/{\partial V} = (3V)^{-1} \tr{\vt r}_{ijkl}$.\cite{Louwerse2006} In this event, the atomic internal virial would be computed by
 \begin{equation}
-\diff{U}{V} = \frac{1}{3V} \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} \upsilon(\|\vt r_{ijkl}\|),
+\label{eq:virial_atoms}
+W_\text{a} = \frac{1}{3} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \tr{\vt r}_{ijkl} {\vt f}_{ijkl},
 \end{equation}
-
-
-where ${\vt r}_{ijkl} = {\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l$
-
-where ${\vt r}_{ij} = {\vt r}_i - {\vt r}_j$ is the vector pointing from the center of mass of body $j$ to that of body $i$. Given that $U$ does not depend explicitly on $V$ and that the bodies would neither deform nor rotate by an isotropic change in volume, we have that $\partial {\vt q}_i / \partial L = \partial {\vt q}_j / \partial L = 0$ and $\partial {\vt r}_{ij}/\partial V = \tr{\vt r}_{ij}/(3V)$.\cite{Louwerse2006} Therefore,
+where $\vt f_{ijkl} = -{\partial \upsilon}/{\partial \vt r_{ijkl}}$ is the minimum-image force exerted by the $l$-th atom of body $j$ on the $k$-th atom of body $i$. In the case of rigid bodies, considering that an isotropic change in volume would neither deform nor rotate them, but only promote center-of-mass displacements, we have that ${\partial \hat{\vt r}_{ij}}/{\partial V} = (3V)^{-1} \tr{\hat{\vt r}}_{ij}$ and ${\partial {\vt q}_i}/{\partial V} = {\partial {\vt q}_j}/{\partial V} = \tr{\vt 0}$. Therefore, by applying the chain rule to Eq.~\ref{eq:U_pairwise_pbc} and realizing that $\partial \vt r_{ijkl}/\partial \hat{\vt r}_{ij} = \vt 1_3$, we obtain
 \[
-\diff{U}{V} = \frac{1}{6V} \sum_{i=1}^N \sum_{\substack{j=1 \\ j\neq i}}^{\infty} \tr{\vt r}_{ij} \diff{u}{{\vt r}_{ij}}.
+\label{eq:dUdV_rigid_bodies}
+\frac{dU}{dV} = -\frac{1}{3V} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \tr{\hat{\vt r}}_{ij} \vt f_{ijkl}.
 \]
 
-Now let us define ${\vt r}_{ijkl}$ as the vector pointing from the $k$-th atom of body $i$ to the $l$-th atom of body $j$, that is, ${\vt r}_{ijkl} = {\vt r}_{ij} + {\mt A}({\vt q}_i){{\vt d}_i}_k - {\mt A}({\vt q}_j){{\vt d}_j}_l$. For a pair potential $\upsilon(r)$, whose dependence on the atom identities is omitted for simplicity, we have that
-\begin{equation}
-\label{eq:u_rigid_body_pair}
-u({\vt r}_{ij},{\vt q}_i,{\vt q}_j) = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon \left( \|{\vt r}_{ijkl}\| \right).
-\end{equation}
-where $r_{ijkl} = \|{\vt r}_{ijkl}\|$. Then, by the chain rule,
+There are two convenient ways of employing this result to compute the internal virial of a system of rigid bodies. On one hand, we can explore the fact that ${\hat{\vt r}}_{ij}$ does not depend on the indexes $k$ and $l$. On the other hand, we can replace $\hat{\vt r}_{ij} = {\vt r}_{ijkl} - {{\vt \delta}_k}_i + {{\vt \delta}_l}_k$ and make use of the fact that $\vt f_{ijkl} = -\vt f_{jilk}$. Finally, we have
+\begin{subequations}
+	\label{eq:virial_rigid_bodies}
+	\begin{align}
+	W &= \frac{1}{3} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \tr{\hat{\vt r}}_{ij} \vt F_{ij} \\
+	  &= W_\text{a} - \frac{1}{3} \sum_{i=1}^N \sum_{k=1}^{{n_p}_i} {\tr{\vt \delta}_k}_i {{\vt f}_k}_i,
+	\end{align}
+\end{subequations}
+where $W_\text{a}$ is the atomic virial given by Eq.~\ref{eq:virial_atoms}, while $\vt F_{ij}$ is the total action of body $j$ (and its images) over body $i$ and $\vt f_{ik}$ is the resultant force exerted on the $k$-th atom of body $i$, respectively given by
+\
 \[
-\diff{u}{{\vt r}_{ij}} = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \diff{\vt r_{ijkl}}{\vt r_{ij}} \diff{\upsilon}{\vt r_{ijkl}}.
-\]
-
-Inside the double summation above, the first derivative is the identity matrix and the second one is the $-{\vt F}_{ijkl}$, with this force being the action of the $l$-th particle of body $j$ over the $k$-th particle of body $i$. Therefore, the equation above results in $-\vt F_{ij}$, with this force being the resultant action of body $j$ over body $i$. Finally, we conclude that
-\begin{equation}
-\label{eq:pressure}
-P = \frac{(N-1) k_B T}{V} - \frac{1}{6V} \left\langle \sum_{i=1}^N \sum_{\substack{j=1 \\ j\neq i}}^{\infty} {\vt r}_{ij} \cdot {\vt F}_{ij} \right\rangle.
-\end{equation}
-
-With minimum image convention:
-\begin{equation}
-\label{eq:pressure_minimum_image}
-P = \frac{(N-1) k_B T}{V} - \frac{1}{3V} \left\langle \sum_{i=1}^{N-1} \sum_{j=i+1}^N {\vt r}_{ij}^\ast \cdot {\vt F}_{ij}^\ast \right\rangle.
-\end{equation}
-
-This expression resembles the equation normally used to compute pressure in atomic systems, except that the internal virial is defined in terms of resultant interaction forces between rigid body pairs. Thus, an atom located outside the central box will contribute to this virial if it belongs to a body whose center lies in the box, and vice-versa.
-
-\textbf{To do}: Write about minimum image convention considering rigid bodies instead of atoms and about how to compute the internal virial directly using the equation below:
-\[
-W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^{\infty} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ij}.
-\]
-
-\[
-W = \sum_{i=1}^{N-1} \sum_{k=1}^{{n_p}_i} \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot \left[ {\vt r}_{ijkl} - {\mt A}({\vt q}_i){{\vt d}_i}_k + {\mt A}({\vt q}_j){{\vt d}_j}_l \right].
-\]
-
-\[
-\begin{split}
-W = \sum_{i=1}^N \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\vt r}_{ijkl} \\
-- \sum_{i=1}^N \sum_{k=1}^{{n_p}_i} \left( \sum_{j=i+1}^N \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \right) \cdot {\mt A}({\vt q}_i){{\vt d}_i}_k \\
-+ \sum_{i=1}^N \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} {\vt f}_{ijkl} \cdot {\mt A}({\vt q}_j){{\vt d}_j}_l.
-\end{split}
+\vt F_{ij} = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \vt f_{ijkl} \quad \text{and} \quad \vt f_{ik} = \sum_{\substack{j=1\\j \neq i}}^N \sum_{l=1}^{{n_p}_j} \vt f_{ijkl}.
 \]
 
 \section{Numerical Results}
 
-In this section, we analyze some performance aspects of the integration schemes when applied to a molecular system in the liquid state. Given its practical importance, we simulated 356 TIP3P\cite{Price2004} water molecules at a density of 999.56 $kg/m^3$. The intermolecular interactions were truncated at 9 {\AA}. The shifted-force (SF) method\cite{Allen1989,Toxvaerd_2011} was used to treat both the coulombic and the 12-6 Lennard-Jones (LJ) interactions.
+In this section, we analyze some performance aspects of the integration schemes when applied to a molecular system in the liquid state. For this, we simulated a system containing 356 TIP3P water molecules\cite{Price2004} at a density of 999.56 $kg/m^3$. The intermolecular interactions were truncated at 9 \AA. The shifted-force (SF) method\cite{Allen1989, Fennell2006, Toxvaerd_2011} was used to treat both the Coulombic and the 12-6 Lennard-Jones (LJ) interactions.
 
 \subsection{Numerical Stability}
 \label{sec:performance}
 
-In order to evaluate the stability of the numerical solvers, we use a measure given by
+In order to evaluate the stability of the numerical integrators, we employ a measure given by\cite{Tuckerman2010}
 \begin{equation}
 \label{eq:performance}
-D E =  \frac{1}{N_{steps}} \sum_{k=1}^{N_{steps}} \left| \frac{E_{t_k} - E_0}{E_0} \right|,
+D\!E =  \frac{1}{N_\text{steps}} \sum_{k=1}^{N_\text{steps}} \left| \frac{E_{t_k} - E_0}{E_0} \right|,
 \end{equation}
-from which it is possible to calculate the average deviation of the conserved quantity, i.e. total energy, from its initial value $E_0$ after a certain number of time steps $N_{steps}$. Both the instantaneous fluctuations of energy, given by the term inside the summation, and the long-time conservation of energy, $D E$, are monitored.  
+from which it is possible to quantify the average deviation of the supposedly conserved quantity $E$ (either $\mathcal{H}$ of Eq.~\ref{eq:H_NVE} or $H$ of Eq.~\ref{eq:H_nvt}) from its initial value $E_0$ after a certain number of time steps $N_\text{steps}$. Both the instantaneous fluctuations, given by the term inside the summation, and the long-time conservation of energy, $D\!E$, are monitored.
 
-Recall that the method introduced here for the NVE dynamics is a mathematical reformulation of the NO$\rule{0.25cm}{0.15mm}$SQUISH algorithm introduced by Miller~\textit{et al.}\cite{Miller2002}, so the trajectories for both methods must coincide out of round-off errors. In Fig.~\ref{fig:miller1fs} we plot the instantaneous fluctuations of energy with $n_{ys} = 1 $ and a time step of 1 fs, where it can be seen that, in fact, the fluctuations for both methods are of similar magnitude. The simulation with the NO$\rule{0.25cm}{0.15mm}$SQUISH algorithm was conducted using the LAMMPS\cite{Plimpton1995} software package. For the purpose of comparison we applied the LJ model without shifting the forces, as it is not implemented in LAMMPS.
+Recall that, when the splitting scheme of Eq.~\ref{eq:splitting_rot} is executed with $\delta t_j = \Delta t/n$ for all $j$, the method introduced here for the NVE dynamics is just a mathematical reformulation of the algorithm of Miller \textit{et al}.\cite{Miller2002} Therefore, short trajectories obtained with both methods should coincide up to round-off errors. In Fig.~\ref{fig:miller1fs}, we plot the instantaneous fluctuations of total energy obtained with $n = 1$ and a time step of 1~fs using both methods. The simulation with the algorithm of Ref.~\onlinecite{Miller2002} was performed using the LAMMPS software package.\cite{Plimpton1995} For the purpose of comparison, we did not carry out force shifting for the Lennard-Jones model, as this is not implemented in LAMMPS. It can be seen in Fig.~\ref{fig:miller1fs} that, in fact, the fluctuations of both methods are of similar magnitudes.
 
-\begin{figure}[!h]
-\centering
-\includegraphics{millerourmd}
-\captionof{figure}{Instantaneos fluctuations of energy for liquid water using Eq.~\ref{eq:trotter_splitting_NVE} (solid line) and Ref.\citenum{Miller2002} (dotted line) with $n = 1 $, $n_{ys} = 1$, $\Delta t = 1 fs$, $E_0 = -2799.87 \, kcal/mol $.}
-\label{fig:miller1fs}
+\begin{figure}
+	\includegraphics{millerourmd}
+	\caption{Instantaneos fluctuations of energy for liquid water using Eq.~\ref{eq:trotter_splitting_NVE} (solid line) and the LAMMPS implementation of the algorithm of Ref.~\onlinecite{Miller2002} (dotted line) with $n = 1$, $\Delta t = 1$ fs, and $E_0 = -2799.87$ kcal/mol.}
+	\label{fig:miller1fs}
 \end{figure}
 
-In Table~\ref{table:nve} we compare the energy drift when using $n_{ys} = 1$ and $n_{ys} = 7$ in the rotational operator, Eq.~\ref{eq:ys_rot}. As expected, for a small time step of 1 fs, that further factorization is worthless. As the time step is increased, more accurate trajectories are achieved with $n_{ys} = 7 $. Nevertheless, the improvement is only marginal and all trajectories are stables exhibiting a small long-time energy drift. Thus, we proceed to analyze the NVT dynamics considering $n_{ys} = 1$.
+In Table~\ref{table:nve}, we compare the energy drifts observed when the rotational operator in Eq.~\ref{eq:splitting_rot} is split using either $n = 1$ or the sixth-order Yoshida-Suzuki factorization scheme ($n = 7$). As observed, for a small time steps of 1~fs, increasing the order of factorization does not provide any improvement. As the time step size increases, trajectories with higher accuracy are achieved with $n = 7$. Nevertheless, the improvement is only marginal and all trajectories are stable, exhibiting a small long-time energy drift. Thus, we proceed by considering $n = 1$ in the analysis of the NVT dynamics.
 
-\begin{table}[h]
-\setlength{\tabcolsep}{7pt}
-\caption{Average deviation of the conserved quantity ($DE$) from liquid water NVE simulations with $n_{ys}=1$ and $n_{ys}=7$  }
-\centering % centering table
-\begin{tabular}{| c  c  c |}  
-\hline
-&  \multicolumn{2}{c|}{ $D E$ }\\
-\cline{2-3}
-$\Delta t/fs$ &$n_{ys}=1$ &$n_{ys}=7$ \\
-\hline % inserts single-line
- 1 & 0.000055 & 0.000074\\
- 2 & 0.00048 & 0.00031 \\
- 3 & 0.0012 & 0.0011\\
- \hline
-\end{tabular}
-\label{table:nve}
+\begin{table}
+	\caption{Average total-energy deviations for liquid water in NVE simulations for Eq.~\ref{eq:splitting_rot} with either $n = 1$ or $n = 7$ with Yoshida-Suzuki factorization.}
+	\label{table:nve}
+	\begin{ruledtabular}
+		\begin{tabular}{ccc}
+			 & \multicolumn{2}{c}{ $D\!E$ } \\
+			 \cline{2-3}
+			 $\Delta t$/fs & $n = 1$ & $n = 7$ \\
+			 \hline
+			 1.0 & 0.000055 & 0.000074 \\
+			 2.0 & 0.00048  & 0.00031  \\
+			 3.0 & 0.0012   & 0.0011   \\
+		\end{tabular}
+	\end{ruledtabular}
 \end{table}
 
-It is not the purpose of this work to achieve an optimal factorization of the NVT schemes, but rather to show that a unique chain thermostat, while providing the ``proper'' sampling of the NVT ensemble, is capable of maintaining the average temperature at its specified value. In order to use a constant value for the smaller time step in the NHC and NHC* operators $(\Delta t/4)$, we factorized those operators analogously to the scheme given by Eq.~\ref{eq:splitting_rot}. Recalling that in the NVT dynamics the conserved quantity is the extended energy $\mathcal{H}^\prime$, in Table~\ref{table:denvt} we show the results of Eq.~\ref{eq:performance} as well as the average temperatures obtained in each case. It can be seen that both integrators, represented by the Eq.~\ref{eq:trotter_splitting_NHC} and Eq.~\ref{eq:trotter_splitting_*}, systematically achieve the specified temperature, regardless of the time step size. In addition, the energy drift is, at its worst, around $1 \%$.
+It is not the purpose of this work to propose an optimal factorization scheme for the NVT dynamics, but rather to show that a unique thermostat chain is capable of maintaining the average temperature at its specified value while providing the proper sampling of the canonical ensemble. \textbf{In order to use a constant value for the smaller time step in the NHC and NHC* operators $(\Delta t/4)$, we factorized those operators analogously to the scheme given by Eq.~\ref{eq:splitting_rot}}. Recalling that in the NVT dynamics the conserved quantity is the extended energy $H$, in Table~\ref{table:denvt} we show the results of Eq.~\ref{eq:performance} as well as the average temperatures obtained in each case. It can be seen that both integrators, represented by the Eq.~\ref{eq:trotter_splitting_NHC} and Eq.~\ref{eq:modified_splitting}, systematically achieve the specified temperature, regardless of the time step size. In addition, the energy drift is, at its worst, around $1 \%$.
 
-
-\begin{table}[h]
-\setlength{\tabcolsep}{7pt}
-\begin{threeparttable}
-\caption{Average deviation of the conserved quantity ($DE$) and average temperatures from liquid water simulation with NVT integration \tnote{a}\tnote{b}} 
-\label{table:denvt}
-
-\centering % centering table
-\begin{tabular}{|c c c c c |}  
-\hline
-& \multicolumn{2}{c}{Eq.~$\ref{eq:trotter_splitting_NHC}$} &\multicolumn{2}{c|}{Eq.~$\ref{eq:trotter_splitting_*}$} \\
-\cline{2-5}
-$\Delta t/fs$ &$D E$ &$T/K$ &$D E$ &$T/K$\\
-\hline % inserts single-line
- 1  & 0.000043 & 298.16  & 0.000052  & 298.15 \\
-
- 2  & 0.00013 & 298.23  & 0.00017 & 298.06  \\
-
- 3  & 0.00089 & 298.17  & 0.0013 & 298.12  \\
-
- \hline
-\end{tabular}
-\begin{tablenotes}
-\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.037$
-\item[b] The smaller time step in the NHC and NHC* operators is 0.25 fs 
-\end{tablenotes}
-\end{threeparttable}
+\begin{table}
+	\begin{threeparttable}
+		\caption{Average deviation of the conserved quantity ($DE$) and average temperatures from liquid water simulation with NVT integration \tnote{a}\tnote{b}}
+		\label{table:denvt}
+		\begin{ruledtabular}
+			\begin{tabular}{ccccc}
+				& \multicolumn{2}{c}{Eq.~\ref{eq:trotter_splitting_NHC}} & \multicolumn{2}{c}{Eq.~\ref{eq:modified_splitting}} \\
+				\cline{2-5}
+				$\Delta t$/fs & $D\!E$ & $T$/K & $D\!E$ & $T$/K \\
+				\hline
+				1.0 & 0.000043 & 298.16  & 0.000052  & 298.15 \\
+				2.0 & 0.00013  & 298.23  & 0.00017   & 298.06 \\
+				3.0 & 0.00089  & 298.17  & 0.0013    & 298.12
+			\end{tabular}
+		\end{ruledtabular}
+		\begin{tablenotes}
+			\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.037$.
+			\item[b] The smaller time step in the NHC and NHC* operators is 0.25 fs.
+		\end{tablenotes}
+	\end{threeparttable}
 \end{table}
 
 \subsection{Partition of Energy}
 \label{sec:energypartition}
 
-Checking the consistency between the equipartition of energy and the simulated energies serves as another approach for investigating the precision of a simulation. In fact, as stated by Eastwood~\textit{et al.}~\cite{Eastwood_2010}, it has been useful to improve methodologies related to the calculation of electrostatic\cite{Levitt_1988,Guenot_1992,Arnold_1994} and dispersive\cite{Sagui_1999} interactions, as well as to detect errors in thermostats\cite{Harvey_1998,Mor_2008} and barostats\cite{Feller_1995}. The truncation error associated to the numerical schemes is a potential source of error, and is the focus of the work of Eastwood~\textit{et al.}~\cite{Eastwood_2010}, which investigates a solvated protein and a temperature difference of approximately 5.5 $K$ is observed between the protein and the solvent using a time step of 2 fs.
+Checking the consistency between the equipartition of energy and the simulated energies serves as another approach for investigating the precision of a simulation. In fact, as stated by Eastwood \textit{et al}.,\cite{Eastwood_2010} this kind of checking has been useful to improve methodologies related to the calculation of  electrostatic\cite{Levitt_1988, Guenot_1992, Arnold_1994} and dispersive\cite{Sagui_1999} interactions, as well as to detect errors in thermostats\cite{Harvey_1998, Mor_2008} and barostats.\cite{Feller_1995} The truncation error associated to the numerical schemes is a potential source of error, and is the focus of the work of Eastwood \textit{et al}.,\cite{Eastwood_2010} which investigates a solvated protein and a temperature difference of approximately 5.5~K is observed between the protein and the solvent using a time step of 2~fs.
 
-In this paper, we analyze the partition of energy between the translational and rotational DOF, which are related to the temperature by the equipartition theorem as follows
+In this paper, we analyze the partition of energy between the translational and rotational degrees of freedom, which are related to the temperature by the equipartition theorem as follows
+\begin{subequations}
 \begin{align}
 \label{eq:tras_equipartition}
-2 \langle E_{kin}^{trans} \rangle = (3N - 3) k_b T
+2 \langle E_\text{trans} \rangle = (3N - 3) k_b T
 \end{align}
-
 \begin{align}
 \label{eq:rot_equipartition}
-2 \langle E_{kin}^{rot} \rangle = 3N k_b T
+2 \langle E_\text{rot} \rangle = 3N k_b T
 \end{align} 
-In these equations, $N$ is the number of rigid bodies. In NVE MD simulations, conservation of total linear momentum, $ \boldsymbol{P}= cte $, results in the loss of three translational DOF : $ 3N-3 $. For a cubic box with PBC there is no rotational symmetry ~\cite{Frenkel_2013,Kuzkin_2014}, with which the total angular momentum is not conserved, giving a number of rotational DOF of $3N$.  We calculate the average energy per DOF $ \langle E_{cin} \rangle_{DOF} = \langle E_{cin} \rangle /N_{DOF}$ and then we calculate both the translational and rotational energies from equipartition as follows
+\end{subequations}
+
+In these equations, $N$ is the number of rigid bodies. In microcanonical MD simulations, conservation of total linear momentum $\boldsymbol{P}$ results in the loss of three translational degrees of freedom, which is the reason why the factor $3N-3$ appears in Eq.~\ref{eq:tras_equipartition}. For a cubic box with periodic boundary conditions, there is no rotational symmetry,\cite{Frenkel_2013, Kuzkin_2014} with which the total angular momentum is not conserved, giving a number of $3N$ rotational degrees of freedom. We calculate the average energy per DOF $\langle E_{cin} \rangle_{DOF} = \langle E_{cin} \rangle /N_{DOF}$ and then we calculate both the translational and rotational energies from equipartition as follows
 
 \begin{equation}
 \langle E_{kin}^{trans}\rangle =  \langle E_{kin} \rangle_{DOF} \, (3N-3)
@@ -666,7 +590,6 @@ In these equations, $N$ is the number of rigid bodies. In NVE MD simulations, co
 \begin{equation}
 \langle E_{kin}^{rot} \rangle =  \langle E_{kin} \rangle_{DOF} \, (3N)
 \end{equation}
-
 
 In the tables below we report the translational and rotational energies using Eqs.~\ref{eq:tras_equipartition} and~\ref{eq:rot_equipartition}, together with those obtained in the NVE simulations. In this case, we simulated 903 molecules of liquid water in order to examine the behavior for a cutoff distance of $13$ {\AA}, which is a more conservative criterion as it provides better numerical stability. In Table~\ref{table:water_partition_LJ-SF} we observe that for a small time step of 0.5 fs the energies are in good correspondence, which is lost when the time step is increased. This result is confirmed also in Table~\ref{table:water_partition_13A_LJ-SF} for the cutoff distance of 13 {\AA}. This allows us to prove the influence of the truncation error on in this effect, in accordance with what Eastwood~\textit{et al.}~\cite{Eastwood_2010} point out. For significant deviations, the main implication is that Eqs.~\ref{eq:tras_equipartition} and~\ref{eq:rot_equipartition} are no longer suitable for the temperature calculation, which becomes an undefined property. In the aforementioned paper, the authors introduce an alternative approach for calculating the temperature which is based on the generalized equipartition theorem applied to the Shadow Hamiltonian, which will be investigated in future work.
 
@@ -696,58 +619,51 @@ In the tables below we report the translational and rotational energies using Eq
 %\end{adjustbox}
 %\end{table}
 
-\begin{table}[h]
-\centering % centering table
-\begin{threeparttable}
-\caption{Partition of kinetic energy from NVE simulation of 903 water molecules with $r_c = 9 $ {\AA} and SF-LJ\tnote{a}} %($5415 grados de libertad$)}
-%\begin{adjustbox}{width=1\textwidth}
-\begin{tabular}{| l c  c  c  c  c  c |}  
-\hline
- & & & \multicolumn{2}{c}{Equipartition} & \multicolumn{2}{c|}{Simulated}\\
-  & & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c|}{partition}\\
-\cline{4-7}
-$\Delta t/fs$  &$T_{sim}/K$  &$E_{total}$ &$E_{trans}$ &$E_{rot}$ &$E_{trans}$ &$E_{rot}$ \\
-\hline % inserts single-line
- 0.5 & 305.20  & 1642.11  & 820.60  & 821.06  & 820.60 & 821.51  \\
-  1  & 304.92  & 1640.57  & 819.83  & 820.74  & 820.63 & 819.94  \\
-  2  & 304.20  & 1636.74  & 817.92  & 818.82  & 820.56 & 816.18 \\
-  3  & 302.97  & 1630.07  & 814.59  & 815.48  & 820.47 & 809.60  \\
-  \hline
- \end{tabular}
- \begin{tablenotes}
-\item[a] Energies are in $kcal/mol$.
-\end{tablenotes}
-\label{table:water_partition_LJ-SF}
-\end{threeparttable}
-%\end{adjustbox}
+\begin{table}
+	\begin{threeparttable}
+		\caption{Kinetic energy partition in NVE simulations of 903 water molecules with $r_c = 9$ {\AA} and a shifted-force Lennard-Jones potential.\tnote{a}} %($5415 grados de libertad$)}
+		\label{table:water_partition_LJ-SF}
+		\begin{ruledtabular}
+			\begin{tabular}{ccccccc}
+				& & & \multicolumn{2}{c}{Equipartitioned} & \multicolumn{2}{c}{Simulated}\\
+%				& & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c}{partition}\\
+				\cline{4-7}
+				$\Delta t$/fs & $T_\text{sim}$/K & $\langle E_\text{kin}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ \\
+				\hline
+				0.5 & 305.20  & 1642.11  & 820.60  & 821.06  & 820.60 & 821.51  \\
+				1.0 & 304.92  & 1640.57  & 819.83  & 820.74  & 820.63 & 819.94  \\
+				2.0 & 304.20  & 1636.74  & 817.92  & 818.82  & 820.56 & 816.18  \\
+				3.0 & 302.97  & 1630.07  & 814.59  & 815.48  & 820.47 & 809.60
+			\end{tabular}
+		\end{ruledtabular}
+		\begin{tablenotes}
+			\item[a] Energies are in kcal/mol.
+		\end{tablenotes}
+	\end{threeparttable}
 \end{table}
 
-\begin{table}[h]
-\centering % centering table
-\begin{threeparttable}
-\caption{Partition of kinetic energy from NVE simulation of 903 water molecules with $r_c = 13$ {\AA} and SF-LJ\tnote{a}} %($5415 grados de libertad$)}
-%\begin{adjustbox}{width=1\textwidth}
-\begin{tabular}{ |l c  c  c  c  c  c |}  
-\hline
- & & & \multicolumn{2}{c}{Equipartition} & \multicolumn{2}{c|}{Simulated}\\
-  & & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c|}{partition}\\
-\cline{4-7}
-$\Delta t/fs$  &$T_{sim}/K$  &$E_{total}$ &$E_{trans}$ &$E_{rot}$ &$E_{trans}$ &$E_{rot}$ \\
-\hline % inserts single-line
- 0.5 & 307.17 & 1652.71  & 825.90  & 826.81  & 825.96 & 826.75  \\
-  1 & 306.98  & 1651.68  & 825.38  & 826.30  & 826.09 & 825.59  \\
-  2 & 306.04  & 1646.60  & 822.85  & 823.75 & 825.57 & 821.03 \\
-  3 & 304.79 & 1639.89  & 819.49  & 820.40  & 825.63 & 814.26  \\
-  \hline
- \end{tabular}
- \begin{tablenotes}
-\item[a] Energies are in $kcal/mol$.
-\end{tablenotes}
- \label{table:water_partition_13A_LJ-SF}
-\end{threeparttable}
-%\end{adjustbox}
+\begin{table}
+	\begin{threeparttable}
+		\caption{Kinetic energy partition in NVE simulations of 903 water molecules with $r_c = 13$ {\AA} and a shifted-force Lennard-Jones potential.\tnote{a}} %($5415 grados de libertad$)}
+		\label{table:water_partition_13A_LJ-SF}
+		\begin{ruledtabular}
+			\begin{tabular}{ccccccc}
+				& & & \multicolumn{2}{c}{Equipartitioned} & \multicolumn{2}{c}{Simulated}\\
+%				& & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c}{partition}\\
+				\cline{4-7}
+				$\Delta t$/fs & $T_\text{sim}$/K & $\langle E_\text{kin}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ \\
+				\hline
+				0.5 & 307.17 & 1652.71  & 825.90  & 826.81  & 825.96 & 826.75  \\
+				1.0 & 306.98 & 1651.68  & 825.38  & 826.30  & 826.09 & 825.59  \\
+				2.0 & 306.04 & 1646.60  & 822.85  & 823.75  & 825.57 & 821.03  \\
+				3.0 & 304.79 & 1639.89  & 819.49  & 820.40  & 825.63 & 814.26
+			\end{tabular}
+		\end{ruledtabular}
+		\begin{tablenotes}
+			\item[a] Energies are in kcal/mol.
+		\end{tablenotes}
+	\end{threeparttable}
 \end{table}
-
 
 \subsection{Sampling Validation}
 \label{sec:samplingvalidation}
@@ -762,79 +678,102 @@ where $ \beta $ is the Boltzmann's constant, $ \Omega(E) $ is the density of sta
 Taking the ratio of the probability distributions at different temperatures, the unknown density of states cancels out and we get
 \begin{equation}
 \label{eq:probability_ratio}
-\frac{P(E/\beta_2)}{P(E/\beta_1)} = exp\left[(\beta_2 A_2 - \beta_1 A_1) - (\beta_2 - \beta_1)E\right].
+\frac{P(E/\beta_2)}{P(E/\beta_1)} = \exp\left[(\beta_2 A_2 - \beta_1 A_1) - (\beta_2 - \beta_1)E\right].
 \end{equation}
 Taking the logarithm of Eq.~\ref{eq:probability_ratio}, we obtain
 \begin{equation}
 \label{eq:ln_probability_ratio}
-ln\frac{P(E/\beta_2)}{P(E/\beta_1)} = \left(\beta_2 A_2 - \beta_1 A_1\right) - \left(\beta_2 - \beta_1\right)E.
+\ln\frac{P(E/\beta_2)}{P(E/\beta_1)} = \left(\beta_2 A_2 - \beta_1 A_1\right) - \left(\beta_2 - \beta_1\right)E.
 \end{equation}
 
 The Eq.~\ref{eq:ln_probability_ratio} is the basis for the statistical analysis in the ensemble validation, which determines how many standard deviations the calculated slope is from the specified one,  $ \beta_2 - \beta_1 $. Note that it is independent of the unknown free energies. For a guidance on how to choose the temperature gap the reader is referred to the aforementioned paper. Given that the potential and kinetic energies are separable, the analysis can be made separately as follows
 
 \begin{equation}
 \label{eq:probability_ratio_pot}
-\frac{P_{pot}(E/\beta_2)}{P_{pot}(E/\beta_1)} = \frac{Q_{pot}(\beta_1)}{Q_{pot}(\beta_2)}  exp\left[(-\beta_2 - \beta_1)E_{pot}\right]
+\frac{P_{pot}(E/\beta_2)}{P_{pot}(E/\beta_1)} = \frac{Q_{pot}(\beta_1)}{Q_{pot}(\beta_2)}  \exp\left[(-\beta_2 - \beta_1)E_{pot}\right]
 \end{equation}
 
 \begin{equation}
 \label{eq:probability_ratio_kin}
-\frac{P_{kin}(E/\beta_2)}{P_{kin}(E/\beta_1)} = \frac{Q_{kin}(\beta_1)}{Q_{kin}(\beta_2)}  exp\left[(-\beta_2 - \beta_1)E_{kin}\right]
+\frac{P_{kin}(E/\beta_2)}{P_{kin}(E/\beta_1)} = \frac{Q_{kin}(\beta_1)}{Q_{kin}(\beta_2)}  \exp\left[(-\beta_2 - \beta_1)E_{kin}\right]
 \end{equation}
 Furthermore,  it is possible to examine the consistency between the sampled kinetic energy and the corresponding Maxwell-Boltzmann distribution, which is given by the following expression:
 \begin{equation}
 \label{eq:mb}
-P(E_{cin}) = \frac{\beta}{\sqrt{N_{DOF}\pi}} \, exp \left[-\frac{\left(\beta E_{kin} - \frac{N_{DOF}}{2}\right)^2}{N_{DOF}} \right],
+P(E_{cin}) = \frac{\beta}{\sqrt{N_{DOF}\pi}} \exp\left[-\frac{\left(\beta E_{kin} - \frac{N_{DOF}}{2}\right)^2}{N_{DOF}} \right],
 \end{equation}
 where $N_{DOF}$ is the number of degrees of freedom. This last equations is a normal distribution characterized by an average of $ \langle E_{kin} \rangle = (N_{DOF}/2\beta) $ and variance $\sigma^2 = N_{DOF}/2\beta^2$, valid when equipartition of energy is satisfied.
 
-In Fig.~\ref{fig:checkensemble} we show the result from the linear regression analysis for the potential energies sampled using Eq.~\ref{eq:trotter_splitting_NHC}. In figure legends we show the averages temperatures simulated. It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies. Likewise, in Fig.~\ref{fig:mbdistribution} we observe a good correspondence between the kinetic energy distribution at $T= 304.99 K$ and the corresponding Maxwell-Boltzmann distribution We arrive at the same conclusions for the approach given by Eq.~\ref{eq:trotter_splitting_*}.
+In Fig.~\ref{fig:checkensemble} we show the result from the linear regression analysis for the potential energies sampled using Eq.~\ref{eq:trotter_splitting_NHC}. In figure legends we show the averages temperatures simulated. It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies. Likewise, in Fig.~\ref{fig:mbdistribution} we observe a good correspondence between the kinetic energy distribution at $T= 304.99 K$ and the corresponding Maxwell-Boltzmann distribution We arrive at the same conclusions for the approach given by Eq.~\ref{eq:modified_splitting}.
 
-\begin{center}
-\includegraphics{checkensemble}
-\captionof{figure}{Linear plot of the log ratio probabilities with the true slope (solid line) and the measured slope from the linear regression analysis (symbols). Simulation of liquid water using Eq.~\ref{eq:trotter_splitting_NHC}, $\Delta t = 1$ fs, $\bar{T}_1=296.03 K$, $\bar{T}_2 = 304.99 K$. }
-\label{fig:checkensemble}
-\end{center}
+\begin{figure}
+	\includegraphics{checkensemble}
+	\caption{Linear plot of the log ratio probabilities with the true slope (solid line) and the measured slope from the linear regression analysis (symbols). Simulation of liquid water using Eq.~\ref{eq:trotter_splitting_NHC}, $\Delta t$ = 1~fs, $\bar{T}_1$ = 296.03~K, $\bar{T}_2$ = 304.99~K.}
+	\label{fig:checkensemble}
+\end{figure}
 
-\begin{center}
-\includegraphics{maxwell-botlzamm-paper}
-\captionof{figure}{Probability distribution of the kinetic energy with sampled values and those calculated with Eq.~\ref{eq:mb}. Simulation of liquid water using Eq.~\ref{eq:trotter_splitting_NHC}, $\Delta t = 1$~fs, $\bar{T} = 304.99 K$.}
+\begin{figure}
+	\includegraphics{maxwell-botlzamm-paper}
+	\caption{Probability distribution of the kinetic energy with sampled values and those calculated with Eq.~\ref{eq:mb}. Simulation of liquid water using Eq.~\ref{eq:trotter_splitting_NHC}, $\Delta t$ = 1~fs, $\bar{T}$ = 304.99~K.}
 \label{fig:mbdistribution}
-\end{center}
+\end{figure}
 
-Finally, in Table~\ref{table:ensemblevalidation} we present the results of the maximum likelihood approach applied for both NVT integration schemes. It can be seen that the deviations from the true slope, $\Delta T= 8.970 K $, are less than $1\sigma$. This means that effectively, the sampled values do not deviate from the correct distribution to a statistically noticeable level.
+Finally, in Table~\ref{table:ensemblevalidation} we present the results of the maximum likelihood approach applied for both NVT integration schemes. It can be seen that the deviations from the true slope, $\Delta T$ = 8.970~K, are less than $1\sigma$. This means that effectively, the sampled values do not deviate from the correct distribution to a statistically noticeable level.
 
-\begingroup
-\squeezetable
+%\begingroup
+%\squeezetable
+%\begin{table}
+%\setlength{\tabcolsep}{7pt}
+%\begin{threeparttable}
+%\caption{Ensemble Validation of NVT algorithms for liquid water using the Maximum Likelihood Approach \tnote{a} \tnote{b}}
+%\label{table:ensemblevalidation_old}
+%\centering % centering table
+%\begin{tabular}{|l c  c  c  c |}  
+%\hline
+% & \multicolumn{4}{c|}{true $\Delta T$ = 8.970 K}\\
+%\cline{2-5}
+%  & \multicolumn{2}{c}{potential} & \multicolumn{2}{c|}{kinetic}\\
+%\hline
+%Method  &$\Delta T/K$ &$\sigma$ dev &$\Delta T/K$&$\sigma$ dev\\
+%\hline % inserts single-line 
+% Eq.~$\ref{eq:trotter_splitting_NHC}$   & 9.022 $\pm$ 0.117 & 0.57 & 8.928 $\pm$ 0.051 & 0.63 \\
+% Eq.~$\ref{eq:trotter_splitting_*}$   & 8.965 $\pm$ 0.101 & 0.05 & 8.967 $\pm$ 0.052 & 0.14\\
+%  \hline
+%\end{tabular}
+%\begin{tablenotes}
+%\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.03$
+%\item[b]$\bar{T}_1 = 296.03 K $  - $\bar{T}_2 = 304.99 K$
+%\end{tablenotes}
+%\end{threeparttable}
+%\end{table}
+%\endgroup
+
 \begin{table}
-\setlength{\tabcolsep}{7pt}
-\begin{threeparttable}
-\caption{Ensemble Validation of NVT algorithms for liquid water using the Maximum Likelihood Approach \tnote{a} \tnote{b}}
-\label{table:ensemblevalidation}
-\centering % centering table
-\begin{tabular}{|l c  c  c  c |}  
-\hline
- & \multicolumn{4}{c|}{true $\Delta T$ = 8.970 K}\\
-\cline{2-5}
-  & \multicolumn{2}{c}{potential} & \multicolumn{2}{c|}{kinetic}\\
-\hline
-Method  &$\Delta T/K$ &$\sigma$ dev &$\Delta T/K$&$\sigma$ dev\\
-\hline % inserts single-line 
- Eq.~$\ref{eq:trotter_splitting_NHC}$   & 9.022 $\pm$ 0.117 & 0.57 & 8.928 $\pm$ 0.051 & 0.63 \\
- Eq.~$\ref{eq:trotter_splitting_*}$   & 8.965 $\pm$ 0.101 & 0.05 & 8.967 $\pm$ 0.052 & 0.14\\
-  \hline
-\end{tabular}
-\begin{tablenotes}
-\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.03$
-\item[b]$\bar{T}_1 = 296.03 K $  - $\bar{T}_2 = 304.99 K$
-\end{tablenotes}
-\end{threeparttable}
+	\begin{threeparttable}
+		\caption{Ensemble Validation of NVT algorithms for liquid water using the Maximum Likelihood Approach \tnote{a} \tnote{b}}
+		\label{table:ensemblevalidation}
+		\begin{ruledtabular}
+			\begin{tabular}{ccccc}
+				& \multicolumn{4}{c}{true $\Delta T$ = 8.970 K} \\
+				\cline{2-5}
+				& \multicolumn{2}{c}{potential} & \multicolumn{2}{c}{kinetic}\\
+				\hline
+				Method  &$\Delta T/K$ & $\sigma$ dev & $\Delta T/K$ & $\sigma$ dev \\
+				\hline % inserts single-line 
+				Eq.~\ref{eq:trotter_splitting_NHC} & 9.022 $\pm$ 0.117 & 0.57 & 8.928 $\pm$ 0.051 & 0.63 \\
+				Eq.~\ref{eq:modified_splitting}    & 8.965 $\pm$ 0.101 & 0.05 & 8.967 $\pm$ 0.052 & 0.14
+		\end{tabular}
+		\end{ruledtabular}
+		\begin{tablenotes}
+			\item[a] The standard deviation of the mean temperature for all cases is $\sigma$ = 0.03.
+			\item[b] $\bar{T}_1$ = 296.03 K and $\bar{T}_2$ = 304.99 K.
+		\end{tablenotes}
+	\end{threeparttable}
 \end{table}
-\endgroup
 
 \subsection{Pressure Calculations}
 
-In Figure~\ref{fig:pressure} we compare the results using Eq.~\ref{eq:pressure} with those from a simulation performed with LAMMPS, which uses a numerical estimation of the constraint forces in the pressure calculation. The simulations were run in the NVE ensemble, for which neither shifting to the LJ forces nor analytical tail corrections were considered. 
+In Fig.~\ref{fig:pressure} we compare the results using Eq.~\ref{eq:virial_rigid_bodies} with those from a simulation performed with LAMMPS, which uses a numerical estimation of the constraint forces in the pressure calculation. The simulations were run in the NVE ensemble, for which neither shifting to the LJ forces nor analytical tail corrections were considered. 
 
 %\begin{center}
 %  \label{fig:pressure}
@@ -842,31 +781,36 @@ In Figure~\ref{fig:pressure} we compare the results using Eq.~\ref{eq:pressure} 
 %  \captionof{figure}{Histograms of pressure obtained in this work (filled bars) and using LAMMPS %(unfilled bars). Simulation of liquid water with NVE integration. $\Delta t : 1 fs$  }
 %\end{center}
 
-\begin{center}
-\label{fig:pressure}
-\includegraphics[width=0.5\textwidth,keepaspectratio]{FiguraAna}
-\captionof{figure}{Histogram of pressure values obtained using Eq.~\ref{eq:pressure} (filled bars), along with the results from a simulation using LAMMPS (unfilled bars). The average pressures are $\bar{P} = -0.60 $ bar and $\bar{P} = 2.14 $ bar, respectively. Simulation of liquid water with NVE integration, $\Delta t = 1$ fs, $n_{ys} = 1$}
-\end{center}
+\begin{figure}
+	\includegraphics[width=0.5\textwidth,keepaspectratio]{FiguraAna}
+	\caption{Histogram of pressure values obtained using Eq.~\ref{eq:virial_rigid_bodies} (filled bars), along with the results from a simulation using LAMMPS (unfilled bars). The average pressures are $\bar{P} = -0.60$~bar and $\bar{P} = 2.14$~bar, respectively. Simulation of liquid water with NVE integration, $\Delta t = 1$~fs, and $n = 1$.}
+	\label{fig:pressure}
+\end{figure}
+
+\section{Conclusion}
+
+\begin{acknowledgments}
+The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
+\end{acknowledgments}
 
 \appendix
 
-\section{\label{sec:quat_from_A}Obtaining the quaternion components from a rotation matrix}
+\section{Obtaining quaternion components from a rotation matrix}
+\label{sec:quat_from_A}
 
-The method described here was introduced by Shepperd.\cite{Shepperd1978} As one can observe in Eq.~\ref{eq:A_from_q}, the three main diagonal components of $\mt A$ and the fact that $\lVert \vt q \lVert^2 = 1$ provide a linear system for the squares of the quaternion components whose solution is
-\begin{align*}
-4 q_0^2 &= 1 + tr(\mt A) \\
-4 q_k^2 &= 1 + A_{k,k} - tr(\mt A)
-\end{align*}
-where $k = 1,2,3$ and $tr(\mt A)$ is the trace of matrix $\mt A$. Since both $\vt q$ and $- \vt q$ correspond to the same rotation matrix, the sign the largest component\cite{Shepperd1978} can be made positive and the others can be obtained from the off-diagonal entries of $\mt A$, which give
-\begin{align*}
-4 q_0 q_1 &= A_{2,3} - A_{3,2} \\
-4 q_0 q_2 &= A_{3,1} - A_{1,3} \\
-4 q_0 q_3 &= A_{1,2} - A_{2,1} \\
-4 q_k q_l &= A_{k,l} + A_{l,k} \\
-\end{align*}
-where $k,l = 1,2,3$ with $k \neq l$.
+The method described here was introduced by Shepperd.\cite{Shepperd1978} As one can observe in Eq.~\ref{eq:A_from_q}, the three main diagonal components of $\mt A$ and the fact that $\lVert \vt q \lVert^2 = 1$ provide a linear system for the squares of the quaternion components, whose solution is $4 q_0^2 = 1 + \text{tr}\mt A$ and $4 q_k^2 = 1 + A_{k,k} - \text{tr}\mt A$ for $k = 1, 2, 3$, where $\text{tr}\mt A$ is the trace of matrix $\mt A$. As both $\vt q$ and $- \vt q$ correspond to the same rotation matrix, the sign of the largest component\cite{Shepperd1978} can be made positive and the others can be obtained from the off-diagonal entries of $\mt A$, which give $4 q_0 q_1 = A_{2,3} - A_{3,2}$, $4 q_0 q_2 = A_{3,1} - A_{1,3}$, $4 q_0 q_3 = A_{1,2} - A_{2,1}$, and $4 q_k q_l = A_{k,l} + A_{l,k}$, where $k,l = 1,2,3$ with $k \neq l$.
 
-\section{\label{sec:auxiliary_math}Algebraic relations involving unit quaternions}
+\section{Differentiation rules with vectors}
+\label{sec:Diff_Rules}
+
+Along the paper, the differentiation of scalar functions with respect to vectors are done directly using the rules
+\[
+\diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a \quad \text{and} \quad \diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = 2 \mt A \vt x,
+\]
+where $\vt a$ is a constant vector and $\mt A$ is a constant matrix.
+
+\section{Algebraic relations involving unit quaternions}
+\label{sec:auxiliary_math}
 
 Let us analyze the matrix $\mt B$ defined as in Eq.~\ref{eq:def_B_and_C}. Note that $\tr{\mt B}\vt q = \vt 0$, where $\vt 0$ is a null vector.\cite{Haug1989, Shuster1993, Dichmann1999} This means that all columns of $\mt B$ are orthogonal to $\vt q$. As these columns have unit norm and are also orthogonal to each other, they form an orthonormal basis for the hyperplane orthogonal to $\mt q$, which is a subspace of $\mathbb{R}^4$. Therefore, the general operation $\vt y = \mt B \vt x$ transforms a vector $\vt x \in \mathbb{R}^3$ into a quaternion $\vt y \in \mathbb{R}^4$, but restricted to the mentioned hyperplane. Other two identities that hold for $\mt B$ are\citep{Haug1989}
 \begin{align*}
@@ -880,26 +824,46 @@ All the conclusions drawn thus far for matrix $\mt B$ are equally valid for matr
 
 As the columns of $\mt B$ are permutations of the Euler parameters, one can write $\mt B = [\begin{array}{ccc}{\mt B}_1{\vt q} & {\mt B}_2{\vt q} & {\mt B}_3{\vt q}\end{array}]$, where $\mt B_1$, $\mt B_2$, and $\mt B_3$ are permutation matrices given by
 \[
-{\mt B}_1 = \left[ \begin{array}{rrrr}
- 0 & -1 &  0 &  0 \\
+{\mt B}_1 = \left[ \begin{smallmatrix}
+ 0 & \text{-}1 &  0 &  0 \\
  1 &  0 &  0 &  0 \\
  0 &  0 &  0 &  1 \\
- 0 &  0 & -1 &  0 \\
-\end{array} \right], \;
-{\mt B}_2 = \left[ \begin{array}{rrrr}
- 0 &  0 & -1 &  0 \\
- 0 &  0 &  0 & -1 \\
+ 0 &  0 & \text{-}1 &  0 \\
+\end{smallmatrix} \right], \,
+{\mt B}_2 = \left[ \begin{smallmatrix}
+ 0 &  0 & \text{-}1 &  0 \\
+ 0 &  0 &  0 & \text{-}1 \\
  1 &  0 &  0 &  0 \\
  0 &  1 &  0 &  0 \\
-\end{array} \right],
-\]\[
-\text{and }{\mt B}_3 = \left[ \begin{array}{rrrr}
- 0 &  0 &  0 & -1 \\
+\end{smallmatrix} \right], \text{ and }
+{\mt B}_3 = \left[ \begin{smallmatrix}
+ 0 &  0 &  0 & \text{-}1 \\
  0 &  0 &  1 &  0 \\
- 0 & -1 &  0 &  0 \\
+ 0 & \text{-}1 &  0 &  0 \\
  1 &  0 &  0 &  0 \\
-\end{array} \right].
+\end{smallmatrix} \right].
 \]
+
+%\[
+%{\mt B}_1 = \left[\begin{smallmatrix}
+%0 & \text{-}1 &  0 &  0 \\
+%1 &  0 &  0 &  0 \\
+%0 &  0 &  0 &  1 \\
+%0 &  0 & \text{-}1 &  0 \\
+%\end{smallmatrix}, \;
+%{\mt B}_2 = \begin{bmatrix}
+%0 &  0 & \text{-}1 &  0 \\
+%0 &  0 &  0 & \text{-}1 \\
+%1 &  0 &  0 &  0 \\
+%0 &  1 &  0 &  0 \\
+%\end{bmatrix},
+%{\mt B}_3 = \begin{bmatrix}
+%0 &  0 &  0 & \text{-}1 \\
+%0 &  0 &  1 &  0 \\
+%0 & \text{-}1 &  0 &  0 \\
+%1 &  0 &  0 &  0 \\
+%\end{bmatrix}.
+%\]
 
 All these permutation matrices are skew-symmetric (i.e. $\tr{\mt B_k} = -\mt B_k$) and also satisfy the relations\cite{Dichmann1999}
 \begin{equation}
@@ -957,25 +921,24 @@ where the diagonal entries are zero as a consequence of the orthogonality betwee
 
 Matrix $\mt C$ and its time-derivative $\dot{\mt C}$ can also be expressed as $[\begin{array}{ccc}{\mt C}_1{\vt q} & {\mt C}_2{\vt q} & {\mt C}_3{\vt q}\end{array}]$ and $[\begin{array}{ccc}{\mt C}_1\dot{\vt q} & {\mt C}_2\dot{\vt q} & {\mt C}_3\dot{\vt q}\end{array}]$, respectively, where $\mt C_1$, $\mt C_2$, and $\mt C_3$ are
 \[
-{\mt C}_1 = \left[ \begin{array}{rrrr}
- 0 & -1 &  0 &  0 \\
+{\mt C}_1 = \left[ \begin{smallmatrix}
+ 0 & \text{-}1 &  0 &  0 \\
  1 &  0 &  0 &  0 \\
- 0 &  0 &  0 & -1 \\
+ 0 &  0 &  0 & \text{-}1 \\
  0 &  0 &  1 &  0 \\
-\end{array} \right], \;
-{\mt C}_2 = \left[ \begin{array}{rrrr}
- 0 &  0 & -1 &  0 \\
+\end{smallmatrix} \right], \,
+{\mt C}_2 = \left[ \begin{smallmatrix}
+ 0 &  0 & \text{-}1 &  0 \\
  0 &  0 &  0 &  1 \\
  1 &  0 &  0 &  0 \\
- 0 & -1 &  0 &  0 \\
-\end{array} \right],
-\]\[
-\text{and }{\mt C}_3 = \left[ \begin{array}{rrrr}
- 0 &  0 &  0 & -1 \\
- 0 &  0 & -1 &  0 \\
+ 0 & \text{-}1 &  0 &  0 \\
+\end{smallmatrix} \right], \text{ and }
+{\mt C}_3 = \left[ \begin{smallmatrix}
+ 0 &  0 &  0 & \text{-}1 \\
+ 0 &  0 & \text{-}1 &  0 \\
  0 &  1 &  0 &  0 \\
  1 &  0 &  0 &  0 \\
-\end{array} \right].
+\end{smallmatrix} \right].
 \]
 
 A special connection between the permutation matrices for $\mt B$ and $\mt C$ is the fact that $\tr{\mt B_i}{\mt C_j}$ is symmetric for any combination of $i$ and $j$. Thus, each entry of $\tr{\mt B}\dot{\mt C}$ is
@@ -1019,19 +982,8 @@ As $\tr{\mt B}\vt \pi = 2 \mt I \vt \omega$, the result above becomes
 \mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = {\vt \tau}^\prime
 \]
 
-\section{\label{sec:Diff_Rules}Differentiation rules with vectors}
-
-Along the paper, the differentiation of scalar functions with respect to vectors are done directly using the following rules:
-\[
-\diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a
-\]
-and
-\[
-\diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = 2 \mt A \vt x,
-\]
-where $\vt a$ is vector and $\mt A$ is a matrix, both independent of $\vt x$.
-
-\section{\label{sec:Diff_PotEng}Potential energy differentiation}
+\section{Potential energy differentiation}
+\label{sec:Diff_PotEng}
 
 Care must be taken when differentiating the potential energy $U$ with respect to $\vt q$ because the Euler parameters are not all independent. Schay demonstrated in Ref.~\cite{Schay1995} that, when differentiating a scalar function $f$ with respect to a vector variable $\vt x$, subject to a constraint $g(\vt x) = 0$, the derivative of $f$ with respect to $\vt x$ is given by
 \[
