@@ -916,81 +916,35 @@ where $\vt n$ is the unit vector proportional to $(\partial g/\partial \vt x)^\a
 g(\vt q) = \tr{\vt q}\vt q - 1 = 0 \; \rightarrow \; \left(\diff{g}{\vt q}\right)^\ast = 2 \vt q.
 \]
 
-Hence, the unit vector proportional to $(\partial g/\partial \vt x)^\ast$ is exactly $\vt q$, which means that the constrained derivative of $U$ is given by
+Hence, the unit vector proportional to $(\partial g/\partial \vt x)^\ast$ is exactly $\vt q$. As the same constraint makes ${\mt C}\tr{\mt C} = \mt 1_4 - \vt q\tr{\vt q}$ (in analogy to Eq.~\ref{eq:basics_B}), the constrained derivative of $U$ can be represented by
 \begin{equation}
 \label{eq:diff_projection}
-\diff{U}{\vt q} = (\mt 1_4 - {\vt q}\tr{\vt q})\left( \diff{U}{\vt q} \right)^\ast.
+\diff{U}{\vt q} = {\mt C}\tr{\mt C} \left( \diff{U}{\vt q} \right)^\ast.
 \end{equation}
 
 Therefore, the constrained derivative is the projection of the unconstrained one in the hyperplane orthogonal to $\vt q$. Recently, Nielsen and Krenk\cite{Nielsen2012} employed a Lagrange multiplier approach to demonstrate the need of carrying out such a projection. Schay\cite{Schay1995, Schay1998} discussed on the equivalence of these two approaches.
 
 By applying the chain rule, we have
 \[
-\left( \diff{U}{\vt q} \right)^\ast = - \sum_{j=1}^{n_p} \left( \diff{\vt R_j}{\vt q} \right)^\ast {\vt F_j},
+\left( \diff{U}{\vt q} \right)^\ast = \sum_{j=1}^{n_p} \left( \diff{\vt R_j}{\vt q} \right)^\ast \diff{U}{\vt R_j} = - \sum_{j=1}^{n_p} \left( \diff{\vt \delta_j}{\vt q} \right)^\ast {\vt F_j},
 \]
-where $\vt F_j = -\partial U/\partial \vt R_j$ is, by definition, the force applied on particle $j$. As $\vt R_j = \vt r + \tr{\mt A}\vt d_j$,
+where $\vt R_j = \vt r + \vt \delta_j$ and $\vt F_j = -\partial U/\partial \vt R_j$ is, by definition, the force applied on particle $j$. Temporarily dropping the particle index for simplicity, we recall from Sec.~\ref{sec:kinematics} that $\vt \delta = \tr{\mt A}\vt d$, where $\vt d$ is a constant vector. Because each entry of matrix $\mt A = \tr{\mt B}{\mt C}$ is $A_{ij}=\tr{\vt q} \tr{\hat{\mt B}}_i \hat{\mt C}_j {\vt q}$, an entry of $\vt \delta$ is given by
 \[
-\left( \diff{\vt R_j}{\vt q} \right)^\ast = \left( \diff{(\tr{\mt A}\vt d_j)}{\vt q} \right)^\ast.
+\delta_j = \sum_{i=1}^{3} d_i \tr{\vt q} \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q}.
 \]
 
-For simplicity, we will drop the index $j$ for the next few lines. Remember that $\tr{\mt A}\vt d = \tr{\mt C} \mt B\vt d$ and, according to Eq.~\ref{eq:product_B_vector},
+Because $\tr{\hat{\mt C}}_j \hat{\mt B}_i$ is symmetric, an unconstrained differentiation results in
 \[
-\mt B \vt d = \sum_{k=1}^3 d_k \mt B_k \vt q = \left( \sum_{k=1}^3 d_k \mt B_k \right) \vt q.
+\left(\diff{\delta_j}{\vt q}\right)^\ast = 2 \sum_{i=1}^{3} d_i \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q} = -2{\hat{\mt C}}_j {\mt B}{\vt d},
 \]
-
-An identity equivalent to Eq.~\ref{eq:vector_entries} holds for the product of $\tr{\mt C}$ with an arbitrary quaternion, so that we can write
+where we have factored out $\tr{\hat{\mt C}}_j = -\hat{\mt C}_j$ from the summation and then employed Eq.~\ref{eq:product_B_vector}. The constrained differential $\partial \vt \delta/\partial \vt q$ is, therefore,
 \[
-\tr{\mt A}{\vt d} =
-\left[\begin{array}{c}
-\tr{\vt q}\tr{\mt C}_1 \mt B \vt d \\
-\tr{\vt q}\tr{\mt C}_2 \mt B \vt d \\
-\tr{\vt q}\tr{\mt C}_3 \mt B \vt d \\
-\end{array}\right] = 
-\left[\begin{array}{c}
-\tr{\vt q} \tr{\mt C}_1 \left( \sum_{k=1}^3 d_k \mt B_k \right) \vt q \\
-\tr{\vt q} \tr{\mt C}_2 \left( \sum_{k=1}^3 d_k \mt B_k \right) \vt q \\
-\tr{\vt q} \tr{\mt C}_3 \left( \sum_{k=1}^3 d_k \mt B_k \right) \vt q \\
-\end{array}\right].
+\diff{\vt \delta}{\vt q} = -2{\mt C}\tr{\mt C}
+\left[\begin{smallarray}{ccc}
+{\hat{\mt C}}_1 {\mt B}{\vt d} & {\hat{\mt C}}_2 {\mt B}{\vt d} & {\hat{\mt C}}_3 {\mt B}{\vt d}
+\end{smallarray}\right] = 2{\mt C}\;{\mt S}\!\left(\tr{\mt C}{\mt B}\vt d\right),
 \]
-
-As mentioned in Appendix \ref{sec:auxiliary_math}, $\tr{\mt C}_i \mt B_j = \tr{\mt B}_j \mt C_i$ for any pair $ij$, so that all the constant matrices above between $\tr{\vt q}$ and $\vt q$ are constant and symmetric, which facilitates differentiation. After carrying it out and replacing back $(\sum_{k=1}^3 d_k \mt B_k) \vt q$ by $\mt B \vt d$, we have
-\[
-\left( \diff{\vt R}{\vt q} \right)^\ast = 2 \left[\begin{array}{ccc}
-\tr{\mt C}_1 \mt B \vt d & \tr{\mt C}_2 \mt B \vt d & \tr{\mt C}_3 \mt B \vt d
-\end{array}\right]
-\]
-
-Considering that we deal exclusively with unit quaternions $\vt q$, so that $\mt C \tr{\mt C} = \mt 1_4 - \vt q \tr{\vt q}$ can be substituted in Eq.~\ref{eq:diff_projection}, it is useful to evaluate the product
-\[
-\tr{\mt C} \left( \diff{\vt R}{\vt q} \right)^\ast = 2 \left[\begin{array}{c}
-\tr{\vt q}\tr{\mt C_1} \\
-\tr{\vt q}\tr{\mt C_2} \\
-\tr{\vt q}\tr{\mt C_3}
-\end{array}\right] \left[\begin{array}{ccc}
-\tr{\mt C}_1 \mt B \vt d & \tr{\mt C}_2 \mt B \vt d & \tr{\mt C}_3 \mt B \vt d
-\end{array}\right]
-\]
-
-The permutation matrices $\mt C_1$, $\mt C_2$, and $\mt C_3$ have the following properties:
-\begin{equation}
-\begin{aligned}
-\tr{\mt C_1}\tr{\mt C_1} &= \tr{\mt C_2}\tr{\mt C_2} = \tr{\mt C_3}\tr{\mt C_3} = -\mt 1_4 \\
-\tr{\mt C_1}\tr{\mt C_2} &= -\tr{\mt C_2}\tr{\mt C_1} = -\tr{\mt C_3} \\
-\tr{\mt C_2}\tr{\mt C_3} &= -\tr{\mt C_3}\tr{\mt C_2} = -\tr{\mt C_1} \\
-\tr{\mt C_3}\tr{\mt C_1} &= -\tr{\mt C_1}\tr{\mt C_3} = -\tr{\mt C_2}
-\end{aligned}
-\end{equation}
-
-Along with the fact that $\mt B\vt d$ and $\vt q$ are necessarily orthogonal to each other, the properties above lead to
-\begin{align*}
-\tr{\mt C} \left( \diff{\vt R}{\vt q} \right)^\ast &= 2 \left[\begin{array}{ccc}
-0 & -\tr{\vt q}\tr{\mt C}_3 \mt B \vt d & \tr{\vt q}\tr{\mt C}_2 \mt B \vt d \\
-\tr{\vt q}\tr{\mt C}_3 \mt B \vt d & 0 & -\tr{\vt q}\tr{\mt C}_1 \mt B \vt d \\
--\tr{\vt q}\tr{\mt C}_2 \mt B \vt d & \tr{\vt q}\tr{\mt C}_1 \mt B \vt d & 0
-\end{array}\right] \\
-&= 2 \mt S(\tr{\mt C} \mt B \vt d) = 2 \mt S(\tr{\mt A}\vt d) = 2 \mt S(\vt \delta),
-\end{align*}
-where $\vt \delta$ is equivalent to $\vt d$, but expressed in the space-fixed frame of reference. Finally, we obtain
+where we have carried out the second matrix product above, employed the properties presented in Eq.~\ref{eq:CC_products}, and then used the operator defined in Eq.~\ref{eq:operator_S}. Finally, after realizing that $\tr{\mt C}{\mt B}\vt d = \tr{\mt A}{\vt d} = \vt \delta$, we can used the result above to obtain
 \[
 \diff{U}{\vt q} = - 2 \mt C \sum_{j=1}^{n_p} \mt S(\vt \delta_j) {\vt F_j}  = - 2 \mt C \sum_{j=1}^{n_p} \vt \delta_j \times {\vt F_j}.
 \]
