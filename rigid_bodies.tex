@@ -77,7 +77,7 @@ where $m = \sum_{j=1}^{n_p} M_j$ is the total mass of the body. The position of 
 \end{smallarray} \right].
 \]
 
-For every non-collinear rigid body, there exists a particular frame of reference in which its inertia tensor is diagonal. The formulation of the equations of motion in this frame of reference is notably simplified. Conversions from the space-fixed frame to such a body-fixed frame are performed by a rotation matrix $\mt A$ that satisfies the similarity relation\citep{Goldstein2002}
+For every non-collinear rigid body, there exists a particular frame of reference in which its inertia tensor is diagonal. The formulation of the equations of motion in this frame of reference is notably simplified. Conversions from the space-fixed frame to such a body-fixed frame are performed by a rotation matrix $\mt A$ that satisfies the similarity relation\cite{Goldstein2002}
 \[
 {\mt I} = {\mt A} {\mt I}^\ast \tr{\mt A} = \left[ \begin{smallarray}{ccc}
 I_1 &   0 &   0 \\
@@ -93,7 +93,7 @@ An arbitrary rotation can be described using three independent parameters. One c
 \tr{\vt q}{\vt q} = \|\vt q\|^2 = q_0^2 + q_1^2 + q_2^2 + q_3^2 = 1.
 \end{equation}
 
-Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Appendix~\ref{sec:quat_from_A} describes how one can compute the unit quaternion related to a given rotation matrix. Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
+Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Methods are available for computing the unit quaternion related to a given rotation matrix (e.g. Ref.~\onlinecite{Shepperd1978}). Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
 \begin{equation}
 \label{eq:A_from_q}
 \mt A = \left[ \begin{smallarray}{ccc}
@@ -144,16 +144,16 @@ The equation above is a simple and convenient factorization of matrix $\mt A$, s
 \dot{\vt q} = \frac{1}{2} \mt B \vt \omega.
 \end{equation}
 
-As explained in the mentioned appendix, premultiplication of a vector with either $\mt B$ or $\mt C$ transforms it into a quaternion that lies in the hyperplane orthogonal to $\vt q$. Both transformations can be reversed by applying $\tr{\vt B}$ or $\tr{\vt C}$ accordingly. Therefore, one can define an intermediary frame of reference, fixed with respect to the unit quaternion $\vt q$ that represents the orientation of the body, whose connection to the body-fixed and the space-fixed frames are summarized as follows:
+As explained in the referred appendix, premultiplication of a vector with either $\mt B$ or $\mt C$ transforms it into a quaternion that lies in the hyperplane orthogonal to $\vt q$. Both transformations can be reversed by applying $\tr{\vt B}$ or $\tr{\vt C}$ accordingly. Therefore, one can define an intermediary frame of reference, which is fixed with respect to the unit quaternion $\vt q$ that represents the orientation of the body. Its connection to the body-fixed and space-fixed frames are summarized as follows:
 \[
 \boxed{\substack{\text{Body-fixed} \\ \text{frame}}}
-\mathrel{\mathop{\rightleftarrows}^{\frac{1}{2}\mt B}_{\frac{1}{2}\tr{\mt B}}}
+\mathrel{\mathop{\rightleftarrows}^{\mt B}_{\tr{\mt B}}}
 \boxed{\substack{\text{Quaternion-fixed} \\ \text{frame}}}
-\mathrel{\mathop{\rightleftarrows}^{2 \tr{\mt C}}_{2 \mt C}}
+\mathrel{\mathop{\rightleftarrows}^{\tr{\mt C}}_{\mt C}}
 \boxed{\substack{\text{Space-fixed} \\ \text{frame}}}
 \]
 
-Therefore, Eq.~\ref{eq:relation_qdot_omega} shows that $\dot{\vt q}$ is simply the angular velocity vector expressed in the quaternion-fixed frame. It also guarantees that the norm of $\vt q$ remains unchanged because Eq.~\ref{eq:diff_qTq} is identically satisfied.
+Therefore, Eq.~\ref{eq:relation_qdot_omega} shows that $\dot{\vt q}$ is simply half the angular velocity vector expressed in the quaternion-fixed frame. Besides, it guarantees that the norm of $\vt q$ remains unchanged because Eq.~\ref{eq:diff_qTq} is identically satisfied.
 
 \subsection{Hamiltonian Dynamics}
 \label{sec:hamiltonian}
@@ -165,16 +165,16 @@ We start by defining the Lagrangian $\mathcal{L} = K - U$ as a function of $\vt 
 \mathcal{L} = \frac{1}{2} m \tr{\dot{\vt r}} \dot{\vt r} + 2 \tr{\dot{\vt q}} \mt B \mt I \tr{\mt B} \dot{\vt q} - U(\vt r, \vt q).
 \]
 
-To employ the Hamiltonian approach, besides the linear momentum $\vt p = \partial \mathcal{L}/\partial \dot{\vt r} = m \dot{\vt r}$, conjugated to $\vt r$, we introduce the quaternion momentum $\vt \pi = \partial \mathcal{L}/\partial \dot{\vt q}$, conjugated to $\vt q$.\citep{Goldstein2002} By performing the differentiation (see Appendix \ref{sec:Diff_Rules}), we get
+To employ the Hamiltonian approach, besides the linear momentum $\vt p = \partial \mathcal{L}/\partial \dot{\vt r} = m \dot{\vt r}$, conjugated to $\vt r$, we introduce the momentum $\vt \pi = \partial \mathcal{L}/\partial \dot{\vt q}$, conjugated to $\vt q$.\citep{Goldstein2002} By carrying out the differentiation (see Appendix \ref{sec:Diff_Rules}), we get
 \begin{equation}
 \label{eq:conj_momentum}
 \vt \pi = 4 \mt B \mt I \tr{\mt B} \dot{\vt q} = 2 \mt B \mt I \vt \omega.
 \end{equation}
 
-Hence, the conjugated momentum $\vt \pi$ is also orthogonal to $\vt q$ (premultiplication of $\mt I \vt \omega$ by $\mt B$). Using the relation above, we can write down the Hamiltonian $\mathcal{H} = K + U$ as a function of $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$, which is
+Hence, $\vt \pi$ is twice the quaternion-fixed version of the angular momentum ($\mt I \vt \omega$) and, as such, it is also orthogonal to $\vt q$. Using the relation above, we can write down the Hamiltonian $\mathcal{H} = K + U$ as a function of $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$, which is
 \begin{equation}
 \label{eq:H_with_B}
-\mathcal{H} = \frac{1}{2m} \tr{\vt p} \vt p + \frac{1}{8} \tr{\vt \pi} {\mt B} {\mt I}^{-1} \tr{\mt B} \vt \pi + U(\vt r, \vt q).
+\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt \pi} {\mt B} {\mt I}^{-1} \tr{\mt B} \vt \pi}{8} + U(\vt r, \vt q).
 \end{equation}
 
 The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \partial \mathcal{H} / \partial \vt p$, $\dot{\vt p} = -\partial \mathcal{H} / \partial \vt r$, $\dot{\vt q} = \partial \mathcal{H} / \partial \vt \pi$, and $\dot{\vt \pi} = -\partial \mathcal{H} / \partial \vt q$.\cite{Goldstein2002} Eq.~\ref{eq:H_with_B} is convenient for differentiation with respect to $\vt \pi$, since $\mt B$ depends on $\vt q$ only. However, if we define
@@ -191,7 +191,7 @@ The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \par
 it follows that $\tr{\mt B}{\vt \pi} = \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
 \begin{equation}
 \label{eq:H_with_Omega}
-\mathcal{H} = \frac{1}{2m} \tr{\vt p} \vt p + \frac{1}{8} \tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q + U(\vt r, \vt q).
+\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q}{8} + U(\vt r, \vt q).
 \end{equation}
 
 For a rigid body composed of $n_p$ individual particles, the derivative $\partial U/\partial \vt r$ is obtained by
@@ -202,7 +202,7 @@ where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fix
 \[
 \diff{U}{\vt q} = -2 \mt C \vt \tau = -2 \mt C \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
 \]
-where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed reference frame. Therefore, $-\partial U/\partial \vt q$ is simply the torque represented in the quaternion-fixed frame. Finally, after carrying out the required differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\tr{\mt B} \vt \pi = \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
+where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed reference frame. Therefore, $-\partial U/\partial \vt q$ is twice the torque represented in the quaternion-fixed frame. Finally, after carrying out the required differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\tr{\mt B} \vt \pi = \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
 \begin{subequations}
 \label{eq:EDO_system}
 \begin{align}
@@ -220,7 +220,7 @@ In Appendix \ref{eq:derivation_euler}, it is demonstrated that Eq.~\ref{eq:euler
 \end{equation}
 where $\hat{\mt B}_k$ is one of the permutation matrices presented in Appendix~\ref{sec:auxiliary_math}. In this context, the Hamiltonian of the rigid body becomes
 \[
-\mathcal{H} = \frac{1}{2m} \tr{\vt p} \vt p + U(\vt r, \vt q) + \frac{1}{2} \sum_{k=1}^3 I_k \omega_k^2.
+\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + U(\vt r, \vt q) + \frac{1}{2} \sum_{k=1}^3 I_k \omega_k^2.
 \]
 
 In order to rewrite Eq.~\ref{eq:EDO_system}, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as in Eq.~\ref{eq:product_B_vector}, which leads us to a new form for the equations of motion:
@@ -246,40 +246,30 @@ For a given trajectory in phase space, any function $f(\vt r, \vt p, \vt q, \vt 
 where $i\!L$ is the Liouville operator. This equation has a formal solution expressed by $f(t) = e^{t i\!L}f_0$, where $f_0$ is the initial value of $f$. As $f$ can be a phase-space coordinate, the exponential operator $e^{t i\!L}$, known as the classical time-evolution propagator,\cite{Tuckerman2008} represents a transformation from the initial condition to the phase-space point occupied at time $t$. Nevertheless, as no analytical solution is known for Eq.~\ref{eq:EDO_system_alternative}, the actual effect of its corresponding propagator cannot be determined.
 
 Analytical solutions exist for some simpler hypothetical cases related to Eq.~\ref{eq:EDO_system_alternative}. Let us analyze three of them, which will be useful later on to derive a complete approximate solution. In what follows, an index $0$ stands for ``initial value''. We start by considering a hypothetical Hamiltonian $\mathcal{H}_t = (1/2m) \tr{\vt p} \vt p$, whose resulting equations of motion are $\dot{\vt r} = {\vt p}/m$, $\dot{\vt p} = 0$, $\dot{\vt q} = 0$, and $\dot{\vt \pi} = 0$. The exact solution for this case is
-\begin{align*}
-&{\vt r}(t) = {\vt r}_0 + \frac{t}{m} {\vt p}_0 \\
-&{\vt p}(t) = {\vt p}_0 \\
-&{\vt q}(t) = {\vt q}_0 \\
-&{\vt \pi}(t) = {\vt \pi}_0
-\end{align*}
-
-This corresponds to a free translation (hence the subscript $t$). As the momentum $\vt p$ remains constant, the Hamiltonian $\mathcal{H}_t$ is conserved, as expected. Of course, the solution above is the exact effect of the propagator $e^{t i\!L_t}$, where the Liouville operator $i\!L_t$ is, simply,
+\[
+{\vt r}(t) = {\vt r}_0 + \frac{t}{m} {\vt p}_0,
+\]
+with ${\vt p}(t) = {\vt p}_0$, ${\vt q}(t) = {\vt q}_0$, and ${\vt \pi}(t) = {\vt \pi}_0$. This corresponds to a free translation (hence the subscript $t$). As the momentum $\vt p$ remains constant, the Hamiltonian $\mathcal{H}_t$ is conserved, as expected. Of course, the solution above is the exact effect of the propagator $e^{t i\!L_t}$, where the Liouville operator $i\!L_t$ is, simply,
 \[
 i L_t = \frac{\tr{\vt p}}{m}\diff{}{\vt r}.
 \]
 
 In the second hypothetical case, referred to as the boost case, we consider a Hamiltonian $\mathcal{H}_b = U(\vt r, \vt q)$. The resulting equations of motion are $\dot{\vt r} = 0$, $\dot{\vt p} = \vt F$, $\dot{\vt q} = 0$, and $\dot{\vt \pi} = 2 \mt C \vt \tau$, whose exact solution is
 \begin{align*}
-&{\vt r}(t) = {\vt r}_0 \\
-&{\vt p}(t) = {\vt p}_0 + t \vt F_0 \\
-&{\vt q}(t) = {\vt q}_0 \\
-&{\vt \pi}(t) = {\vt \pi}_0 +  2 t \mt C_0 \vt \tau_0
+&{\vt p}(t) = {\vt p}_0 + t \vt F \\
+&{\vt \pi}(t) = {\vt \pi}_0 +  2 t \mt C \vt \tau
 \end{align*}
-
-Note that $\vt r$ and $\vt q$ remain unaltered, thus keeping $\vt F$, $\mt C$, and $\vt \tau$ constant as well, which justifies the subscript $0$ assigned to them. This solution clearly conserves $\mathcal{H}_b$ and marks the effect of a propagator $e^{t i\!L_b}$, obtained from the operator
+with ${\vt r}(t) = {\vt r}_0$ and ${\vt q}(t) = {\vt q}_0$. As $\vt r$ and $\vt q$ remain unaltered, $\vt F$, $\mt C$, and $\vt \tau$ are constant as well. This solution clearly conserves $\mathcal{H}_b$ and marks the effect of a propagator $e^{t i\!L_b}$, obtained from the operator
 \[
 i\!L_b = \tr{\vt F} \diff{}{\vt p} + 2 \tr{\vt \tau} \tr{\mt C} \diff{}{\vt \pi}.
 \]
 
-Finally, the third hypothetical case consists of a Hamiltonian $\mathcal{H}_k = (1/2) I_k \omega_k^2$. Note that a single entry of $\vt \omega$ is accounted for in this case, so that it corresponds to a free uniaxial rotation. The equations of motion resulting from $\mathcal{H}_k$ are $\dot{\vt r} = 0$, $\dot{\vt p} = 0$, $\dot{\vt q} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt q$, and $\dot{\vt \pi} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt \pi$. A special feature of this system facilitates its solution. It is known beforehand that the solution will keep $\mathcal{H}_k$ unaltered and, as a consequence, $\omega_k$ will be a constant as well. As noticed by Miller~\textit{el al.}~\cite{Miller2002}, this decouples the equations for $\dot{\vt q}$ and $\dot{\vt \pi}$, which are identical in form. The following analytical solution then takes place:\cite{Miller2002}
+Finally, the third hypothetical case consists of a Hamiltonian $\mathcal{H}_k = (1/2) I_k \omega_k^2$. Note that a single entry of $\vt \omega$ is accounted for in this case, so that it corresponds to a free uniaxial rotation. The equations of motion resulting from $\mathcal{H}_k$ are $\dot{\vt r} = 0$, $\dot{\vt p} = 0$, $\dot{\vt q} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt q$, and $\dot{\vt \pi} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt \pi$. A special feature of this system facilitates its solution. It is known beforehand that the solution will keep $\mathcal{H}_k$ unaltered and, as a consequence, $\omega_k$ will be a constant as well. As noticed by Miller~\textit{el al.}~\cite{Miller2002}, this decouples the equations for $\dot{\vt q}$ and $\dot{\vt \pi}$, which are identical in form. The analytical solution that takes place is\cite{Miller2002}
 \begin{align*}
-&{\vt r}(t) = {\vt r}_0 \\
-&{\vt p}(t) = {\vt p}_0 \\
 &{\vt q}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt q_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt q_0 \\
 &{\vt \pi}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt \pi_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt \pi_0
 \end{align*}
-
-These equations, with $\omega_k$ calculated from $\vt q_0$ and $\vt \pi_0$ using Eq.~\ref{eq:omega_entry}, represent the effect of a propagator $e^{t i\!L_k}$ derived from the operator
+with ${\vt r}(t) = {\vt r}_0$ and ${\vt p}(t) = {\vt p}_0$. These equations, with $\omega_k$ calculated from $\vt q_0$ and $\vt \pi_0$ using Eq.~\ref{eq:omega_entry}, represent the effect of a propagator $e^{t i\!L_k}$ derived from the operator
 \[
 i\!L_k = \frac{1}{2} \omega_k \left( \tr{\vt q}\tr{\hat{\mt B}_k} \diff{}{\vt q} + \tr{\vt \pi}\tr{\hat{\mt B}_k} \diff{}{\vt \pi} \right).
 \]
@@ -751,17 +741,12 @@ The authors acknowledge the financial support provided by Petrobras (project cod
 
 \appendix
 
-\section{Obtaining quaternion components from a rotation matrix}
-\label{sec:quat_from_A}
-
-The method described here was introduced by Shepperd.\cite{Shepperd1978} As one can observe in Eq.~\ref{eq:A_from_q}, the three main diagonal components of $\mt A$ and the fact that $\lVert \vt q \lVert^2 = 1$ provide a linear system for the squares of the quaternion components, whose solution is $4 q_0^2 = 1 + \text{tr}\mt A$ and $4 q_k^2 = 1 + A_{k,k} - \text{tr}\mt A$ for $k = 1, 2, 3$, where $\text{tr}\mt A$ is the trace of matrix $\mt A$. As both $\vt q$ and $- \vt q$ correspond to the same rotation matrix, the sign of the largest component\cite{Shepperd1978} can be made positive and the others can be obtained from the off-diagonal entries of $\mt A$, which give $4 q_0 q_1 = A_{2,3} - A_{3,2}$, $4 q_0 q_2 = A_{3,1} - A_{1,3}$, $4 q_0 q_3 = A_{1,2} - A_{2,1}$, and $4 q_k q_l = A_{k,l} + A_{l,k}$, where $k,l = 1,2,3$ with $k \neq l$.
-
-\section{Differentiation rules with vectors}
+\section{Differentiation with vectors and matrices}
 \label{sec:Diff_Rules}
 
-Along the paper, the differentiation of scalar functions with respect to vectors are done directly using the rules
+Along the paper, we employ the gradient convention (rather than the Jacobian convention) for expressing derivatives with respect to vector variables. Hence, very often we differentiate a scalar function using one of the following rules:
 \[
-\diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a \quad \text{and} \quad \diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = (\mt A + \tr{\mt A})\vt x,
+\diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a \quad \text{or} \quad \diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = (\mt A + \tr{\mt A})\vt x,
 \]
 where $\vt a$ is a constant vector and $\mt A$ is a constant matrix. If $\mt A$ is symmetric, then $\mt A + \tr{\mt A} = 2\mt A$.
 
