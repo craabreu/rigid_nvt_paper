@@ -30,7 +30,7 @@
 \date{\today}
 
 \begin{abstract}
-Sets of atoms collectively behaving as rigid bodies are often used to model entire molecules or molecular substructures in Molecular Dynamics. This strategy eliminates degrees of freedom and admits larger time steps without giving up the atomistic character of a model. In this paper, we rely on a factorization of the rotation matrix, expressed in terms of unit quaternion components, to simplify the microcanonical and canonical dynamics of systems containing rigid bodies.
+In Molecular Dynamics, sets of atoms collectively behaving as rigid bodies are often used to model entire molecules or parts thereof. Such a coarse-graining strategy eliminates degrees of freedom and allows larger time steps without abandoning the atomistic character of a model. In this paper, we rely on a particular factorization of the rotation matrix in order to express the mechanics of systems containing rigid bodies. Then, we present simplified equations of motion and devise time-reversible, measure-preserving integrators for both microcanonical (NVE) and canonical (NVT) dynamics. We also develop new expressions for computing the virial pressure of rigid- body systems under periodic boundary conditions.
 \end{abstract}
 
 \maketitle
@@ -62,9 +62,9 @@ Consider a rigid body composed of $n_p$ individual particles, with each particle
 where $m = \sum_{j=1}^{n_p} M_j$ is the total mass of the body. The position of each particle $j$ in a space-fixed frame of reference, whose origin coincides with the body's center of mass, is ${\vt \delta}_j = \tr{ [\begin{array}{ccc} {\delta_j}_x & {\delta_j}_y & {\delta_j}_z \end{array}]} = {\vt R}_j - {\vt r}$. In such frame, the symmetric inertia tensor for rotations of the body about the origin is\cite{Goldstein2002}
 \[
 {\mt I}^\ast = \sum_{j=1}^N M_j \left[ \begin{smallarray}{ccc}
-{\delta_j}_y^2 + {\delta_j}_z^2 & -{\delta_j}_x {\delta_j}_y      & -{\delta_j}_x {\delta_j}_z      \\
--{\delta_j}_y {\delta_j}_x      & {\delta_j}_x^2 + {\delta_j}_z^2 & -{\delta_j}_y {\delta_j}_z      \\
--{\delta_j}_z {\delta_j}_x      & -{\delta_j}_z {\delta_j}_y      & {\delta_j}_x^2 + {\delta_j}_y^2 \\
+{\delta_j}_y^2 + {\delta_j}_z^2 & -{\delta_j}_x {\delta_j}_y & -{\delta_j}_x {\delta_j}_z \\
+-{\delta_j}_y {\delta_j}_x & {\delta_j}_x^2 + {\delta_j}_z^2 & -{\delta_j}_y {\delta_j}_z \\
+-{\delta_j}_z {\delta_j}_x & -{\delta_j}_z {\delta_j}_y & {\delta_j}_x^2 + {\delta_j}_y^2 \\
 \end{smallarray} \right].
 \]
 
@@ -85,14 +85,14 @@ An arbitrary rotation can be described using three independent parameters. One c
 \end{equation}
 
 Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Methods are available for computing the unit quaternion related to a given rotation matrix (e.g. Ref.~\onlinecite{Shepperd1978}). Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
-\begin{equation}
+\[
 \label{eq:A_from_q}
 \mt A = \left[ \begin{smallarray}{ccc}
 q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1 q_2 + q_0 q_3) & 2(q_1 q_3 - q_0 q_2) \\
 2(q_1 q_2 - q_0 q_3) & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2 q_3 + q_0 q_1) \\
 2(q_1 q_3 + q_0 q_2) & 2(q_2 q_3 - q_0 q_1) & q_0^2 - q_1^2 - q_2^2 + q_3^2  
 \end{smallarray} \right].
-\end{equation}
+\]
 
 Differentiating Eq.~\ref{eq:norm_eq_1} with respect to time yields
 \begin{equation}
@@ -179,7 +179,7 @@ The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \par
 \end{smallarray}
 \right],
 \]
-it follows that $\tr{\mt B}{\vt \pi} = \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
+it follows that $\tr{\mt B}{\vt \pi} = - \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
 \begin{equation}
 \label{eq:H_with_Omega}
 \mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q}{8} + U(\vt r, \vt q).
@@ -193,7 +193,7 @@ where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fix
 \[
 \diff{U}{\vt q} = -2 \mt C \vt \tau = -2 \mt C \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
 \]
-where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed frame. Therefore, $-\partial U/\partial \vt q$ is twice the torque represented in quaternion-fixed frame of reference. Finally, after carrying out the required differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\tr{\mt B} \vt \pi = \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
+where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed frame. Therefore, $-\partial U/\partial \vt q$ is twice the torque represented in quaternion-fixed frame of reference. Finally, after carrying out the required differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\tr{\mt B} \vt \pi = - \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
 \begin{subequations}
 \label{eq:EDO_system}
 \begin{align}
@@ -315,18 +315,16 @@ Therefore, a symplectic integrator can be devised using the same splitting schem
 \subsection{Canonical Ensemble}
 \label{sec:canonical}
 
-Kamberaj \textit{et al}.\cite{Kamberaj2005} proposed equations of motion and integration schemes for molecular dynamics with rigid bodies in the canonical ensemble...........
-
 Knowledge on the dynamics and statistical mechanics of non-Hamiltonian systems has grown considerably in recent years.\cite{Tuckerman_1999, Tuckerman2001, Sergi2001, Sergi2003, Ezra2004, Sergi2004, Ezra2006, Sergi2010b} In this context, invaluable tools have been devised for the analysis and development of simulation methods based on the concept of extended phase space. Sergi and Ferrario\cite{Sergi2001} described a simple way of systematically generating conservative trajectories in an arbitrary phase space. If vector $\vt x$ represents a phase-space point, $H(\vt x)$ is a scalar field, and $\boldsymbol{\mathcal B}(\vt x)$ is a matrix-valued function, then the equation of motion
 \begin{equation} \label{eq:eq_of_motion}
 \dot{\vt x} = \boldsymbol{\mathcal B}\diff{H}{\vt x}
 \end{equation}
-will generate a flow that conserves the value of $H$, provided that $\boldsymbol{\mathcal B}$ is skew-symmetric, that is, $\tr{ \boldsymbol{ \mathcal B }} = -\boldsymbol{ \mathcal B }$. We employ such technique to couple a unique Nos\'{e}-Hoover chain\cite{Martyna1992} with $M$ thermostats to a system with $N$ rigid bodies. For this, we consider additional generalized coordinates $\eta_j$ and their conjugate momenta $p_{\eta_j}$, for $j$ ranging from $1$ to $M$. The conserved ``extended Hamiltonian'' in this case is
+will generate a flow that conserves the value of $H$, provided that $\boldsymbol{\mathcal B}$ is skew-symmetric, that is, $\tr{ \boldsymbol{ \mathcal B }} = -\boldsymbol{ \mathcal B }$. We employ such technique to couple a unique Nos\'{e}-Hoover chain\cite{Martyna1992} (NHC) with $M$ thermostats to a system with $N$ rigid bodies. This is considerably simpler than the approach adopted by Kamberaj \textit{et al}.,\cite{Kamberaj2005} who empirically used two thermostat chains independently coupled to the translational and the rotational degrees of freedom. For this, we consider additional generalized coordinates $\eta_j$ and their conjugate momenta $p_{\eta_j}$, for $j$ ranging from $1$ to $M$. The conserved ``extended Hamiltonian'' in this case is
 \begin{equation}
 \label{eq:H_nvt}
 H = \mathcal{H} + \sum_{j=1}^{M}\frac{p_{\eta_j}^2}{2Q_j} + L k_bT\eta_1 + k_bT\sum_{j=2}^M \eta_j,
 \end{equation}
-where $\mathcal H$ is the same as in Eq.~\ref{eq:H_NVE} and $L$ is a constant to be determined. The equations of motion regarding generalized coordinates are identical to those of a Hamiltonian system, i.e. $\dot{\vt r}_i = {\partial H}/{\partial \vt p_i}$ and $\dot{\vt q}_i = {\partial H}/{\partial \vt \pi_i}$ for every particle $i$ and $\dot{\eta}_j = {\partial H}/{\partial {p_\eta}_j}$ for every thermostat $j$. However, the equations of motion for generalized momenta contain non-Hamiltonian terms. For instance, the first thermostat of the chain acts on the translational and rotational momenta of each particle $i$ as
+where $\mathcal H$ is the same as in Eq.~\ref{eq:H_NVE}, $L$ is a constant to be determined, and $Q_j$ is an inertial parameter of thermostat $j$. As recommended in Ref.~\onlinecite{Martyna1992}, one can make $Q_1 = L k_B T t_d^2$ and $Q_j = k_B T t_d^2$ for $j > 1$, where $t_d$ is a characteristic time scale of the thermostatted system. The equations of motion regarding generalized coordinates are identical to those of a Hamiltonian system, i.e. $\dot{\vt r}_i = {\partial H}/{\partial \vt p_i}$ and $\dot{\vt q}_i = {\partial H}/{\partial \vt \pi_i}$ for every particle $i$ and $\dot{\eta}_j = {\partial H}/{\partial {p_\eta}_j}$ for every thermostat $j$. However, the equations of motion for generalized momenta contain non-Hamiltonian terms. For instance, the first thermostat of the chain acts on the translational and rotational momenta of each particle $i$ as
 \[
 \begin{split}
 \dot{\vt p}_i &= -\diff{H}{\vt r_i} - {\vt p}_i \diff{H}{p_{\eta_1}} \quad \text{and} \\
@@ -344,16 +342,16 @@ Each additional thermostat will then act on the preceding one, and be acted upon
 {\dot p}_{\eta_j} = -\diff{H}{\eta_j} + p_{\eta_{j-1}} \diff{H}{p_{\eta_{j-1}}} - p_{\eta_j} \diff{H}{p_{\eta_{j+1}}}.
 \]
 
-Finally, as the last thermostat will just act on the penultimate one, its equation of motion can be obtained by simply replacing $j = M$ and removing the last term in the equation above. Therefore, if we take all the required derivatives (including those described in Sec.~\ref{sec:hamiltonian}), the equations of motion for a system of rigid bodies coupled to a single Nos\'{e}-Hoover chain become
+Finally, as the last thermostat will just act on the previous one, its equation of motion can be obtained by simply replacing $j = M$ and removing the last term in the equation above. Therefore, if we take all the required derivatives (including those described in Sec.~\ref{sec:hamiltonian}), the equations of motion for a system of rigid bodies coupled to a single Nos\'{e}-Hoover chain become
 \begin{subequations}
 \label{eq:nhc_system}
 \begin{align}
 &\dot{\vt r}_i = \frac{{\vt p}_i}{m_i} \\ 
-&\dot{\vt p}_i = {\vt F}_i - \alpha_1 \vt p_i \\
+&\dot{\vt p}_i = {\vt F}_i - \alpha_1 \vt p_i \label{eq:nhc_p} \\
 &\dot{\vt q}_i = \frac{1}{2} \mt B_i \vt \omega_i \label{eq:nhc_q} \\
 &\dot{\vt \pi}_i = \frac{1}{2} \mt \Omega_i \vt \omega_i + 2 \mt C_i \vt \tau_i - \alpha_1 \vt \pi_i \label{eq:nhc_pi} \\
 &\dot{\eta}_j = \alpha_j \\
-&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j}
+&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j}  \label{eq:nhc_p_eta}
 \end{align}
 \end{subequations}
 
@@ -363,26 +361,63 @@ In the equations above, ${\vt \omega}_i = \frac{1}{2} {\mt I}_i^{-1} \tr{\mt B}_
 &G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_b T \qquad \text{for} \; j > 1.
 \end{align*}
 
-As recommended in Ref.~\onlinecite{Martyna1992}, the inertial parameters can be calculated from a characteristic time scale $t_d$ of the system by $Q_1 = L k_B T t_d^2$ and, for $j > 1$, $Q_j = k_B T t_d^2$. Analysis of the probability distribution generated by the equations of motion in Eq.~\ref{eq:nhc_system} can be done via the generalized phase-space analysis of Tuckerman and coworkers.\cite{Tuckerman2001} For this, conservation laws must be identified and driven variables must be eliminated. For a system without external forces, the extended energy $H$ and the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ are integrals of motion, while the center-of-mass position can be considered as a driven variable due to the conservation of $\boldsymbol{\mathcal G}$.\cite{Tuckerman2001} Moreover, from the $8N$ individual equations implied in Eqs.~\ref{eq:nhc_q} and \ref{eq:nhc_pi}, $2N$ must be eliminated due to the constraints involving $\vt q_i$ and $\vt \pi_i$ for all $i$. By taking all these facts into account and applying the analysis of Ref.~\onlinecite{Tuckerman2001}, we can deduce that the metric determinant factor of the effective phase space is $\sqrt{g} = e^{(6N-2) \eta_1 + \sum_{j=2}^M \eta_j}$ and that the correct canonical distribution is attained if $L = 6N$.
+The system in Eq.~\ref{eq:nhc_system} has a non-vanishing phase-space compressibility $\kappa = \sum_k \partial \dot{x}_k/\partial x_k$ because some phase-space variables affect their own time-derivatives. This is the case for the $3N$ momentum components in Eq.~\ref{eq:nhc_p}, the $4N$ components in Eq.~\ref{eq:nhc_pi}, and the first $M-1$ thermostat momenta in Eq.~\ref{eq:nhc_p_eta} (recalling that $\alpha_{M+1} = 0$). Thus, we have
+\[
+\kappa = -7N \alpha_1 - \sum_{j=1}^{M-1} \alpha_{j+1} = -7N \dot{\eta}_1 - \sum_{j=2}^M \dot{\eta}_j.
+\]
 
-\subsection{Integration of the Canonical Equations of Motion}
+Therefore, besides the conserved quantity $H$ of Eq.~\ref{eq:H_nvt}, the non-Hamiltonian system in Eq.~\ref{eq:nhc_system} has an invariant volume form in phase space given by\cite{Tuckerman_1999, Tuckerman2001, Ezra2006}
+\begin{equation}
+\label{eq:volume_form}
+\bar{\omega} = e^{7N \eta_1 + \sum_{j=2}^M \eta_j} d{\vt r} \wedge d{\vt p} \wedge d{\vt q} \wedge d{\vt \pi} \wedge d{\vt \eta} \wedge d{\vt p_\eta}.
+\end{equation}
 
-As in the Hamiltonian case, the evolution of a phase-space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t i\!L}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999, Tuckerman2001} This implies that we can employ the Trotter-Suzuki splitting to devise a strategy for integrating the equations of motion. First, we consider the usual separation of the non-Hamiltonian components of the equations of motion from the Hamiltonian components. In this case, the generalized Liouville operator can be written as $i\!L = i\!L_\text{NHC} + i\!L_\text{NVE}$, where $i\!L_\text{NVE}$ is defined as in Eq.~\ref{eq:full_operator}. Retaining the NVE factorization scheme defined in Eq.~\ref{eq:trotter_splitting_NVE}, we write the full operator as\cite{Martyna1996}
+Analysis of the probability distribution generated by the canonical equations of motion can be carried out via the generalized phase-space analysis of Tuckerman and coworkers.\cite{Tuckerman2001} For this, conservation laws must be identified and driven variables must be eliminated. For a system without external forces, the extended energy $H$ and the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ are integrals of motion, while the center-of-mass position can be considered as a driven variable due to the conservation of $\boldsymbol{\mathcal G}$.\cite{Tuckerman2001} Moreover, $2N$ equations must be eliminated from the system due to the constraints involving $\vt q_i$ and $\vt \pi_i$ for all $i$. By taking all these facts into account and applying the analysis of Ref.~\onlinecite{Tuckerman2001}, we can deduce that the metric determinant factor of the effective phase space is $\sqrt{g} = e^{(6N-2) \eta_1 + \sum_{j=2}^M \eta_j}$ and that the correct canonical distribution is attained if we make $L = 6N$.
+
+\subsection{Time-Reversible and Measure-Preserving Integration of the Canonical Equations of Motion}
+
+As in the Hamiltonian case, the evolution of a phase-space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t i\!L}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999, Tuckerman2001} This implies that we can employ the Trotter-Suzuki splitting to devise a time-reversible algorithm for integrating the equations of motion. In the microcanonical case, each separate term of the Liouville operator is Hamiltonian and, therefore, each factor of the splitting is a symplectic propagator. As a consequence, the whole propagator is symplectic and thus preserves the phase-space volume element. It is widely recognized that this property is important for numerical stability,\cite{Skeel1997} but it is restricted to Hamiltonian systems. For non-Hamiltonian ones, although the phase-space volume is no longer conserved, there exists an invariant measure in phase space, such as that present in the volume form shown in Eq.~\ref{eq:volume_form}. In this sense, Ezra\cite{Ezra2006} has introduced a systematic method for deriving accurate integrators which, besides being time-reversible, preserve the measure associated with the original equations of motion.
+
+Here, we consider the usual separation of the non-Hamiltonian components of the equations of motion from the Hamiltonian ones. In this case, the generalized Liouville operator can be written as $i\!L = i\!L_\text{NHC} + i\!L_\text{NVE}$, where $i\!L_\text{NVE}$ is defined as in Eq.~\ref{eq:full_operator} and, from Eq.~\ref{eq:nhc_system}, it follows that
+\begin{equation}
+\label{eq:iL_NHC}
+\begin{split}
+i\!L_\text{NHC} = &-\alpha_1 \sum_{i=1}^N \left( \tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \\
+&+ \sum_{j=1}^{M} \left[\alpha_j \diff{}{\eta_j} + (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}}\right].
+\end{split}
+\end{equation}
+
+By retaining the NVE factorization scheme defined in Eq.~\ref{eq:trotter_splitting_NVE}, we write the full exponential operator as
 \begin{equation}
 \label{eq:trotter_splitting_NHC}
 e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}} e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t}  e^{\frac{\Delta t}{2} i\!L_b} e^{\frac{\Delta t}{2} i\!L_\text{NHC}}.
 \end{equation}
 
-It follows from Eq.~\ref{eq:nhc_system} that
-\begin{equation}
-\label{eq:iL_NHC}
-\begin{split}
-i\!L_\text{NHC} &= -\alpha_1 \sum_{i=1}^N \left( \tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \\
-&+ \sum_{j=1}^M \alpha_j \diff{}{\eta_j} + \sum_{j=1}^M \left[ (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} \right].
-\end{split}
-\end{equation}
+This factorization is similar to that proposed by Martyna \textit{et al}.\cite{Martyna1996} for general situations and differs from the one developed by Kamberaj \textit{et al}.\cite{Kamberaj2005} in the context of rigid bodies.........
 
-If the last summation was absent from the equation above, then the action of the propagator $e^{t i\!L_\text{NHC}}$ would be the solution of the equations $\dot{\vt p}_i = -\alpha_1 \vt p_i$ and $\dot{\vt \pi}_i = -\alpha_1 \vt \pi_i$ for all $i \in [1,N]$ and $\dot{\eta}_j = \alpha_j$ for all $j \in [1,M]$, with all other variables remaining constant at their initial values. This system of equations can be solved analytically, which results in
+\begin{subequations}
+\begin{align}
+i\!L_\text{NHC}^{(0)} &= -\alpha_1 \sum_{i=1}^N \left( \tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \alpha_1 \diff{}{\eta_1} \\
+i\!L_\text{NHC}^{(j)} &= (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} + \alpha_{j+1} \diff{}{\eta_{j+1}} \\
+i\!L_\text{NHC}^{(M)} &= G_M \diff{}{p_{\eta_M}}.
+\end{align}
+\end{subequations}
+
+Kamberaj \textit{et al}.\cite{Kamberaj2005} proposed equations of motion and integration schemes for molecular dynamics with rigid bodies in the canonical ensemble. For this, they applied independent Nos\'e-Hoover chain\cite{Martyna1992} thermostats for the translational and rotational degrees of freedom. In addition, 
+
+.............
+
+
+Here we present a different approach. ...........
+
+
+
+
+
+
+
+
+If the last summation was absent from Eq.~\ref{eq:iL_NHC}, then the action of the propagator $e^{t i\!L_\text{NHC}}$ would be the solution of the equations $\dot{\vt p}_i = -\alpha_1 \vt p_i$ and $\dot{\vt \pi}_i = -\alpha_1 \vt \pi_i$ for all $i \in [1,N]$ and $\dot{\eta}_j = \alpha_j$ for all $j \in [1,M]$, with all other variables remaining constant at their initial values. This system of equations can be solved analytically, which results in
 \begin{subequations}
 \begin{align}
 &\vt p_i(t) = \vt p_i^0 e^{-\alpha_1 t}, \\
@@ -402,9 +437,10 @@ where $\phi(x) = (1-e^{-x})/x$. We might note that, in order to avoid numerical 
 
 Considering the analytical solutions described above, it is possible to split the NHC operator into $2M+1$ factors by applying the Trotter-Suzuki formula in a recursive way. The splitting we employ here, noting that the product signs run in reverse orders, is
 \begin{align*}
-e^{\frac{\Delta t}{2} i\!L_\text{NHC}} = &\prod_{j=M}^1 \exp \left[ \frac{\Delta t}{4} (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} \right] \\
-\times \exp \Bigg[ -\frac{\Delta t}{2} &\alpha_1 \sum_{i=1}^N \left(\tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \frac{\Delta t}{2} \sum_{j=1}^M \alpha_j \diff{}{\eta_j} \Bigg] \\
-\times &\prod_{j=1}^M \exp \left[\frac{\Delta t}{4} (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} \right].\\
+e^{\frac{\Delta t}{2} i\!L_\text{NHC}} = \exp \left( \frac{\Delta t}{4} G_M \diff{}{p_{\eta_M}} \right) \\
+\prod_{j=M-1}^1 \exp \left\{ \frac{\Delta t}{4} \left[ (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} + \alpha_{j+1} \diff{}{\eta_{j+1}} \right] \right\} \\
+\exp \Bigg[ -\frac{\Delta t}{2} \alpha_1 \sum_{i=1}^N \left(\tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \frac{\Delta t}{2} \sum_{j=1}^M \alpha_j \diff{}{\eta_j} \Bigg] \\
+\prod_{j=1}^M \exp \left[\frac{\Delta t}{4} (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} \right].\\
 \end{align*}
 
 It is worth noting that an analytical solution can also be derived for the system of equations $\dot{\vt p}_i = {\vt F}_i - \alpha_1 \vt p_i$ and $\dot{\vt \pi}_i = 2 \mt C_i \vt \tau_i - \alpha_1 \vt \pi_i$ for all $i \in [1,N]$ if all other variables are constant. These equations are equivalent in form to the one solved above, so that their solutions are
@@ -438,12 +474,7 @@ e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta 
 \end{split}
 \end{equation}
 
-In the microcanonical case, each term of the Liouville operator is Hamiltonian and, therefore, each factor of the splitting is a symplectic propagator. As a consequence, the whole propagator preserves the phase-space volume. Recall that the inverse statement is not necessarily true. It is now widely recognized that the symplectic property is important for numerical stability,\cite{Skeel1997} although it is restricted to Hamiltonian systems. For non-Hamiltonian equations of motion, the phase space volume is no longer conserved. Nevertheless, there exists an invariant measure on the phase space, and for the system in Eq.~\ref{eq:nhc_system}, it is given by
-\begin{align*}
-\bar{\omega} = e^{6N \eta_1 + \sum_{j=2}^M \eta_j} \wedge {\vt r} \wedge {\vt p} \wedge {\vt q} \wedge {\vt \pi} \wedge {\vt \eta} \wedge {\vt p_\eta}
-\end{align*}
-
-In this sense, Ezra \cite{Ezra2006} has introduced a systematic method for deriving accurate integrators which are both time-reversible and measure-preserving. In his work, he also pointed out that the use of an accurate measure-preserving integrator does not necessarily lead to trajectories that are more ergodic. It can be shown that many of the individual operators in both Eq.~\ref{eq:trotter_splitting_NHC} and Eq.~\ref{eq:modified_splitting} do not preserve the invariant measure. Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. Note that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed.
+Ezra\cite{Ezra2006} pointed out that the use of an accurate measure-preserving integrator does not necessarily lead to trajectories that are more ergodic. Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. Note that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed.
 
 \subsection{Pressure of a System of Rigid Bodies}
 \label{sec:pressure}
