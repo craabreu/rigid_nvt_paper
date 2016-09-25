@@ -78,19 +78,19 @@ I_1 &   0 &   0 \\
 \]
 where $I_1$, $I_2$, and $I_3$ (the eigenvalues of ${\mt I}^\ast$) are the principal moments of inertia and the columns of $\tr{\mt A}$ (the corresponding eigenvectors) are the principal axes of rotation. With no loss of generality, we can consider that $I_1 > I_2 > I_3$. Algorithms for obtaining $\mt A$ from $\mt I^\ast$ can be found in the literature (e.g. Ref.~\onlinecite{Kopp2008}). Once this is done, the position of every particle $j$ in the body-fixed frame can be obtained by ${\vt d}_j = {\mt A} {\vt \delta}_j$. Since $\mt A$ represents an orthogonal transformation, a conversion in the opposite direction is done by ${\vt \delta}_j = \tr{\mt A} {\vt d}_j$.\cite{Goldstein2002} This is so because $\mt A \tr{\mt A} = \mt 1_3$, where $\mt 1_k$ represents a $k \times k$ identity matrix. By differentiating both sides of this relation with respect to time, we conclude that ${\mt A} \tr{\dot{\mt A}} = -\dot{\mt A} \tr{\mt A}$, which means that the result of $\mt A \tr{\dot{\mt A}}$ is skew-symmetric. The angular velocity of the body expressed in the body-fixed frame, $\vt \omega$, is related to this product by $\mt S(\vt \omega) = \mt A \tr{\dot{\mt A}}$,\cite{Haug1989} where $\mt S(\cdot)$ is the skew-symmetric operator defined in Appendix \ref{sec:auxiliary_math}  (Eq.~\ref{eq:operator_S}).
 
-An arbitrary rotation can be described using three independent parameters. One can use, for instance, the so-called Euler angles, but mathematical singularities arise when the equations of motion are described in such terms. Instead, we consider an alternative representation, in which the orientation of a rigid body is given by the Euler parameters $q_0$, $q_1$, $q_2$, and $q_3$, which form a quaternion $\vt q = \tr {[\begin{array}{cccc} q_0 & q_1 & q_2 & q_3 \end{array}]}$. The mathematical relation between the Euler angles and the Euler parameters requires that\cite{Goldstein2002}
+An arbitrary rotation can be described using three independent parameters. One can use Euler angles, for instance, but mathematical singularities arise when the equations of motion are described in such terms. Instead, we consider an alternative representation, in which the orientation of a rigid body is given by four parameters $q_1$, $q_2$, $q_3$, and $q_4$, often referred to as Euler parameters, which form a quaternion $\vt q = \tr {[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$ and satisfy the relation\cite{Goldstein2002}
 \begin{equation}
 \label{eq:norm_eq_1}
-\tr{\vt q}{\vt q} = \|\vt q\|^2 = q_0^2 + q_1^2 + q_2^2 + q_3^2 = 1.
+\tr{\vt q}{\vt q} = \|\vt q\|^2 = q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1.
 \end{equation}
 
 Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Methods are available for computing the unit quaternion related to a given rotation matrix (e.g. Ref.~\onlinecite{Shepperd1978}). Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
 \[
 \label{eq:A_from_q}
-\mt A = \left[ \begin{smallarray}{ccc}
-q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1 q_2 + q_0 q_3) & 2(q_1 q_3 - q_0 q_2) \\
-2(q_1 q_2 - q_0 q_3) & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2 q_3 + q_0 q_1) \\
-2(q_1 q_3 + q_0 q_2) & 2(q_2 q_3 - q_0 q_1) & q_0^2 - q_1^2 - q_2^2 + q_3^2  
+\mt A(\vt q) = \left[ \begin{smallarray}{ccc}
+q_1^2 + q_2^2 - q_3^2 - q_4^2 & 2(q_2 q_3 + q_1 q_4) & 2(q_2 q_4 - q_1 q_3) \\
+2(q_2 q_3 - q_1 q_4) & q_1^2 - q_2^2 + q_3^2 - q_4^2 & 2(q_3 q_4 + q_1 q_2) \\
+2(q_2 q_4 + q_1 q_3) & 2(q_3 q_4 - q_1 q_2) & q_1^2 - q_2^2 - q_3^2 + q_4^2  
 \end{smallarray} \right].
 \]
 
@@ -101,24 +101,24 @@ Differentiating Eq.~\ref{eq:norm_eq_1} with respect to time yields
 \end{equation}
 which implies that, for Eq.~\ref{eq:norm_eq_1} to be preserved upon an infinitesimal motion, the rate of change $\dot{\vt q}$ must lie in the hyperplane orthogonal to $\vt q$.
 
-Let us now introduce two new matrices that also depend on the quaternion components, which are
+Let us now introduce two new matrix-valued functions that depend on the quaternion components as
 \begin{equation}
 \label{eq:def_B_and_C}
-\mt B = \left[
+\mt B(\vt q) = \left[
 \begin{smallarray}{rrrr}
--q_1 & -q_2 & -q_3 \\
- q_0 & -q_3 &  q_2 \\
- q_3 &  q_0 & -q_1 \\
--q_2 &  q_1 &  q_0
+-q_2 & -q_3 & -q_4 \\
+ q_1 & -q_4 &  q_3 \\
+ q_4 &  q_1 & -q_2 \\
+-q_3 &  q_2 &  q_1
 \end{smallarray}
 \right]
 \quad \text{and} \quad
-\mt C = \left[
+\mt C(\vt q) = \left[
 \begin{smallarray}{rrrr}
--q_1 & -q_2 & -q_3 \\
- q_0 &  q_3 & -q_2 \\
--q_3 &  q_0 &  q_1 \\
- q_2 & -q_1 &  q_0
+-q_2 & -q_3 & -q_4 \\
+ q_1 &  q_4 & -q_3 \\
+-q_4 &  q_1 &  q_2 \\
+ q_3 & -q_2 &  q_1
 \end{smallarray}
 \right].
 \end{equation}
@@ -135,7 +135,7 @@ The equation above is a simple and convenient factorization of matrix $\mt A$, s
 \dot{\vt q} = \frac{1}{2} \mt B \vt \omega.
 \end{equation}
 
-As explained in the referred appendix, premultiplication of a vector with either $\mt B$ or $\mt C$ transforms it into a quaternion that lies in the hyperplane orthogonal to $\vt q$. Both transformations can be reversed by applying $\tr{\vt B}$ or $\tr{\vt C}$ accordingly. Therefore, there exists an intermediary frame of reference, which is fixed with respect to the unit quaternion $\vt q$ that represents the orientation of the body. Its connection to the body-fixed and space-fixed frames are summarized as follows:
+Note that, for simplicity, we might omit the argument of a matrix-valued function (like $\mt A$, $\vt B$, or $\mt C$) when such argument is $\vt q$. It is explained in Appendix~\ref{sec:auxiliary_math} that premultiplication of a vector with either $\mt B$ or $\mt C$ transforms it into a quaternion that lies in the hyperplane orthogonal to $\vt q$ and that both transformations can be reversed by applying $\tr{\vt B}$ or $\tr{\vt C}$ accordingly. Therefore, there exists an intermediary frame of reference, which is fixed with respect to the unit quaternion $\vt q$ that represents the orientation of the body. Its connection to the body-fixed and space-fixed frames are summarized as follows:
 \[
 \boxed{\substack{\text{Body-fixed} \\ \text{frame}}}
 \mathrel{\mathop{\rightleftarrows}^{\mt B}_{\tr{\mt B}}}
@@ -144,7 +144,23 @@ As explained in the referred appendix, premultiplication of a vector with either
 \boxed{\substack{\text{Space-fixed} \\ \text{frame}}}
 \]
 
-Hence, Eq.~\ref{eq:relation_qdot_omega} shows that $\dot{\vt q}$ is simply half the angular velocity vector expressed in the quaternion-fixed frame. Besides, it guarantees that the norm of $\vt q$ remains unchanged because Eq.~\ref{eq:diff_qTq} is identically satisfied.
+Hence, Eq.~\ref{eq:relation_qdot_omega} shows that $\dot{\vt q}$ is half the quaternion-fixed version of the angular velocity vector. Besides, it guarantees that the norm of $\vt q$ remains unchanged because Eq.~\ref{eq:diff_qTq} is identically satisfied.
+
+To conclude this section, we discuss on the possibility of switching between alternative space-fixed frames when describing the motion of a rigid body. This will be useful when we deal with torque-free rotations in Sec.~\ref{sec:free_rotation}. Consider that a body-fixed vector $\vt d$ is, at the same instant $t$, observed as $\vt \delta = \tr{[\mt A(\vt q)]}{\vt d}$ in a space-fixed frame $\mathcal S_q$ and as $\vt \eta = \tr{[\mt A(\vt z)]}{\vt d}$ in another space-fixed frame $\mathcal S_z$. It thus follows that $\vt \eta = \tr{[\mt A(\vt z)]}{\mt A}(\vt q)\vt \delta$, which means that these two reference frames are rotated with respect to each other by a composite matrix $\mt A(\vt g) = \tr{[\mt A(\vt z)]}{\mt A}(\vt q)$. A simple relation between the unit quaternions $\vt g$, $\vt z$, and $\vt q$ is a key result in quaternion algebra.\cite{Dichmann1999} Adapted to our matrix/vector notation, such relation is
+\begin{subequations}
+\begin{equation}
+ \label{eq:comb_rot}
+ \vt g = \tr{\left[\begin{array}{cc}\vt z & \mt C(\vt z)\end{array}\right]} \vt q.
+\end{equation}
+
+The block matrix above comprises an orthogonal transformation in $\mathbb{R}^4$, which means that the inverse transformation is simply given by
+\begin{equation}
+\label{eq:inv_comb_rot}
+\vt q = \left[\begin{array}{cc}\vt z & \mt C(\vt z)\end{array}\right] \vt g.
+\end{equation}
+\end{subequations}
+
+As $\mathcal S_q$ and $\mathcal S_z$ are fixed in space, one can conclude that the quaternion $\vt g$ remains constant while both $\vt q$ and $\vt z$ vary in time as the body rotates. In addition, because Eq.~\ref{eq:relation_qdot_omega} was derived for an arbitrary space-fixed frame, it is clear that the equation $\dot{\vt z} = \tfrac{1}{2}{\vt B}(\vt z)\vt \omega$ is equally valid. Therefore, as an alternative to following the evolution of $\vt q$ along a period of time, one can select some convenient unit quaternion $\vt z$ at any instant, compute $\vt g$ using Eq.~\ref{eq:comb_rot}, and then follow the evolution of $\vt z$ from this instant on. Of course, Eq.~\ref{eq:inv_comb_rot} can be employed whenever the value of $\vt q$ is needed afterwards.
 
 \subsection{Hamiltonian Dynamics}
 \label{sec:hamiltonian}
@@ -168,18 +184,7 @@ Hence, $\vt \pi$ is twice the quaternion-fixed version of the angular momentum (
 \mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt \pi} {\mt B} {\mt I}^{-1} \tr{\mt B} \vt \pi}{8} + U(\vt r, \vt q).
 \end{equation}
 
-The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \partial \mathcal{H} / \partial \vt p$, $\dot{\vt p} = -\partial \mathcal{H} / \partial \vt r$, $\dot{\vt q} = \partial \mathcal{H} / \partial \vt \pi$, and $\dot{\vt \pi} = -\partial \mathcal{H} / \partial \vt q$.\cite{Goldstein2002} Eq.~\ref{eq:H_with_B} is convenient for differentiation with respect to $\vt \pi$, since $\mt B$ depends on $\vt q$ only. However, if we define
-\[
-\mt \Omega = \left[
-\begin{smallarray}{rrrr}
--\pi_1 & -\pi_2 & -\pi_3 \\
- \pi_0 & -\pi_3 &  \pi_2 \\
- \pi_3 &  \pi_0 & -\pi_1 \\
--\pi_2 &  \pi_1 &  \pi_0
-\end{smallarray}
-\right],
-\]
-it follows that $\tr{\mt B}{\vt \pi} = - \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
+The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \partial \mathcal{H} / \partial \vt p$, $\dot{\vt p} = -\partial \mathcal{H} / \partial \vt r$, $\dot{\vt q} = \partial \mathcal{H} / \partial \vt \pi$, and $\dot{\vt \pi} = -\partial \mathcal{H} / \partial \vt q$.\cite{Goldstein2002} Eq.~\ref{eq:H_with_B} is convenient for differentiation with respect to $\vt \pi$, since $\mt B(\vt q)$ does not depend on it. However, if we define $\mt \Omega = \mt B(\vt \pi)$, it follows that $\tr{\mt B}{\vt \pi} = - \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
 \begin{equation}
 \label{eq:H_with_Omega}
 \mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q}{8} + U(\vt r, \vt q).
@@ -229,63 +234,47 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \subsection{Analytical Solution for Free Rotation}
 \label{sec:free_rotation}
 
-If no forces act on a rigid body, then the rotational energy $K_r$ and the angular momentum norm $L$ are integrals of motion, so that we can write
-\[
-\begin{cases}
-I_1 \omega_1^2 + I_2 \omega_2^2 + I_3 \omega_3^2 = 2 K_r \\
-I_1^2 \omega_1^2 + I_2^2 \omega_2^2 + I_3^2 \omega_3^2 = L^2
-\end{cases}
-\]
+Before describing the method, we consider the transformati
 
-Evidently, one can promptly evaluate $K_r$ and $L$ if the initial angular velocity vector ${\vt \omega}_0 = [\omega_{1,0}]$ is known. By solving the equations above for $\omega_1^2$ and $\omega_3^2$, we obtain
-\begin{subequations}
-\begin{align}
-\omega_1^2 = \frac{L^2-2I_3K_r}{I_1(I_1-I_3)}\left[1-\left(\frac{\omega_2}{\lambda_1}\right)^2\right] \label{eq:solution_omega_1} \\
-\omega_3^2 = \frac{2I_1K_r-L^2}{I_3(I_1-I_3)}\left[1-\left(\frac{\omega_2}{\lambda_3}\right)^2\right] \label{eq:solution_omega_3}
-\end{align}
-\end{subequations}
-where
-\begin{equation}
-\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}} \quad \text{and} \quad \lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}.
-\end{equation}
 
-By realizing that the prefactor in Eqs.~\ref{eq:solution_omega_1} and \ref{eq:solution_omega_3} are constant and that these equations are also valid at $t = 0$, we can rewrite then as
-\begin{subequations}
-	\begin{align}
-	\omega_1^2 = A_1^2 \left[1-\left(\frac{\omega_2}{\lambda_1}\right)^2\right] \label{eq:solution_omega_1} \\
-	\omega_3^2 = A_2^2 \left[1-\left(\frac{\omega_2}{\lambda_3}\right)^2\right] \label{eq:solution_omega_3}
-	\end{align}
-\end{subequations}
-where
-\begin{equation}
-A_1 = \frac{\lambda_1 \omega_{1,0}}{\sqrt{\lambda_1^2 - \omega_{2,0}^2}} \quad \text{and} \quad
-A_3 = \frac{\lambda_3 \omega_{3,0}}{\sqrt{\lambda_3^2 - \omega_{2,0}^2}}.
-\end{equation}
-
-Substituting in the Euler equation for $\omega_2$, we have
-\[
-I_2 \dot{\omega}_2 - (I_1-I_3) A_1 A_3 \sqrt{\left[1-\left(\frac{\omega_2}{\lambda_1}\right)^2\right]\left[1-\left(\frac{\omega_2}{\lambda_3}\right)^2\right]}
-\]
-
-By defining $x = \omega_2/\lambda_\text{min}$ and $\kappa = \lambda_\text{min}/\lambda_\text{max}$, where $\lambda_\text{min} = \min(\lambda_1,\lambda_3)$ and $\lambda_\text{max} = \max(\lambda_1,\lambda_3)$, we obtain the following initial value problem for $x$:
-\[
-\begin{cases}
-I_2 \lambda_\text{min} \dot{x} - (I_1-I_3) A_1 A_3 \sqrt{(1-x^2)(1-\kappa^2x^2)} = 0 \\
-x(0) = \omega_{2,0}/\lambda_\text{min}.
-\end{cases}
-\]
-
-The solution of the equation above can be expressed using the elliptic Jacobi function $\text{sn}$, so that we can calculate $\omega_2$ at any time as
-\[
-\omega_2(t) = \lambda_\text{min} \text{sn}(\alpha t + \epsilon,\kappa),
-\]
-where
-\[
-\alpha = -\frac{(I_1-I_3)A_1A_3}{\lambda_\text{min} I_2} \quad \text{and} \quad \epsilon = \text{arcsn}\left(\frac{\omega_{2,0}}{\lambda_\text{min}},\kappa\right).
-\]
+Method based on work of Kosenko\cite{Kosenko_1998} and Celledoni \textit{et al}.\cite{Celledoni_2008} and also related to the work of van Zon \textit{et al}.\cite{vanZon2007}.
 
 
 
+Let $\vt L = \tr{[\mt A(\vt q)]}{\mt I}{\vt \omega}$ be the angular momentum vector 
+
+During a torque-free rotational motion, the angular momentum vector $\vt L$ remains constant in any space-fixed frame of reference. 
+
+In the body-fixed frame, although the 
+
+$\vt L = \tr{[\mt A(\vt q)]}{\mt I}{\vt \omega}$ remains constant while both the quaternion $\vt q$ and the body-fixed angular velocity $\vt \omega$ vary.
+
+
+ Once $\vt L$ is computed from the initial condition and the evolution of $\vt \omega$ is known (after solving the Euler equation), this fact constrains the possible evolution of $\vt q$. By premultiplying $\vt L$ by $\vt C$, one has that $\vt C \vt L = \vt B \mt I \vt \omega$. In other words, $\vt q$ must vary in such a way that the mapping of both $\vt L$ and $\mt I\vt \omega$ in its orthogonal plane always coincide. Then, resorting to Eq.~\ref{eq:product_B_vector} we can write
+\begin{equation*}
+\sum_{k=1}^3\left(L_k \hat{\vt C}_k - I_k \omega_k \hat{\vt B}_k\right){\vt q} = \vt 0,
+\end{equation*}
+where $\hat{\vt C}_k$ and $\hat{\vt B}_k$ are the permutation matrices defined in Appendix~\ref{sec:auxiliary_math}.
+Therefore, $\vt q$ is constrained to lie in the null space of a matrix $\mt G = \sum_{k=1}^3(L_k \hat{\vt C}_k - I_k \omega_k \hat{\vt B}_k)$. The determinant of this matrix can be obtained as
+\begin{equation*}
+\det \mt G = (\tr{\vt \omega}{\mt I}^2{\vt \omega} - L^2)^2,
+\end{equation*}
+which is identically null in a free rotational motion. In fact, this is a requirement for a matrix to have a non-empty null space. Using a computer algebra package, it is straightforward to find out that $\vt G$ has a two-dimensional null space whose basis set is formed by the two vectors
+\begin{equation*}
+\vt v_1 = \left[\begin{smallarray}{c}
+L_2 + I_2 \omega_2 \\
+L_3 - I_3 \omega_3 \\
+0 \\
+L_1 - I_1 \omega_1
+\end{smallarray}\right]
+\quad \text{and} \quad
+\vt v_1 = \left[\begin{smallarray}{c}
+L_3 + I_3 \omega_3 \\
+L_2 - I_2 \omega_2 \\
+L_1 - I_1 \omega_1 \\
+0
+\end{smallarray}\right].
+\end{equation*}
 
 \subsection{Symplectic Numerical Integration}
 \label{sec:symplectic}
@@ -959,7 +948,7 @@ The authors acknowledge the financial support provided by Petrobras (project cod
 \section{Differentiation with vectors and matrices}
 \label{sec:Diff_Rules}
 
-Along the paper, we employ the gradient convention (rather than the Jacobian convention) for expressing derivatives with respect to vector variables. Hence, very often we differentiate a scalar function using one of the following rules:
+Along the paper, we employ the gradient convention (rather than the Jacobian convention) for expressing derivatives with respect to vector variables. In this context, very often we differentiate a scalar function using one of the following rules:
 \[
 \diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a \quad \text{or} \quad \diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = (\mt A + \tr{\mt A})\vt x,
 \]
@@ -977,7 +966,9 @@ We start by analyzing the matrix $\mt B$ as defined in Eq.~\ref{eq:def_B_and_C}.
 \end{aligned}
 \end{equation}
 
-If $\tr{\vt q}{\vt q} = 1$, then the operation $\vt y = \mt B \vt x$ can always be reverted by $\tr{\mt B}$. This is not true for a general operation in the opposite direction, $\vt x = \tr{\mt B} \vt y$. Besides unit norm, it is necessary that $\tr{\vt q}\vt y = 0$ (i.e. orthogonality of $\vt y$ and $\vt q$) for the operation to be reversible by $\mt B$. In fact, the composite transformation $\mt B\tr{\mt B}$ corresponds to a projection into the hyperplane orthogonal to $\vt q$.\cite{Dichmann1999} As the columns of $\mt B$ are permutations of the components of $\vt q$, one can write $\mt B = [\begin{smallarray}{ccc} \hat{\mt B}_1{\vt q} & \hat{\mt B}_2{\vt q} & \hat{\mt B}_3{\vt q}\end{smallarray}]$, where $\hat{\mt B}_1$, $\hat{\mt B}_2$, and $\hat{\mt B}_3$ are the following skew-symmetric permutation matrices:
+If $\tr{\vt q}{\vt q} = 1$, then the operation $\vt y = \mt B \vt x$ can always be reverted by $\tr{\mt B}$. This is not true for a general operation in the opposite direction, $\vt x = \tr{\mt B} \vt y$. Besides unit norm, it is necessary that $\tr{\vt q}\vt y = 0$ (i.e. orthogonality of $\vt y$ and $\vt q$) for the operation to be reversible by $\mt B$. In fact, the composite transformation $\mt B\tr{\mt B}$ corresponds to a projection into the hyperplane orthogonal to $\vt q$.\cite{Dichmann1999}
+
+As the columns of $\mt B$ are permutations of the components of $\vt q$, one can write $\mt B = [\begin{smallarray}{ccc} \hat{\mt B}_1{\vt q} & \hat{\mt B}_2{\vt q} & \hat{\mt B}_3{\vt q}\end{smallarray}]$, where $\hat{\mt B}_1$, $\hat{\mt B}_2$, and $\hat{\mt B}_3$ are the following skew-symmetric permutation matrices:
 \[
 \hat{\mt B}_1 = \left[ \begin{smallarray}{cccc}
  0 & \text{-}1 &  0 &  0 \\
@@ -1026,7 +1017,7 @@ Similarly, the product of $\tr{\mt B}$ with an arbitrary quaternion $\vt \pi$ re
 \end{smallarray}\right].
 \end{equation}
 
-We now turn the attention to the product $\tr{\mt B}\dot{\mt B}$, where $\dot{\mt B} = \left[\begin{smallarray}{ccc} \hat{\mt B}_1\dot{\vt q} & \hat{\mt B}_2\dot{\vt q} & \hat{\mt B}_3\dot{\vt q}\end{smallarray}\right]$ is the time-derivative of matrix $\mt B$. Each entry of this product is $\{\tr{\mt B}\dot{\mt B}\}_{ij} = \tr{\vt q}\tr{\hat{\mt B}_i} \hat{\mt B}_j\dot{\vt q}$. By noting that products involving the permutation matrices satisfy the relations\cite{Dichmann1999}
+With $\dot{\mt B} = \left[\begin{smallarray}{ccc} \hat{\mt B}_1\dot{\vt q} & \hat{\mt B}_2\dot{\vt q} & \hat{\mt B}_3\dot{\vt q}\end{smallarray}\right]$ being the time-derivative of matrix $\mt B$, we now focus on the product $\tr{\mt B}\dot{\mt B}$, whose each entry is $\{\tr{\mt B}\dot{\mt B}\}_{ij} = \tr{\vt q}\tr{\hat{\mt B}_i} \hat{\mt B}_j\dot{\vt q}$. By noting that products involving the permutation matrices satisfy the relations\cite{Dichmann1999}
 \begin{equation}
 \label{eq:BB_products}
 \begin{aligned}
@@ -1064,7 +1055,7 @@ By contrasting the definition above with Eqs.~\ref{eq:vector_entries} and \ref{e
 \tr{\mt B}\dot{\mt B} = {\mt S}\left( \tr{\mt B}\dot{\vt q} \right).
 \end{equation}
 
-We can also express matrix $\mt C$ as $\left[\begin{smallarray}{ccc} \hat{\mt C}_1{\vt q} & \hat{\mt C}_2{\vt q} & \hat{\mt C}_3{\vt q}\end{smallarray}\right]$, where $\hat{\mt C}_1$, $\hat{\mt C}_2$, and $\hat{\mt C}_3$ are the following skew-symmetric permutation matrices:
+We can also express $\mt C = \left[\begin{smallarray}{ccc} \hat{\mt C}_1{\vt q} & \hat{\mt C}_2{\vt q} & \hat{\mt C}_3{\vt q}\end{smallarray}\right]$, where $\hat{\mt C}_1$, $\hat{\mt C}_2$, and $\hat{\mt C}_3$ are the following skew-symmetric permutation matrices:
 \[
 \hat{\mt C}_1 = \left[ \begin{smallarray}{cccc}
  0 & \text{-}1 &  0 &  0 \\
@@ -1086,7 +1077,7 @@ We can also express matrix $\mt C$ as $\left[\begin{smallarray}{ccc} \hat{\mt C}
 \end{smallarray} \right]
 \]
 
-However, products involving these matrices are slightly different from those in Eq.~\ref{eq:BB_products}. They are
+Products involving these matrices are slightly different from those in Eq.~\ref{eq:BB_products}. They are
 \begin{equation}
 \label{eq:CC_products}
 \begin{aligned}
@@ -1097,21 +1088,21 @@ However, products involving these matrices are slightly different from those in 
 \end{aligned}
 \end{equation}
 
-A special connection between the permutation matrices that make $\mt B$ and $\mt C$ is the fact that $\tr{\hat{\mt B}_i}{\hat{\mt C}_j} = \tr{\hat{\mt C}_j}{\hat{\mt B}_i}$ for any combination of $i$ and $j$. A direct consequence is that $\tr{\vt q}\tr{\hat{\mt B}}_i\hat{\mt C}_j\dot{\vt q} = \tr{\dot{\vt q}}\tr{\hat{\mt B}}_i\hat{\mt C}_j{\vt q}$, which means that $\tr{\mt B}\dot{\mt C} = \tr{\dot{\mt B}}{\mt C}$. Thus, differentiating Eq.~\ref{eq:factorization_of_A} with respect to time, we conclude that $\dot{\mt A} = \tr{\mt B}\dot{\mt C} + \tr{\dot{\mt B}}{\mt C} = 2 \tr{\dot{\mt B}}{\mt C}$. Note that Eq.~\ref{eq:basics_B} also applies for matrix $\mt C$, which means that, as far as $\tr{\vt q}\vt q = 1$, we can insert the product $\mt C\tr{\mt C}$ between $\tr{\mt B}$ and $\dot{\mt B}$ in Eq.~\ref{eq:relation_B_qdot} without altering its result. Then, using Eq.~\ref{eq:factorization_of_A} again and the conclusion above about $\dot{\mt A}$, we have that
+A special connection between the permutation matrices that make $\mt B$ and $\mt C$ is the fact that $\tr{\hat{\mt B}_i}{\hat{\mt C}_j}$ is symmetric for any combination of $i$ and $j$. A direct consequence is that $\tr{\vt q}\tr{\hat{\mt B}}_i\hat{\mt C}_j\dot{\vt q} = \tr{\dot{\vt q}}\tr{\hat{\mt B}}_i\hat{\mt C}_j{\vt q}$, which means that $\tr{\mt B}\dot{\mt C} = \tr{\dot{\mt B}}{\mt C}$. Thus, differentiating Eq.~\ref{eq:factorization_of_A} with respect to time yields $\dot{\mt A} = \tr{\mt B}\dot{\mt C} + \tr{\dot{\mt B}}{\mt C} = 2 \tr{\dot{\mt B}}{\mt C}$. Note that Eq.~\ref{eq:basics_B} also applies for matrix $\mt C$, which means that, as far as $\tr{\vt q}\vt q = 1$, we can insert the product $\mt C\tr{\mt C}$ between $\tr{\mt B}$ and $\dot{\mt B}$ in Eq.~\ref{eq:relation_B_qdot} without altering its result. Then, using Eq.~\ref{eq:factorization_of_A} again and the conclusion above about $\dot{\mt A}$, we have that
 \begin{equation}
 \frac{1}{2} {\mt A}\tr{\dot{\mt A}} = {\mt S}\left( \tr{\mt B}\dot{\vt q} \right).
 \end{equation}
 
-As mentioned in Sec.~\ref{sec:kinematics}, ${\mt A}\tr{\dot{\mt A}} = \mt S(\vt \omega)$, which makes the equation above result in Eq.~\ref{eq:relation_qdot_omega}.
+As mentioned in Sec.~\ref{sec:kinematics}, ${\mt A}\tr{\dot{\mt A}} = \mt S(\vt \omega)$, which makes the equation above equivalent to Eq.~\ref{eq:relation_qdot_omega}.
 
 \section{Potential energy differentiation}
 \label{sec:Diff_PotEng}
 
-Care must be taken when differentiating the potential energy $U$ with respect to $\vt q$ because the quaternion components are interdependent. Schay has demonstrated that, when a vector variable $\vt x$ is subject to a constraint $g(\vt x) = 0$, the derivative of $f$ with respect to $\vt x$ must be computed by\cite{Schay1995}
+Care must be taken when differentiating the potential energy with respect to $\vt q$ because the quaternion components are interdependent. According to Schay,\cite{Schay1995} when a vector variable $\vt x$ is subject to a constraint $g(\vt x) = 0$, the derivative of $f$ with respect to $\vt x$ must be computed by
 \[
 \diff{f}{\vt x} = (\vt 1 - \vt n \tr{\vt n})\left( \diff{f}{\vt x} \right)^\ast,
 \]
-where $\vt n$ is the unit vector proportional to $(\partial g/\partial \vt x)^\ast$, with the asterisk denoting a differentiation performed without considering the interdependence of the entries of $\vt x$. We note that transpositions are necessary when comparing the equation above, based on the gradient convention, with that in Ref.~\onlinecite{Schay1995}, where the Jacobian convention is used. In the case of a unit quaternion,
+where $\vt n$ is the unit vector proportional to $(\partial g/\partial \vt x)^\ast$, with the asterisk denoting a differentiation performed without considering the interdependence of the entries of $\vt x$. Note that transpositions are necessary when comparing the equation above, based on the gradient convention, with that in Ref.~\onlinecite{Schay1995}, where the Jacobian convention is used. In the case of a unit quaternion,
 \[
 g(\vt q) = \tr{\vt q}\vt q - 1 = 0 \; \rightarrow \; \left(\diff{g}{\vt q}\right)^\ast = 2 \vt q.
 \]
@@ -1128,12 +1119,12 @@ By applying the chain rule, we have
 \[
 \left( \diff{U}{\vt q} \right)^\ast = \sum_{j=1}^{n_p} \left( \diff{\vt R_j}{\vt q} \right)^\ast \diff{U}{\vt R_j} = - \sum_{j=1}^{n_p} \left( \diff{\vt \delta_j}{\vt q} \right)^\ast {\vt F_j},
 \]
-where $\vt R_j = \vt r + \vt \delta_j$ and $\vt F_j = -\partial U/\partial \vt R_j$ is, by definition, the force applied on particle $j$. Temporarily dropping the particle index for simplicity, we recall from Sec.~\ref{sec:kinematics} that $\vt \delta = \tr{\mt A}\vt d$, where $\vt d$ is a constant vector. Because each entry of matrix $\mt A = \tr{\mt B}{\mt C}$ is $A_{ij}=\tr{\vt q} \tr{\hat{\mt B}}_i \hat{\mt C}_j {\vt q}$, an entry of $\vt \delta$ is given by
+where $\vt R_j = \vt r + \vt \delta_j$ and $\vt F_j = -\partial U/\partial \vt R_j$ is, by definition, the force applied on particle $j$. Temporarily dropping the particle index for simplicity, we recall from Sec.~\ref{sec:kinematics} that $\vt \delta = \tr{\mt A}\vt d$, where $\vt d$ is a constant vector. As each entry of $\mt A = \tr{\mt B}{\mt C}$ is $A_{ij}=\tr{\vt q} \tr{\hat{\mt B}}_i \hat{\mt C}_j {\vt q}$, an entry of $\vt \delta$ is given by
 \[
 \delta_j = \sum_{i=1}^{3} d_i \tr{\vt q} \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q}.
 \]
 
-Because $\tr{\hat{\mt C}}_j \hat{\mt B}_i$ is symmetric, an unconstrained differentiation results in
+Due to the symmetry of $\tr{\hat{\mt C}}_j \hat{\mt B}_i$, an unconstrained differentiation results in
 \[
 \left(\diff{\delta_j}{\vt q}\right)^\ast = 2 \sum_{i=1}^{3} d_i \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q} = -2{\hat{\mt C}}_j {\mt B}{\vt d},
 \]
@@ -1144,9 +1135,81 @@ where we have factored out $\tr{\hat{\mt C}}_j = -\hat{\mt C}_j$ from the summat
 {\hat{\mt C}}_1 {\mt B}{\vt d} & {\hat{\mt C}}_2 {\mt B}{\vt d} & {\hat{\mt C}}_3 {\mt B}{\vt d}
 \end{smallarray}\right] = 2{\mt C}\;{\mt S}\!\left(\tr{\mt C}{\mt B}\vt d\right),
 \]
-where we have carried out the second matrix product above, employed the properties presented in Eq.~\ref{eq:CC_products}, and then used the operator defined in Eq.~\ref{eq:operator_S}. Finally, after realizing that $\tr{\mt C}{\mt B}\vt d = \tr{\mt A}{\vt d} = \vt \delta$, we can used the result above to obtain
+where we have carried out the second matrix product above, employed the properties presented in Eq.~\ref{eq:CC_products}, and then used the operator defined in Eq.~\ref{eq:operator_S}. Finally, after realizing that $\tr{\mt C}{\mt B}\vt d = \tr{\mt A}{\vt d} = \vt \delta$, we can use the result above to obtain
 \[
 \diff{U}{\vt q} = - 2 \mt C \sum_{j=1}^{n_p} \mt S(\vt \delta_j) {\vt F_j}  = - 2 \mt C \sum_{j=1}^{n_p} \vt \delta_j \times {\vt F_j}.
+\]
+
+Therefore, the constrained derivative of $U$ with respect to $\vt q$ is proportional to the quaternion-fixed representation of the resultant torque over the body.
+
+\section{Derivation of the Euler equation and its solution for a torque-free rotation}
+\label{eq:derivation_euler}
+
+Recall that $\vt \pi$ is twice the quaternion-fixed version of the angular momentum vector. Thus, it is expected that Eq.~\ref{eq:euler_eq_quat} will result in the well-known Euler equation, which describes the evolution of the angular momentum in the body-fixed frame, if $\frac{1}{2} \tr{\mt B}$ is premultiplied to both sides. In order to show that this actually occurs, we start by carrying out the premultiplication to obtain
+\[
+\frac{1}{2} \tr{\mt B} \dot{\vt \pi} = \frac{1}{4} \tr{\mt B} \mt \Omega \vt \omega + \mt A \vt \tau.
+\]
+
+Once $\mt \Omega = \left[\begin{smallarray}{ccc} \hat{\mt B}_1{\vt \pi} & \hat{\mt B}_2{\vt \pi} & \hat{\mt B}_3{\vt \pi}\end{smallarray}\right]$, in analogy with Eq.~\ref{eq:BtBdot} we conclude that $\tr{\mt B} \mt \Omega = \mt S(\tr{\mt B}\vt \pi) = 2 \mt S(\mt I \vt \omega)$. In addition,
+\[
+\tr{\mt B} \dot{\vt \pi} = \frac{d(\tr{\mt B}\vt \pi)}{dt} - \tr{\dot{\mt B}}\vt \pi = 2 \mt I\dot{\vt \omega} - 2 \tr{\dot{\mt B}} \mt B \mt I \vt \omega,
+\]
+where we have inserted $\mt B \tr{\mt B}$ between $\tr{\dot{\mt B}}$ and $\vt \pi$ and substituted $\tr{\mt B} \vt \pi = 2 \mt I \vt \omega$. Finally, after transposing Eq.~\ref{eq:relation_B_qdot} with $\tr{\mt B}\dot{\vt q}$ replaced by $\frac{1}{2} \vt \omega$ and resorting to the relation between $\mt S(\cdot)$ and a cross product, we obtain
+\[
+\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau,
+\]
+which is exactly the Euler equation of motion for rigid bodies.\cite{Goldstein2002} Its main advantage, in comparison with Eq.~\ref{eq:euler_eq_quat}, is that it completely decouples from the quaternion $\vt q$ when $\vt \tau = \vt 0$. In such a torque-free situation, the vector equation can be rewritten as the following system:
+\begin{align*}
+I_1 \dot{\omega}_1 - (I_2 - I_3) \omega_2 \omega_3 = 0\\
+I_2 \dot{\omega}_2 + (I_1 - I_3) \omega_1 \omega_3 = 0 \\
+I_3 \dot{\omega}_3 - (I_1 - I_2) \omega_1 \omega_2 = 0
+\end{align*}
+
+Analytical solutions for this system are a textbook subject.\cite{Landau1976} Here we present the solution for the case under consideration, when $I_1 > I_2 > I_3$ (an asymmetrical top), in a form that aims to facilitate computer implementation, inspired by the forms presented in Refs.~\onlinecite{Landau1976} and \onlinecite{Thorn2012}. In a free rotation, the kinetic energy $K_r = \tfrac{1}{2} \tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-frame angular momentum $\vt L = \tfrac{1}{2}\tr{\mt C}{\vt \pi} = \tr{\mt A}{\mt I}{\vt \omega}$ are integrals of motion. Note that the square norm of $\vt L$ does not depend explicitly on $\vt q$ in any frame of reference:
+\[
+L^2 = \tr{\vt L}{\vt L} = \tr{\vt \omega}{\mt I}^2{\vt \omega} = \frac{1}{4}\tr{\vt \pi}{\vt \pi}.
+\]
+
+Therefore, if we compute $K_r$ and $L^2$ from the initial angular velocity ${\vt \omega}^0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, we can apply the following constraints to the Euler equations:
+\begin{align*}
+I_1 \omega_1^2 + I_2 \omega_2^2 + I_3 \omega_3^2 = 2 K_r \\
+I_1^2 \omega_1^2 + I_2^2 \omega_2^2 + I_3^2 \omega_3^2 = L^2
+\end{align*}
+
+By solving these equations for $\omega_1^2$ and $\omega_3^2$, we obtain
+\begin{equation}
+\label{eq:omegas_1_and_3}
+\omega_1^2 = A_1^2 \left[1-\left(\frac{\omega_2}{\lambda_1}\right)^2\right] \;\; \text{and} \;\; \omega_3^2 = A_3^2 \left[1-\left(\frac{\omega_2}{\lambda_3}\right)^2\right],
+\end{equation}
+where
+\begin{equation}
+\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}} \;\; \text{and} \;\; \lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}.
+\end{equation}
+
+In order to obtain the prefactors $A_1$ and $A_3$ with the correct signs, we realize that Eqs.~\ref{eq:omegas_1_and_3} must be valid at the initial instant ($t = 0$), which makes
+\begin{equation}
+A_1 = \frac{\omega_1^0}{\sqrt{1 - (\omega_2^0/\lambda_1)^2}} \;\; \text{and} \;\;
+A_3 = \frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}}.
+\end{equation}
+
+By defining $x = {\omega_2}/{\lambda_\text{min}}$ and $\kappa = {\lambda_\text{min}}/{\lambda_\text{max}}$, where $\lambda_\text{min} = \min(\lambda_1,\lambda_3)$ and $\lambda_\text{max} = \max(\lambda_1,\lambda_3)$, we can transform the Euler equation for $\omega_2$ into to the following initial value problem for $x$:
+\[
+\begin{cases}
+I_2 \lambda_\text{min} \dot{x} + (I_1-I_3) A_1 A_3 \sqrt{(1-x^2)(1-\kappa^2x^2)} = 0 \\
+x(0) = \omega_2^0/\lambda_\text{min}.
+\end{cases}
+\]
+
+The solution of the equation above and its application to 
+
+
+can be expressed using the elliptic Jacobi function $\text{sn}$, so that we can calculate $\omega_2$ at any time as
+\[
+\omega_2(t) = \lambda_\text{min} \text{sn}(\alpha t + \epsilon,\kappa),
+\]
+where
+\[
+\alpha = -\frac{(I_1-I_3)A_1A_3}{\lambda_\text{min} I_2} \quad \text{and} \quad \epsilon = \text{arcsn}\left(\frac{\omega_{2,0}}{\lambda_\text{min}},\kappa\right).
 \]
 
 \bibliography{rigid_bodies}
