@@ -226,55 +226,37 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \subsection{Analytical Solution for Free Rotation}
 \label{sec:free_rotation}
 
-It is not possible Eq.~\ref{eq:EDO_system}
-
-Method based on work of Kosenko\cite{Kosenko_1998} and Celledoni \textit{et al}.\cite{Celledoni_2008} and also related to the work of van Zon \textit{et al}.\cite{vanZon2007}.
-
-Considering that $I_1 > I_2 > I_3$, the prefactors of the angular momenta $\omega_1$, $\omega_2$, and $\omega_3$ are, respectively,
-\begin{align}
-\mt A = \left[\begin{array}{ccc}
-\frac{\omega_1^0}{\sqrt{1 - (\omega_2^0/\lambda_1)^2}} & 0 & 0 \\
-0 & \min(\lambda_1,\lambda_3) & 0 \\
-0 & 0 & \frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}}
-\end{array}\right], \\
-\end{align}
-\begin{align}
-A_1 = \frac{\omega_1^0}{\sqrt{1 - (\omega_2^0/\lambda_1)^2}}, \\
-A_2 = \min(\lambda_1,\lambda_3), \; \text{and} \\
-A_3 = \frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}},
-\end{align}
-where
-\begin{equation}
-\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}} \;\; \text{and} \;\; \lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}.
-\end{equation}
-
-The solution is
+It is not possible to analytically integrate the equations of motion in Eq.~\ref{eq:EDO_system} for a general potential $U(\vt r,\vt q)$. Nonetheless, closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_q} are known for the particular case of torque-free rotation (i.e. when $\vt \tau = \vt 0$ at all times). Even though free rotations might seem of limited use in Molecular Dynamics at first sight, they are very useful as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} can be used to derive the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is completely decoupled from Eq.~\ref{eq:EDO_pi} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum $\vt L = \tr{\mt A}{\mt I}{\vt \omega}$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to analytically solve the Euler equation for the angular momentum vector $\vt \omega$ in terms of elliptic functions.\cite{Byrd_1971, Landau1976, Kosenko_1998, vanZon2007, Celledoni_2008, Thorn2012} From an initial condition $\vt \omega(0) = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, evaluating such solution starts by computing three prefactors $a_1$, $a_2$, and $a_3$, defined as
+\begin{gather*}
+a_1 = \frac{\omega_1^0}{\sqrt{1 - (\omega_2^0/\lambda_1)^2}}, \quad a_2 = \min(\lambda_1,\lambda_3), \\
+a_3 = \frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}},
+\end{gather*}
+where $\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}}$ and $\lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}$ with, as already mentioned, $I_1 > I_2 > I_3$. Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
 \begin{subequations}
-\begin{align}
-\omega_1(t) &= \begin{cases}
-A_1\text{cn}(a t + b,k) \quad \text{if} \quad \lambda_1 < \lambda_3 \\
-A_1\text{dn}(a t + b,k) \quad \text{if} \quad \lambda_1 > \lambda_3
-\end{cases} \\
-\omega_2(t) &= A_2 \text{sn}(a t + b,k) \\
-\omega_3(t) &= \begin{cases}
-A_3\text{dn}(a t + b,k) \quad \text{if} \quad \lambda_1 < \lambda_3 \\
-A_3\text{cn}(a t + b,k) \quad \text{if} \quad \lambda_1 > \lambda_3
-\end{cases}
-\end{align}
+\begin{equation}
+\vt \omega(t) = \left[\begin{array}{c}
+a_1\text{cn}(b t + c, k^2) \\
+a_2\text{sn}(b t + c, k^2) \\
+a_3\text{dn}(b t + c, k^2)
+\end{array}\right] \qquad \text{if} \quad \lambda_1 < \lambda_3
+\end{equation}
+or
+\begin{equation}
+\vt \omega(t) = \left[\begin{array}{c}
+a_1\text{dn}(b t + c, k^2) \\
+a_2\text{sn}(b t + c, k^2) \\
+a_3\text{cn}(b t + c, k^2)
+\end{array}\right] \qquad \text{if} \quad \lambda_1 > \lambda_3
+\end{equation}
 \end{subequations}
-where
-\begin{align*}
-&a = -\frac{(I_1-I_3)A_1A_3}{I_2 A_2},\\
-&b = \text{sn}^{-1}\left(\frac{\omega_{2,0}}{A_2},k\right),\quad\text{and}\\
-&k = \frac{A_2}{\text{max}(\lambda_1,\lambda_3)}
-\end{align*}
+where $\text{sn}(u,m)$, $\text{cn}(u,m)$, and $\text{dn}(u,m)$ are the Jacobi elliptic functions, $k = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ is the elliptic modulus, and the constants $b$ and $c$ are given by
+\begin{equation*}
+b = -\frac{(I_1 - I_3)a_1 a_3}{I_2 a_2} \quad \text{and} \quad c = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}, k^2\right).
+\end{equation*}
 
+In order to compute the inverse function $\text{sn}^{-1}$, one can use its relation with an elliptic integral in Carlson form, \cite{Carlson_1977} $\text{sn}^{-1}(x,m) = x R_F(1-x^2,1-mx^2,1)$. In this work, we employ the routines available in Ref.~\onlinecite{Galassi_2009} for the numerical evaluation of Jacobi functions and Carlson integrals.
 
-During a torque-free rotational motion, the angular momentum vector $\vt L$ remains constant in any space-fixed frame of reference. 
-
-In the body-fixed frame, although the 
-
-
+Once we know $\vt \omega$ as a function of time, we can also solve Eq.~\ref{eq:EDO_q} analytically for the quaternion $\vt q$. Based on an approach pioneered by Kosenko\cite{Kosenko_1998} and extended by Celledoni \textit{et al}.,\cite{Celledoni_2008} we employ the factorization in Eq.\ref{eq:factorization_of_A} to accomplish such task.
 
 Let $\vt L = \tr{[\mt A(\vt q)]}{\mt I}{\vt \omega}$ be the angular momentum vector 
 
@@ -334,6 +316,10 @@ After some algebra\cite{Celledoni_2008}
 \end{equation*}
 
 If $\lambda_1 < \lambda_3$, then $\omega_1(t) = A_1 \text{cn}(\alpha t + \epsilon)$
+
+\begin{equation*}
+\Pi(x,n,m) = \text{sn}^{-1}(x,m) + \frac{1}{3}nx^3R_J(1-x^2,1-mx^2,1,1-nx^2).
+\end{equation*}
 
 \subsection{Symplectic Numerical Integration}
 \label{sec:symplectic}
@@ -1199,7 +1185,7 @@ where we have carried out the second matrix product above, employed the properti
 Therefore, the constrained derivative of $U$ with respect to $\vt q$ is proportional to the quaternion-fixed representation of the resultant torque over the body.
 
 \section{Derivation of the Euler equation and its solution for a torque-free rotation}
-\label{eq:derivation_euler}
+\label{sec:derivation_euler}
 
 Recall that $\vt \pi$ is twice the quaternion-fixed version of the angular momentum vector. Thus, it is expected that Eq.~\ref{eq:EDO_pi} will result in the well-known Euler equation, which describes the evolution of the angular momentum in the body-fixed frame, if $\frac{1}{2} \tr{\mt B}$ is premultiplied to both sides. In order to show that this actually occurs, we start by carrying out the premultiplication to obtain
 \[
