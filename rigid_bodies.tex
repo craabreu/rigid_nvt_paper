@@ -218,79 +218,124 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \end{align}
 \end{subequations}
 
-\subsection{Analytical Solution for Free Rotation}
+\subsection{Exact Solution for Free Rotation}
 \label{sec:free_rotation}
 
-It is not possible to analytically integrate the equations of motion for a general potential $U(\vt r,\vt q)$. Nonetheless, closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known for the particular case of torque-free rotation (i.e. when $\vt \tau = \vt 0$). Free rotations are very useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies, which is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is completely decoupled from Eq.~\ref{eq:EDO_pi} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to analytically solve the Euler equation for the angular velocity vector $\vt \omega$. Here we present the solution for an asymmetric top ($I_1 > I_2 > I_3$) in a form that aims to facilitate computer implementation, inspired by the derivations presented in Refs.~\onlinecite{Landau1976} and \onlinecite{Thorn2012}. From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, such solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a vector of prefactors defined as
-\begin{equation*}
-\vt a = \begin{smallarray}{c}
-\frac{\omega_1^0}{\sqrt{1 - \left(\omega_2^0/\lambda_1\right)^2}} \\
-\min(\lambda_1,\lambda_3) \\
-\frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}}
-\end{smallarray},
-\; \text{where} \;
-\begin{cases}
-\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}} \\
-\lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}
-\end{cases}.
-\end{equation*}
-
-Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
+Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are dealt with properly (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
+\begin{align*}
+a_1 &= \text{sgn}(\omega_1^0)\sqrt{\frac{L^2 - 2 I_3 K_r}{I_1(I_1 - I_3)}}, \\
+a_2 &= \sqrt{\min(\lambda_1,\lambda_3)}, \quad \text{and} \\
+a_3 &= \text{sgn}(\omega_3^0)\sqrt{\frac{2 I_1 K_r - L^2}{I_1(I_1 - I_3)}}, \\
+\end{align*}
+where $\lambda_1 = \frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}$ and $\lambda_3 = \frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}$. Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
 \begin{subequations}
 \begin{align}
 \vt \omega(t) &= \begin{smallarray}{c}
-a_1\text{cn}(\omega_p t + \epsilon, k^2) \\
-a_2\text{sn}(\omega_p t + \epsilon, k^2) \\
-a_3\text{dn}(\omega_p t + \epsilon, k^2)
+a_1\text{cn}(\omega_p t + \epsilon) \\
+a_2\text{sn}(\omega_p t + \epsilon) \\
+a_3\text{dn}(\omega_p t + \epsilon)
 \end{smallarray} \quad \text{if} \quad \lambda_1 < \lambda_3 \quad \text{or} \\
 \vt \omega(t) &= \begin{smallarray}{c}
-a_1\text{dn}(\omega_p t + \epsilon, k^2) \\
-a_2\text{sn}(\omega_p t + \epsilon, k^2) \\
-a_3\text{cn}(\omega_p t + \epsilon, k^2)
+a_1\text{dn}(\omega_p t + \epsilon) \\
+a_2\text{sn}(\omega_p t + \epsilon) \\
+a_3\text{cn}(\omega_p t + \epsilon)
 \end{smallarray} \quad \text{if} \quad \lambda_1 > \lambda_3,
 \end{align}
 \end{subequations}
-where $\text{sn}(u,m)$, $\text{cn}(u,m)$, and $\text{dn}(u,m)$ are the Jacobi elliptic functions,\cite{Byrd_1971} $k = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ is the elliptic modulus, and the constants $\omega_p$ and $\epsilon$ are given by
+where $\text{sn}$, $\text{cn}$, and $\text{dn}$ are the Jacobi elliptic functions\cite{Byrd_1971} with parameter $m = k^2 = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ and the constants $\omega_p$ and $\epsilon$ are given by
 \begin{equation*}
 \omega_p = -\frac{(I_1 - I_3)a_1 a_3}{I_2 a_2} \quad \text{and} \quad
-\epsilon = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}, k^2\right).
+\epsilon = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}\right).
 \end{equation*}
 
-In order to compute the inverse function $\text{sn}^{-1}$, one can use its relation with an elliptic integral in Carlson form, \cite{Carlson_1977} $\text{sn}^{-1}(x,m) = x R_F(1-x^2,1-mx^2,1)$. In this work, we employ the routines available in Ref.~\onlinecite{Galassi_2009} for numerically evaluating Jacobi functions and Carlson integrals.
+In order to compute the inverse function $\text{sn}^{-1}$, one can resort to its relation with an elliptic integral in Carlson form,\cite{Carlson_1977, Gradshteyn2014} $\text{sn}^{-1}(x) = x R_F(1-x^2,1-mx^2,1)$. One can numerically evaluate Jacobi functions and Carlson integrals by using, for instance, the routines available in the GNU Scientific Library.\cite{Galassi_2009}
 
-Once $\vt \omega$ is known as a function of time, we can solve Eq.~\ref{eq:EDO_q} with initial condition $\vt q(0) = \vt q_0$. The method we propose here, which is closely related to the one pioneered by Kosenko\cite{Kosenko_1998} and extended by Celledoni \textit{et al}.,\cite{Celledoni_2008} relies on the factorization in Eq.~\ref{eq:factorization_of_A} to facilitate the task. During a free rotation, any space-fixed representation of the angular momentum vector will remain constant. Thus, instead of solving Eq.~\ref{eq:EDO_q} directly for obtaining $\vt q$, we solve an analogous equation for obtaining another unit quaternion $\vt z$ specially chosen so that $\tr{[\mt A(\vt z)]}\mt I\vt \omega = \tr{[\begin{array}{ccc} L & 0 & 0 \end{array}]}$. In other words, we look for an alternative space-fixed frame whose first axis is aligned with the angular momentum vector.
-
-
+Once $\vt \omega(t)$ is known, we can solve Eq.~\ref{eq:EDO_q} for the unit quaternion $\vt q$ with initial condition $\vt q(0) = \vt q_0$. Here we propose a new procedure that is closely linked to the methods by Kosenko\cite{Kosenko_1998} and by Celledoni \textit{et al}.,\cite{Celledoni_2008} but that relies on the rotation matrix factorization (Eq.~\ref{eq:factorization_of_A}) to facilitate the task. These methods are also related to the one by van Zon and Schofield,\cite{vanZon2007} as shown in Ref.~\onlinecite{Celledoni_2008}. During a free rotation, any space-fixed representation of the angular momentum vector will remain constant. Thus, instead of solving Eq.~\ref{eq:EDO_q} directly for obtaining $\vt q(t)$, we solve an analogous equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$ for determining a unit quaternion $\vt z(t)$ specially chosen so that $\tr{\mt A\!}(\vt z)\mt I\vt \omega = \tr{[\begin{array}{ccc} L & 0 & 0 \end{array}]}$. In other words, we look for an alternative space-fixed frame whose first axis is aligned with the angular momentum vector. After replacing $\tr{\mt A\!}(\vt z) = \tr{\mt C}(\vt z){\mt B}(\vt z)$, we premultiply both sides by $\mt C(\vt z)$ and then apply Eq.~\ref{eq:product_B_vector} to obtain the homogeneous linear system $\mt G \vt z = \vt 0$, where $\mt G = L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j$. This means that $\vt z$ will continuously lie in the kernel of matrix $\mt G$, which can be determined by a standard elimination method. Such kernel turns out to be a (moving) linear space defined by the orthogonal basis vectors
 \begin{equation*}
-\mt B(\vt z)\mt I\vt \omega = \mt C(\vt z)\begin{smallarray}{c}
-L \\ 0 \\ 0
-\end{smallarray}
-\end{equation*}
-
-By making ${\mt A}(\vt z) = \mt A(\vt z)\mt C(\vt z)$
-
-factorizing $\mt A(\vt z)$ and applying Eq.~\ref{eq:product_B_vector}, we obtain a homogeneous linear system
-\begin{equation*}
-\Big(L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j\Big) \vt z = \vt 0,
-\end{equation*}
-where $\hat{\vt C}_1$ and $\hat{\vt B}_k$ are the permutation matrices introduced in Appendix~\ref{sec:auxiliary_math}. Hence, besides having unit norm, the quaternion $\vt z$ will always lie in the null space of a matrix $\mt G = L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j$, which is guaranteed to exist because $\det \mt G = (L^2 - \tr{\vt \omega}{\mt I}^2{\vt \omega})^2 = 0$. Such a null space turns out to be a moving hyperplane in $\mathbb{R}^4$ defined by the orthogonal basis vectors
-\begin{equation*}
-\vt v_1(t) = \begin{smallarray}{c}
-\frac{I_3\omega_3(t)}{L-I_1\omega_1(t)} \\
-\frac{I_2\omega_2(t)}{L-I_1\omega_1(t)} \\
-1 \\
-0
-\end{smallarray}
+\vt u(t) = \begin{smallarray}{c} I_3\omega_3(t) \\ I_2\omega_2(t) \\ L-I_1\omega_1(t) \\ 0 \end{smallarray}
 \quad \text{and} \quad
-\vt v_2(t) = \begin{smallarray}{c}
-\frac{-I_2\omega_2(t)}{L-I_1\omega_1(t)} \\
-\frac{I_3\omega_3(t)}{L-I_1\omega_1(t)} \\
-0 \\
-1
-\end{smallarray}.
+\vt v(t) = \begin{smallarray}{c} -I_2\omega_2(t) \\ I_3\omega_3(t) \\ 0 \\ L-I_1\omega_1(t) \end{smallarray}.
 \end{equation*}
 
-At all times, therefore, $\vt z$ will be a linear combination of $\vt v_1$ and $\vt v_2$. As these basis vectors are known functions of time, the problem of determining $\vt z(t)$ reduces to finding out how the two coefficients of the combination vary with time. Examination of $\vt v_1$ and $\vt v_2$ above makes it clear that these coefficients coincide with the entries $z_3$ and $z_4$ of $\vt z$, in such a way that
+At all times, therefore, $\vt z$ will be a linear combination of $\vt u$ and $\vt v$. We can then write the expression
+\begin{equation*}
+\vt z(t) = \frac{b(t) \vt u(t) + c(t) \vt v(t)}{\sqrt{2L[L-I_1\omega_1(t)]}},
+\end{equation*}
+whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has thus been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
+\begin{equation*}
+\tr{\vt z}{\vt z} = \frac{b^2 \tr{\vt u}{\vt u} + 2bc\tr{\vt u}{\vt v} + c^2 \tr{\vt v}{\vt v}}{2L[L-I_1\omega_1(t)]} = b^2 + c^2 = 1.
+\end{equation*}
+
+Therefore, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
+\begin{equation*}
+\vt z(t) = \frac{\vt u_1(t) \cos \theta(t) + \vt u_2(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
+\end{equation*}
+
+$\dot{\theta} = \frac{2K_r - L\omega_1(t)}{2[L - I_1\omega_1(t)]}$
+
+\begin{equation*}
+\theta = \frac{L}{2I_1}(t - t_0) + \frac{2 I_1 K_r - L^2}{2 L I_1\omega_p} \int_{t_0}^t \frac{\omega_p}{1 - \alpha [\omega_1(s)/a_1]}ds,
+\end{equation*}
+where $\alpha = I_1a_1/L$.
+
+From Ref.~\onlinecite{Byrd_1971}, we deduce that
+\begin{gather*}
+\int \tfrac{1 - \alpha^2}{1 - \alpha \cn u}du = \Pi(\sn u,-\eta,k^2) + \frac{\alpha\arctan\left(\frac{\sn u\sqrt{k^2+\eta}}{\dn u}\right)}{\sqrt{k^2+\eta}}
+\end{gather*}
+
+\begin{gather*}
+\int \tfrac{1 - \alpha^2}{1 - \alpha \dn u}du = \Pi(\sn u,-k^2\eta,k^2)
++ \frac{\alpha\arctan\left(\frac{\sn u\sqrt{1 + k^2\eta}}{\cn u}\right)}{\sqrt{1 + k^2\eta}}
+\end{gather*}
+
+Finally, by defining
+\begin{equation*}
+\eta = \frac{(\alpha {a_2}/{\lambda_1})^2}{1-\alpha^2}
+\quad \text{and} \quad
+\beta = \sqrt{\eta + ({a_2}/{\lambda_3})^2}
+\end{equation*}
+
+We have
+\begin{equation*}
+\theta = \frac{L}{2I_1\omega_p}(\omega_p t + \epsilon) + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} \int_0^t \frac{(1-\alpha^2)\omega_p}{1 - \alpha [\omega_1(\tau)/a_1]}d\tau,
+\end{equation*}
+
+\begin{equation*}
+\theta = \frac{L}{2I_1} t + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} [F(\omega_p t + \epsilon) - F(\epsilon)],
+\end{equation*}
+
+
+\begin{equation*}
+\theta = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} \left[\omega_p t + h(t) - h(0)\right],
+\end{equation*}
+where
+\begin{equation*}
+h = \Theta\left({\omega_2}/{a_2},-\eta,k^2\right) + \frac{\alpha}{\beta} \arctan\left( \beta \frac{\omega_2/a_2}{\omega_3/a_3} \right)
+\end{equation*}
+
+\subsection{Integrals}
+
+\begin{gather*}
+C(u) = \int_0^u \frac{1 - \alpha^2}{1 - \alpha \cn x}dx = \\
+C(u) = u + \text{sgn}(\cn u) \Theta(\sn u,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{u}{2 K} \right\rceil + \\
++ \frac{\alpha}{\sqrt{k^2+\eta}} \arctan\left(\frac{\sqrt{k^2+\eta} \; \sn u}{\dn u}\right)
+\end{gather*}
+
+\begin{gather*}
+D(u) = \int_0^u \frac{1 - \alpha^2}{1 - \alpha \dn x}dx = \\
+F_\dn(u) = u + \text{sgn}(\cn u) \Theta(\sn u,k^2\eta) + 2\Theta(1,k^2\eta) \left\lfloor\frac{u}{2 K}\right\rceil + \\
++ \frac{\alpha}{\sqrt{1 + k^2\eta}} \left[\arctan\left(\frac{\sqrt{1 + k^2\eta} \; \sn u}{\cn u}\right) + \pi \left\lfloor \frac{u}{2 K} \right\rceil\right]
+\end{gather*}
+
+
+\begin{align*}
+\Theta(x,n,m) &= \Pi(x,-n,m) - F(x,m) = \\
+&= -\frac{1}{3}nx^3R_J(1-x^2,1-mx^2,1,1+nx^2).
+\end{align*}
+
+\subsection{DRAFT}
+
+As these basis vectors are known functions of time, the problem of determining $\vt z(t)$ reduces to finding out how the two coefficients of the combination vary with time. Examination of $\vt v_1$ and $\vt v_2$ above makes it clear that these coefficients coincide with the entries $z_3$ and $z_4$ of $\vt z$, in such a way that
 \begin{equation}
 \label{eq:linear_comb_z}
 \vt z(t) = z_3(t) \vt v_1(t) + z_4(t) \vt v_2(t).
@@ -971,6 +1016,24 @@ It is not the purpose of this work to propose an optimal factorization scheme fo
 \end{table}
 
 \subsection{New Results}
+
+
+\begin{table*}
+	\caption{Results with Exact Solution for Free Rotations}
+	\label{table:NVE}
+	\begin{ruledtabular}
+		\begin{tabular}{cccccccc}
+			$\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (kcal/mol) & $\langle K_t\rangle$ (kcal/mol) & $\langle K_r\rangle$ (kcal/mol) & P (atm) & $R$ (kcal/mol.ns) \\
+			\hline
+			1.0 & $	305.91	\pm	0.03	$ & $	-8395.1	\pm	0.1	$ & $	1645.9	\pm	0.1	$ & $	823.2	\pm	0.1	$ & $	822.7	\pm	0.1	$ & $	146	\pm	2	$ & $0.0456$ \\
+			2.0 & $	305.21	\pm	0.02	$ & $	-8389.5	\pm	0.1	$ & $	1642.1	\pm	0.1	$ & $	823.0	\pm	0.1	$ & $	819.1	\pm	0.1	$ & $	149	\pm	2	$ & $0.656$ \\
+			3.0 & $	304.30	\pm	0.03	$ & $	-8375.4	\pm	0.9	$ & $	1637.2	\pm	0.1	$ & $	824.0	\pm	0.1	$ & $	813.3	\pm	0.1	$ & $	156	\pm	2	$ & $2.87$ \\
+			4.0 & $	304.5	\pm	0.5	$ & $	-8339	\pm	6	$ & $	1638	\pm	3	$ & $	829	\pm	1	$ & $	808.8	\pm	0.6	$ & $	180	\pm	2	$ & $10.1$ \\
+		\end{tabular}
+	\end{ruledtabular}
+\end{table*}
+
+
 
 \begin{table*}
 \caption{Results.....}
