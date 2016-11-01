@@ -218,85 +218,6 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \end{align}
 \end{subequations}
 
-\subsection{Exact Solution for Free Rotation}
-\label{sec:free_rotation}
-
-Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are properly dealt with (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
-\begin{align*}
-a_1 &= \text{sgn}(\omega_1^0)\sqrt{\frac{L^2 - 2 I_3 K_r}{I_1(I_1 - I_3)}}, \\
-a_2 &= \sqrt{\min(\lambda_1,\lambda_3)}, \quad \text{and} \\
-a_3 &= \text{sgn}(\omega_3^0)\sqrt{\frac{2 I_1 K_r - L^2}{I_1(I_1 - I_3)}}, \\
-\end{align*}
-where $\lambda_1 = \frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}$ and $\lambda_3 = \frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}$. Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
-\begin{subequations}
-\begin{align}
-\vt \omega(t) &= \begin{smallarray}{c}
-a_1\text{cn}(\omega_p t + \epsilon) \\
-a_2\text{sn}(\omega_p t + \epsilon) \\
-a_3\text{dn}(\omega_p t + \epsilon)
-\end{smallarray} \quad \text{if} \quad \lambda_1 < \lambda_3 \quad \text{or} \\
-\vt \omega(t) &= \begin{smallarray}{c}
-a_1\text{dn}(\omega_p t + \epsilon) \\
-a_2\text{sn}(\omega_p t + \epsilon) \\
-a_3\text{cn}(\omega_p t + \epsilon)
-\end{smallarray} \quad \text{if} \quad \lambda_1 > \lambda_3,
-\end{align}
-\end{subequations}
-where $\text{sn}$, $\text{cn}$, and $\text{dn}$ are the Jacobi elliptic functions\cite{Byrd_1971} with parameter $m = k^2 = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ and the constants $\omega_p$ and $\epsilon$ are given by
-\begin{equation*}
-\omega_p = -\frac{(I_1 - I_3)a_1 a_3}{I_2 a_2} \quad \text{and} \quad
-\epsilon = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}\right).
-\end{equation*}
-
-In order to compute the inverse function $\text{sn}^{-1}$, one can resort to its relation with an elliptic integral in Carlson form,\cite{Carlson_1977, Gradshteyn2014} $\text{sn}^{-1}(x) = x R_F(1-x^2,1-mx^2,1)$. One can numerically evaluate Jacobi functions and Carlson integrals by using, for instance, the routines available in the GNU Scientific Library.\cite{Galassi_2009}
-
-Once $\vt \omega(t)$ is known, we can solve Eq.~\ref{eq:EDO_q} for the unit quaternion $\vt q$ with initial condition $\vt q(0) = \vt q_0$. Here we propose a new procedure that is closely linked to the methods by Kosenko\cite{Kosenko_1998} and by Celledoni \textit{et al}.,\cite{Celledoni_2008} but that relies on the rotation matrix factorization (Eq.~\ref{eq:factorization_of_A}) to facilitate the task. These methods are also related to the one by van Zon and Schofield,\cite{vanZon2007} as shown in Ref.~\onlinecite{Celledoni_2008}. During a free rotation, any space-fixed representation of the angular momentum vector will remain constant. Thus, instead of solving Eq.~\ref{eq:EDO_q} directly for obtaining $\vt q(t)$, we solve an analogous equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$ for determining a unit quaternion $\vt z(t)$ specially chosen so that $\tr{\mt A\!}(\vt z)\mt I\vt \omega = \tr{[\begin{array}{ccc} L & 0 & 0 \end{array}]}$. In other words, we look for an alternative space-fixed frame whose first axis is aligned with the angular momentum vector. After replacing $\tr{\mt A\!}(\vt z) = \tr{\mt C}(\vt z){\mt B}(\vt z)$, we premultiply both sides by $\mt C(\vt z)$ and then apply Eq.~\ref{eq:product_B_vector} to obtain the homogeneous linear system $\mt G \vt z = \vt 0$, where $\mt G = L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j$. This means that $\vt z$ will continuously lie in the kernel of matrix $\mt G$, which can be determined by a standard elimination method. Such kernel turns out to be a (moving) linear space defined by the orthogonal basis vectors
-\begin{equation*}
-\vt u(t) = \begin{smallarray}{c} I_3\omega_3(t) \\ I_2\omega_2(t) \\ L-I_1\omega_1(t) \\ 0 \end{smallarray}
-\quad \text{and} \quad
-\vt v(t) = \begin{smallarray}{c} -I_2\omega_2(t) \\ I_3\omega_3(t) \\ 0 \\ L-I_1\omega_1(t) \end{smallarray}.
-\end{equation*}
-
-At all times, therefore, $\vt z$ will be a linear combination of $\vt u$ and $\vt v$. We can then write the expression
-\begin{equation*}
-\vt z(t) = \frac{b(t) \vt u(t) + c(t) \vt v(t)}{\sqrt{2L[L-I_1\omega_1(t)]}},
-\end{equation*}
-whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has now been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
-\begin{equation*}
-\tr{\vt z}{\vt z} = \frac{b^2 \tr{\vt u}{\vt u} + 2bc\tr{\vt u}{\vt v} + c^2 \tr{\vt v}{\vt v}}{2L[L-I_1\omega_1(t)]} = b^2 + c^2 = 1.
-\end{equation*}
-
-Hence, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
-\begin{equation*}
-\vt z(t) = \frac{\vt u(t) \cos \theta(t) + \vt v(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
-\end{equation*}
-
-The next step consists in replacing this result into the equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$. This yields, after some algebra, a single differential equation whose solution can be expressed as
-\begin{equation*}
-\theta(t) = \theta_0 + \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1}\int_0^t \frac{1}{1-(I_1/L)\omega_1(s)}ds.
-\end{equation*}
-
-
-
-In order to solve this equation, we introduce the following functions derived from definite integrals: $C(x) = \int_0^x \frac{1}{1 - \alpha \cn y}dy$ and $D(x) = \int_0^x \frac{1}{1 - \alpha \dn y}dy$, where $\alpha = I_1a_1/L$.
-
-\begin{widetext}
-	\begin{subequations}
-\begin{gather}
-\label{eq:def_integral_C} \frac{C(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{x}{2 K} \right\rceil +
-\frac{\alpha}{\sqrt{m+\eta}} \arctan\left(\frac{\sqrt{m+\eta} \; \sn x}{\dn x}\right) \\
-\label{eq:def_integral_D} \frac{D(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,m\eta) + 2\Theta(1,m\eta) \left\lfloor\frac{x}{2 K}\right\rceil +
-\frac{\alpha}{\sqrt{m\eta + 1}} \left\{\arctan\left(\frac{\sqrt{m\eta + 1} \; \sn x}{\cn x}\right) + \pi \left\lfloor \frac{x}{2 K} \right\rceil\right\}
-\end{gather}
-	\end{subequations}
-\end{widetext}
-
-\begin{figure}
-	\includegraphics{definite_integrals.eps}
-	\caption{Illustrative plot of functions $c(x)=1/(1-\alpha\cn x)$ (dark cyan line) and $d(x)=1/(1-\alpha \dn x)$ (magenta line) with $\alpha = 9/10$ and elliptic parameter $m = 1/2$, together with their definite integrals $C(x)$ (blue line) and $D(x)$ (red line), defined in Eqs.~\ref{eq:def_integral_C} and \ref{eq:def_integral_D}, respectively.}
-	\label{fig:definite_integrals}
-\end{figure}
-
 \subsection{Symplectic Numerical Integration}
 \label{sec:symplectic}
 
@@ -359,6 +280,92 @@ e^{\Delta t i\!L_r} = \prod_{j=1}^n \left( e^{\frac{\delta t_j}{2} i\!L_3} e^{\f
 where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Following Miller \textit{et al}.,\cite{Miller2002} one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
 
 Finally, we remark that an analytical solution for the complete rotation exists\cite{vanZon2007} and that splitting schemes with higher-order approximations have been used for rigid body dynamics.\cite{Omelyan2007, Omelyan2008, vanZon2008} However, they result in methods that are more complex and often require expensive force-gradient calculations. Moreover, it is unclear how their benefits would extend to non-Hamiltonian numerical integrators, as required for molecular dynamics in ensembles other than the microcanonical one.
+
+
+
+\subsection{Exact Solution for Free Rotation}
+\label{sec:free_rotation}
+
+Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are properly dealt with (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
+\begin{align*}
+a_1 &= \text{sgn}(\omega_1^0)\sqrt{\frac{L^2 - 2 I_3 K_r}{I_1(I_1 - I_3)}}, \\
+a_2 &= \sqrt{\min(\lambda_1,\lambda_3)}, \quad \text{and} \\
+a_3 &= \text{sgn}(\omega_3^0)\sqrt{\frac{2 I_1 K_r - L^2}{I_1(I_1 - I_3)}}, \\
+\end{align*}
+where $\lambda_1 = \frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}$ and $\lambda_3 = \frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}$. Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
+\begin{subequations}
+\begin{align}
+\vt \omega(t) &= \left[\begin{array}{c}
+a_1\text{cn}(\omega_p t + \epsilon) \\
+a_2\text{sn}(\omega_p t + \epsilon) \\
+a_3\text{dn}(\omega_p t + \epsilon)
+\end{array}\right] \quad \text{if} \quad \lambda_1 \le \lambda_3 \quad \text{or} \\
+\vt \omega(t) &= \left[\begin{array}{c}
+a_1\text{dn}(\omega_p t + \epsilon) \\
+a_2\text{sn}(\omega_p t + \epsilon) \\
+a_3\text{cn}(\omega_p t + \epsilon)
+\end{array}\right] \quad \text{if} \quad \lambda_1 > \lambda_3,
+\end{align}
+\end{subequations}
+where $\text{sn}$, $\text{cn}$, and $\text{dn}$ are the Jacobi elliptic functions\cite{Byrd_1971} with parameter $m = k^2 = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ and the constants $\omega_p$ and $\epsilon$ are given by
+\begin{equation*}
+\omega_p = \frac{(I_3 - I_1)a_1 a_3}{I_2 a_2} \quad \text{and} \quad
+\epsilon = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}\right).
+\end{equation*}
+
+In order to compute the inverse function $\text{sn}^{-1}$, one can resort to its relation with an elliptic integral in Carlson form,\cite{Carlson_1977, Gradshteyn2014} $\text{sn}^{-1}(x) = x R_F(1-x^2,1-mx^2,1)$. One can numerically evaluate Jacobi functions and Carlson integrals by using, for instance, the routines available in the GNU Scientific Library.\cite{Galassi_2009}
+
+Once $\vt \omega(t)$ is known, we can solve Eq.~\ref{eq:EDO_q} for the unit quaternion $\vt q$ with initial condition $\vt q(0) = \vt q_0$. Here we propose a new procedure that is closely linked to the methods by Kosenko\cite{Kosenko_1998} and by Celledoni \textit{et al}.,\cite{Celledoni_2008} but that relies on the rotation matrix factorization (Eq.~\ref{eq:factorization_of_A}) to facilitate the task. These methods are also related to the one by van Zon and Schofield,\cite{vanZon2007} as shown in Ref.~\onlinecite{Celledoni_2008}. During a free rotation, any space-fixed representation of the angular momentum vector will remain constant. Thus, instead of solving Eq.~\ref{eq:EDO_q} directly for obtaining $\vt q(t)$, we solve an analogous equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$ for determining a unit quaternion $\vt z(t)$ specially chosen so that $\tr{\mt A\!}(\vt z)\mt I\vt \omega = \tr{[\begin{array}{ccc} L & 0 & 0 \end{array}]}$. In other words, we look for an alternative space-fixed frame whose first axis is aligned with the angular momentum vector. After replacing $\tr{\mt A\!}(\vt z) = \tr{\mt C}(\vt z){\mt B}(\vt z)$, we premultiply both sides by $\mt C(\vt z)$ and then apply Eq.~\ref{eq:product_B_vector} to obtain the homogeneous linear system $\mt G \vt z = \vt 0$, where $\mt G = L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j$. This means that $\vt z$ will continuously lie in the kernel of matrix $\mt G$, which can be determined by a standard elimination method. Such kernel turns out to be a (moving) linear space defined by the orthogonal basis vectors
+\begin{equation*}
+\vt u(t) = \begin{smallarray}{c} I_3\omega_3(t) \\ I_2\omega_2(t) \\ L-I_1\omega_1(t) \\ 0 \end{smallarray}
+\quad \text{and} \quad
+\vt v(t) = \begin{smallarray}{c} -I_2\omega_2(t) \\ I_3\omega_3(t) \\ 0 \\ L-I_1\omega_1(t) \end{smallarray}.
+\end{equation*}
+
+At all times, therefore, $\vt z$ will be a linear combination of $\vt u$ and $\vt v$. We can then write the expression
+\begin{equation*}
+\vt z(t) = \frac{b(t) \vt u(t) + c(t) \vt v(t)}{\sqrt{2L[L-I_1\omega_1(t)]}},
+\end{equation*}
+whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has now been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
+\begin{equation*}
+\tr{\vt z}{\vt z} = \frac{b^2 \tr{\vt u}{\vt u} + 2bc\tr{\vt u}{\vt v} + c^2 \tr{\vt v}{\vt v}}{2L[L-I_1\omega_1(t)]} = b^2 + c^2 = 1.
+\end{equation*}
+
+Hence, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
+\begin{equation*}
+\vt z(t) = \frac{\vt u(t) \cos \theta(t) + \vt v(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
+\end{equation*}
+
+The next step consists in replacing this result into the equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$. This yields, after some algebra, a single differential equation whose solution can be expressed as
+\begin{equation*}
+\theta(t) = \theta_0 + \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1}\int_0^t \frac{1}{1-(I_1/L)\omega_1(s)}ds.
+\end{equation*}
+
+
+
+In order to solve this equation, we introduce the following functions derived from definite integrals: $C(x) = \int_0^x \frac{1}{1 - \alpha \cn y}dy$ and $D(x) = \int_0^x \frac{1}{1 - \alpha \dn y}dy$, where $\alpha = I_1a_1/L$.
+
+\begin{widetext}
+	\begin{subequations}
+\begin{gather}
+\label{eq:def_integral_C} \frac{C(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{x}{2 K} \right\rceil +
+\frac{\alpha}{\sqrt{m+\eta}} \arctan\left(\frac{\sqrt{m+\eta} \; \sn x}{\dn x}\right) \\
+\label{eq:def_integral_D} \frac{D(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,m\eta) + 2\Theta(1,m\eta) \left\lfloor\frac{x}{2 K}\right\rceil +
+\frac{\alpha}{\sqrt{m\eta + 1}} \left\{\arctan\left(\frac{\sqrt{m\eta + 1} \; \sn x}{\cn x}\right) + \pi \left\lfloor \frac{x}{2 K} \right\rceil\right\}
+\end{gather}
+	\end{subequations}
+\end{widetext}
+
+In the equations above, $\eta = \frac{\alpha^2}{1-\alpha^2}$, the function $\text{sgn}(\cdot)$ returns $-1$ if its argument is negative or $+1$ otherwise, the operator $\lfloor \cdot \rceil$ rounds a real value to its nearest integer (with the unusual feature that halfway values are rounded towards zero), and the function $\Theta$ is defined in terms of the Carlson elliptic integral $R_J$ as
+\begin{equation*}
+\Theta(x,n) = -\frac{1}{3}nx^3 R_J(1-x^2,1-mx^2,1,1+nx^2).
+\end{equation*}
+
+\begin{figure}
+	\includegraphics{definite_integrals.eps}
+	\caption{Illustrative plot of functions $c(x)=1/(1-\alpha\cn x)$ (dark cyan line) and $d(x)=1/(1-\alpha \dn x)$ (magenta line) with $\alpha = 9/10$ and elliptic parameter $m = 1/2$, together with their definite integrals $C(x)$ (blue line) and $D(x)$ (red line), defined in Eqs.~\ref{eq:def_integral_C} and \ref{eq:def_integral_D}, respectively.}
+	\label{fig:definite_integrals}
+\end{figure}
 
 \section{Molecular Dynamics}
 \label{sec:molecular_dynamics}
