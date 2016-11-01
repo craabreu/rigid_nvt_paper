@@ -221,7 +221,7 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \subsection{Exact Solution for Free Rotation}
 \label{sec:free_rotation}
 
-Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are dealt with properly (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
+Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are properly dealt with (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
 \begin{align*}
 a_1 &= \text{sgn}(\omega_1^0)\sqrt{\frac{L^2 - 2 I_3 K_r}{I_1(I_1 - I_3)}}, \\
 a_2 &= \sqrt{\min(\lambda_1,\lambda_3)}, \quad \text{and} \\
@@ -261,379 +261,41 @@ At all times, therefore, $\vt z$ will be a linear combination of $\vt u$ and $\v
 \begin{equation*}
 \vt z(t) = \frac{b(t) \vt u(t) + c(t) \vt v(t)}{\sqrt{2L[L-I_1\omega_1(t)]}},
 \end{equation*}
-whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has thus been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
+whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has now been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
 \begin{equation*}
 \tr{\vt z}{\vt z} = \frac{b^2 \tr{\vt u}{\vt u} + 2bc\tr{\vt u}{\vt v} + c^2 \tr{\vt v}{\vt v}}{2L[L-I_1\omega_1(t)]} = b^2 + c^2 = 1.
 \end{equation*}
 
-Therefore, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
+Hence, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
 \begin{equation*}
-\vt z(t) = \frac{\vt u_1(t) \cos \theta(t) + \vt u_2(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
+\vt z(t) = \frac{\vt u(t) \cos \theta(t) + \vt v(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
 \end{equation*}
 
-$\dot{\theta} = \frac{2K_r - L\omega_1(t)}{2[L - I_1\omega_1(t)]}$
-
+The next step consists in replacing this result into the equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$. This yields, after some algebra, a single differential equation whose solution can be expressed as
 \begin{equation*}
-\theta = \frac{L}{2I_1}(t - t_0) + \frac{2 I_1 K_r - L^2}{2 L I_1\omega_p} \int_{t_0}^t \frac{\omega_p}{1 - \alpha [\omega_1(s)/a_1]}ds,
-\end{equation*}
-where $\alpha = I_1a_1/L$.
-
-From Ref.~\onlinecite{Byrd_1971}, we deduce that
-\begin{gather*}
-\int \tfrac{1 - \alpha^2}{1 - \alpha \cn u}du = \Pi(\sn u,-\eta,k^2) + \frac{\alpha\arctan\left(\frac{\sn u\sqrt{k^2+\eta}}{\dn u}\right)}{\sqrt{k^2+\eta}}
-\end{gather*}
-
-\begin{gather*}
-\int \tfrac{1 - \alpha^2}{1 - \alpha \dn u}du = \Pi(\sn u,-k^2\eta,k^2)
-+ \frac{\alpha\arctan\left(\frac{\sn u\sqrt{1 + k^2\eta}}{\cn u}\right)}{\sqrt{1 + k^2\eta}}
-\end{gather*}
-
-Finally, by defining
-\begin{equation*}
-\eta = \frac{(\alpha {a_2}/{\lambda_1})^2}{1-\alpha^2}
-\quad \text{and} \quad
-\beta = \sqrt{\eta + ({a_2}/{\lambda_3})^2}
-\end{equation*}
-
-We have
-\begin{equation*}
-\theta = \frac{L}{2I_1\omega_p}(\omega_p t + \epsilon) + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} \int_0^t \frac{(1-\alpha^2)\omega_p}{1 - \alpha [\omega_1(\tau)/a_1]}d\tau,
-\end{equation*}
-
-\begin{equation*}
-\theta = \frac{L}{2I_1} t + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} [F(\omega_p t + \epsilon) - F(\epsilon)],
+\theta(t) = \theta_0 + \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1}\int_0^t \frac{1}{1-(I_1/L)\omega_1(s)}ds.
 \end{equation*}
 
 
-\begin{equation*}
-\theta = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2LI_1\omega_p(1-\alpha^2)} \left[\omega_p t + h(t) - h(0)\right],
-\end{equation*}
-where
-\begin{equation*}
-h = \Theta\left({\omega_2}/{a_2},-\eta,k^2\right) + \frac{\alpha}{\beta} \arctan\left( \beta \frac{\omega_2/a_2}{\omega_3/a_3} \right)
-\end{equation*}
 
-\subsection{Integrals}
-
-\begin{gather*}
-C(u) = \int_0^u \frac{1 - \alpha^2}{1 - \alpha \cn x}dx = \\
-C(u) = u + \text{sgn}(\cn u) \Theta(\sn u,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{u}{2 K} \right\rceil + \\
-+ \frac{\alpha}{\sqrt{k^2+\eta}} \arctan\left(\frac{\sqrt{k^2+\eta} \; \sn u}{\dn u}\right)
-\end{gather*}
-
-\begin{gather*}
-D(u) = \int_0^u \frac{1 - \alpha^2}{1 - \alpha \dn x}dx = \\
-F_\dn(u) = u + \text{sgn}(\cn u) \Theta(\sn u,k^2\eta) + 2\Theta(1,k^2\eta) \left\lfloor\frac{u}{2 K}\right\rceil + \\
-+ \frac{\alpha}{\sqrt{1 + k^2\eta}} \left[\arctan\left(\frac{\sqrt{1 + k^2\eta} \; \sn u}{\cn u}\right) + \pi \left\lfloor \frac{u}{2 K} \right\rceil\right]
-\end{gather*}
-
-
-\begin{align*}
-\Theta(x,n,m) &= \Pi(x,-n,m) - F(x,m) = \\
-&= -\frac{1}{3}nx^3R_J(1-x^2,1-mx^2,1,1+nx^2).
-\end{align*}
-
-\subsection{DRAFT}
-
-As these basis vectors are known functions of time, the problem of determining $\vt z(t)$ reduces to finding out how the two coefficients of the combination vary with time. Examination of $\vt v_1$ and $\vt v_2$ above makes it clear that these coefficients coincide with the entries $z_3$ and $z_4$ of $\vt z$, in such a way that
-\begin{equation}
-\label{eq:linear_comb_z}
-\vt z(t) = z_3(t) \vt v_1(t) + z_4(t) \vt v_2(t).
-\end{equation}
-
-Note that we are free to choose any unit quaternion in the hyperplane defined by $\vt v_1(0)$ and $\vt v_2(0)$ as the initial condition $\vt z(0) = \vt z_0$. In other words, we can select any space-fixed frame whose first axis aligns with the angular momentum vector. For convenience, we choose
-\begin{equation*}
-\vt z_0 = \frac{\vt v_1(0)}{\|\vt v_1(0)\|} = \sqrt{\frac{L - I_1\omega_1^0}{2L}} \vt v_1(0).
-\end{equation*}
-
-By substituting Eq.~\ref{eq:linear_comb_z} into $\dot{\vt z} = \frac{1}{2}{\mt B}(\vt z){\vt \omega}$, which is the equivalent of Eq.~\ref{eq:EDO_q} for $\vt z$, we obtain a vector of four differential equations containing $z_3$ and $z_4$, from which we pick the third and fourth ones, which are linearly independent. After replacing $(I_2 - I_3)\omega_2\omega_3 = I_1\dot{\omega}_1$ and $I_1\omega_1^2 + I_2\omega_2^2 + I_3\omega_3^2 = 2 K_r$, followed by defining
-\begin{equation*}
-\mt M(t) = \begin{smallarray}{rr} f(t) & -g(t) \\ g(t) & f(t) \end{smallarray} \; \text{with} \;
-\begin{cases}
-f(t) = \frac{-I_1 \dot{\omega}_1(t)}{L - I_1\omega_1(t)} \\
-g(t) = \frac{2K_r - L\omega_1(t)}{L - I_1\omega_1(t)}
-\end{cases},
-\end{equation*}
-we can represent these equations in matrix form as
-\begin{equation*}
-\begin{smallarray}{c} \dot{z}_3 \\ \dot{z}_4 \end{smallarray} = \frac{1}{2} {\mt M}(t) \begin{smallarray}{c} z_3 \\ z_4 \end{smallarray}.
-\end{equation*}
-
-It is fortunate that the product $\mt M(t_a)\mt M(t_b)$ commutes for any $t_a$ and $t_b$, since this is a sufficient condition for a solution to be obtained in terms of matrix exponential $\exp[\frac{1}{2}\int_0^t \mt M(\tau)d\tau]$. Such solution is
-\begin{equation*}
-\begin{smallarray}{c} z_3 \\ z_4 \end{smallarray} = \sqrt{\tfrac{L-I_1\omega_1(t)}{L-I_1\omega_1^0}} \begin{smallarray}{rr} \cos \phi(t) & -\sin \phi(t) \\ \sin \phi(t) & \cos \phi(t) \end{smallarray} \begin{smallarray}{c} z_3^0 \\ z_4^0 \end{smallarray},
-\end{equation*}
-where $\phi(t) = \frac{1}{2} \int_0^t g(\tau)d\tau$. Note that this consists in a counterclockwise rotation, followed by a scaling.
-
-\begin{align*}
-z_3(t) &= \sqrt{\tfrac{L-I_1\omega_1(t)}{2L}} \cos \phi(t) \\
-z_4(t) &= \sqrt{\tfrac{L-I_1\omega_1(t)}{2L}} \sin \phi(t)
-\end{align*}
-
-\begin{equation*}
-\phi(t) = \frac{L}{2 I_1\omega_p}\left\{(A_\phi + 1)\omega_p t + A_\phi[h(t) - h(0)]\right\},
-\end{equation*}
-where $A_\phi = \frac{2 I_1 K_r - L^2}{L^2 - I_1^2 a_1^2}$ and $B_\phi = \frac{\max(\lambda_1,\lambda_3)}{\sqrt{\lambda_1^2 + \eta \lambda_3^2}}$, $C_\phi = \frac{\lambda_1\lambda_3}{a_3 \sqrt{\lambda_1^2 + \eta \lambda_3^2}}$. The function $h(t)$ is defined as
-\begin{align*}
-h(t) &= \Theta\left(\frac{\omega_2(t)}{a_2},-\frac{a_2^2 }{\lambda_1^2}\eta,k^2\right) + \\
-&+ \frac{I_1}{L} \frac{a_1 a_3}{a_2} C_\phi \arctan\left(C_\phi\frac{\omega_3(t)}{\omega_2(t)}\right)
-\end{align*}
-
-But $\frac{a_1 a_3}{a_2} = - \frac{I_2}{I_1 - I_3} \omega_p$. Thus,
-\begin{align*}
-h(t) &= \Theta\left(\frac{\omega_2(t)}{a_2},-\frac{a_2^2 }{\lambda_1^2}\eta,k^2\right) \\
-&- \frac{I_1 \omega_p}{L}\frac{I_2 C_\phi}{I_1 - I_3} \arctan\left(C_\phi\frac{\omega_3(t)}{\omega_2(t)}\right)
-\end{align*}
-
-Rewriting $g(t)$:
-\begin{equation*}
-g(t) = \frac{L}{I_1} + \frac{2 I_1 K_r - L^2}{L I_1 \omega_p}\frac{\omega_p}{1 + \alpha[\omega_1(t)/a_1]},
-\end{equation*}
-where $I_1 a_1/L$. By defining $u = \omega_p \tau + \epsilon$, we have that $du = \omega_p d\tau$. Therefore, if $\lambda_1 < \lambda_3$:
-\begin{equation*}
-\phi(t) = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1 \omega_p}\int\limits_\epsilon^{\omega_p t + \epsilon} \frac{1}{1 + \alpha \cn u}du
-\end{equation*}
-
-Otherwise, if $\lambda_3 < \lambda_1$:
-\begin{equation*}
-\phi(t) = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1 \omega_p}\int\limits_\epsilon^{\omega_p t + \epsilon} \frac{1}{1 + \alpha \dn u}du
-\end{equation*}
-
-From Ref.~\onlinecite{Byrd_1971}, we deduce that
-\begin{align*}
-\int \frac{1}{1 + \alpha \cn u}du = (\eta + 1) \Bigg[\Pi(\sn u,-\eta,k^2) + \\
-+ \frac{\alpha}{\sqrt{k^2+\eta}}\arctan\left(\frac{\dn u}{\sn u \sqrt{k^2+\eta}}\right)\Bigg]
-\end{align*}
-
-Given that $\cn(u,k^2) = \dn(ku,1/k^2)$, $\dn(u,k^2) = \cn(ku,1/k^2)$, and $\sn(ku,1/k^2) = k\sn(u,k^2)$
-\begin{align*}
-\int \frac{1}{1 + \alpha \dn u}du = \frac{\eta + 1}{k} \Bigg[\Pi(k\sn u,-\eta,1/k^2) + \\
-+ \frac{\alpha}{\sqrt{1/k^2+\eta}}\arctan\left(\frac{\cn u}{k \sn u \sqrt{1/k^2+\eta}}\right)\Bigg]
-\end{align*}
-where $\eta = \frac{\alpha^2}{1-\alpha^2}$. Moreover, as $\Pi(x,y,z) = k\Pi(x/k,yk^2,zk^4)$:
-\begin{align*}
-\int \frac{1}{1 + \alpha \dn u}du = (\eta + 1) \Bigg[\Pi(\sn u,-k^2\eta,k^2) + \\
-+ \frac{\alpha}{k\sqrt{1/k^2+\eta}}\arctan\left(\frac{\cn u}{k \sn u \sqrt{1/k^2+\eta}}\right)\Bigg]
-\end{align*}
-
+In order to solve this equation, we introduce the following functions derived from definite integrals: $C(x) = \int_0^x \frac{1}{1 - \alpha \cn y}dy$ and $D(x) = \int_0^x \frac{1}{1 - \alpha \dn y}dy$, where $\alpha = I_1a_1/L$.
 
 \begin{widetext}
-\begin{equation*}
-\phi(t) = \frac{L}{2 I_1\omega_p}\left\{(A_\phi + 1)\omega_p t + A_\phi [h(t) - h(0)]\right\},
-\end{equation*}
-\begin{equation}
-h(t) = \Theta\left(\frac{\omega_2(t)}{a_2},-\frac{a_2^2 }{\lambda_1^2}\eta,k^2\right) + \alpha B_\phi \arctan\left(B_\phi\frac{\omega_3(t)/a_3}{\omega_2(t)/a_2}\right)
-\end{equation}
-where $A_\phi = \frac{2 I_1 K_r - L^2}{L^2}(\eta + 1)$ and $B_\phi = \frac{\max(\lambda_1,\lambda_3)}{\sqrt{\lambda_1^2 + \eta \lambda_3^2}}$
-	
-	
-	
-\begin{equation*}
-\phi(t) = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2 b I_1 L} (\eta + 1) \Bigg[bt + \Theta\left(\frac{\omega_2(t)}{a_2},-\frac{a_2^2 \eta}{\lambda_1^2},k^2\right) + \frac{\alpha}{\sqrt{k^2+\eta}}\arctan\left(\frac{\dn u}{\sn u \sqrt{k^2+\eta}}\right)\Bigg]
-\end{equation*}
-
-\begin{equation*}
-\phi(t) = \frac{L}{2}\frac{2K_r - I_1 a_1^2}{L^2 - I_1^2 a_1^2}t + \frac{2 I_1 K_r - L^2}{2 b I_1 L} (\eta + 1) \Bigg[bt + \Theta\left(\frac{\omega_2(t)}{a_2},-\frac{a_2^2 \eta}{\lambda_1^2},k^2\right) + \frac{\alpha}{\sqrt{k^2+\eta}}\arctan\left(\frac{\dn u}{\sn u \sqrt{k^2+\eta}}\right)\Bigg]
-\end{equation*}
-
+	\begin{subequations}
+\begin{gather}
+\label{eq:def_integral_C} \frac{C(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{x}{2 K} \right\rceil +
+\frac{\alpha}{\sqrt{m+\eta}} \arctan\left(\frac{\sqrt{m+\eta} \; \sn x}{\dn x}\right) \\
+\label{eq:def_integral_D} \frac{D(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,m\eta) + 2\Theta(1,m\eta) \left\lfloor\frac{x}{2 K}\right\rceil +
+\frac{\alpha}{\sqrt{m\eta + 1}} \left\{\arctan\left(\frac{\sqrt{m\eta + 1} \; \sn x}{\cn x}\right) + \pi \left\lfloor \frac{x}{2 K} \right\rceil\right\}
+\end{gather}
+	\end{subequations}
 \end{widetext}
-where $\alpha = I_1 a_1/L$.
 
-\begin{align*}
-\int \frac{1}{1 + \alpha \cn u}du = (\eta + 1) \Bigg[u + \Theta(\sn u,-\eta,k^2) + \\
-+ \frac{\alpha}{\sqrt{k^2+\eta}}\arctan\left(\frac{\dn u}{\sn u \sqrt{k^2+\eta}}\right)\Bigg]
-\end{align*}
-
-\begin{align*}
-\int \frac{1}{1 + \alpha \dn u}du = (\eta + 1) \Bigg[u + \Theta(\sn u,-k^2\eta,k^2) + \\
-+ \frac{\alpha}{k\sqrt{1/k^2+\eta}}\arctan\left(\frac{\cn u}{k \sn u \sqrt{1/k^2+\eta}}\right)\Bigg]
-\end{align*}
-
------
-
-\begin{equation*}
-\left[\begin{array}{c}
-\dot{z}_3 \\
-\dot{z}_4
-\end{array}\right] =
-\frac{1}{2}\left[\begin{array}{rr}
-f(t) & g(t) \\
--g(t) & f(t)
-\end{array}\right]
-\left[\begin{array}{c}
-z_3 \\
-z_4
-\end{array}\right],
-\end{equation*}
-where $f(t) = \frac{-I_1 \dot{\omega}_1(t)}{L - I_1\omega_1(t)}$ and $g(t) = \frac{2K_r - L\omega_1(t)}{L - I_1\omega_1(t)}$. Because the product $\mt M(t_a)\mt M(t_b)$, where $\mt M(t)$ is the matrix above, commutes for any instants $t_a$ and $t_b$, since this is a sufficient condition for 
-\begin{equation*}
-\left[\begin{array}{c}
-z_3 \\
-z_4
-\end{array}\right] =
-\exp \Bigg( \frac{1}{2}\left[\begin{array}{rr}
-f(t) & g(t) \\
--g(t) & f(t)
-\end{array}\right] \Bigg)
-\left[\begin{array}{c}
-z_3^0 \\
-z_4^0
-\end{array}\right],
-\end{equation*}
-
-
-Note that 
-
-
-The remaining terms of Eq.~\ref{eq:linear_comb_z} are 
-
-
-\begin{align*}
-f(t) &= \frac{-I_1 \dot{\omega}_1(t)}{L - I_1\omega_1(t)} \\
-g(t) &= \frac{L}{I_1} + \frac{2 I_1 K_r - L^2}{b I_1 L}\frac{b}{1+(I_1 a_1/L)[\omega_1(t)/a_1]}
-\end{align*}
-
- two linearly independent ones.
-
-Those corresponding to the third and forth elements of $\vt v_1$ and $\vt v_2$
-
-\begin{equation*}
-\dot{\vt z} = \frac{1}{2} {\mt B}(\vt z){\vt \omega} = \frac{1}{2}\left(\sum_{j=1}^3 \omega_j \hat{\mt B}_j\right){\vt z}.
-\end{equation*}
-
-\begin{equation*}
-\dot{z}_3 \vt v_1 + \dot{z}_4 \vt v_2 + z_3 \dot{\vt v}_1 + z_4 \dot{\vt v}_2 = \frac{1}{2}{\mt B}(z_3 \vt v_1 + z_4 \vt v_2){\vt \omega}.
-\end{equation*}
-
-------
-
-, which are, in fact, the elements $z_3(t)$ and $z_4(t)$.
-
-. Simple examination of these vectors makes evident that $\vt z = z_3 \vt v_1 + z_4 \vt v_2$, which means that 
-
-the coefficients of such combination clearly coincide with the elements $z_3$ and $z_4$.
-
-\begin{equation*}
-\vt q = \left[\begin{array}{cc}\vt z & \mt C(\vt z)\end{array}\right]\tr{\left[\begin{array}{cc}\vt z_0 & \mt C(\vt z_0)\end{array}\right]} \vt q_0.
-\end{equation*}
-
-Any unit quaternion in the hyperplane defined by $\vt v_1(0)$ and $\vt v_2(0)$ can be taken as $\vt z(0) = \vt z_0$.
-
-\begin{equation*}
-\vt z_0 = \frac{1}{\sqrt{2L(L - I_1\omega_1^0)}}
-\left[\begin{array}{c}
-I_3\omega_3^0 \\
-I_2\omega_2^0 \\
-L-I_1\omega_1^0 \\
-0
-\end{array}\right].
-\end{equation*}
-
-
-
-, that is, $\vt z = z_3 \vt v_1 + z_4 \vt v_2$. 
-
-
-This reduces the problem to determining 
-
-
-
-
-\begin{equation*}
-\vt z = z_3 \vt v_1 + z_4 \vt v_2 =
-\left[\begin{array}{c}
-\frac{I_3\omega_3z_3 - I_2\omega_2z_4}{L-I_1\omega_1} \\
-\frac{I_2\omega_2z_3 + I_3\omega_3z_4}{L-I_1\omega_1} \\
-z_3 \\
-z_4
-\end{array}\right]
-\end{equation*}
-Such null space certainly exists because .
-
-Given that $(I_2 - I_3)\omega_2\omega_3 = I_1 \dot{\omega}_1$ and $\tr{\vt \omega}\mt I\vt \omega = K_r$:
-\begin{align*}
-\dot{z}_3 = \frac{1}{2}\frac{I_1\dot{\omega}_1 z_3 + (2K_r + L\omega_1)z_4}{L + I_1\omega_1} \\
-\dot{z}_4 = \frac{1}{2}\frac{I_1\dot{\omega}_1 z_4 - (2K_r + L\omega_1)z_3}{L + I_1\omega_1}
-\end{align*}
-
-From Eq.~\ref{eq:factorization_of_A}, we observe that $\mt B(\vt z)\mt I\vt \omega = \mt C(\vt z)\tr{[L \; 0 \; 0]}$.
-
-A key aspect of the approach consists in defining is the choice of a temporary space-fixed frame of reference 
-
-Let $\vt L = \tr{[\mt A(\vt q)]}{\mt I}{\vt \omega}$ be the angular momentum vector 
-
-$\vt L = \tr{[\mt A(\vt q)]}{\mt I}{\vt \omega}$ remains constant while both the quaternion $\vt q$ and the body-fixed angular velocity $\vt \omega$ vary.
-
-
- Once $\vt L$ is computed from the initial condition and the evolution of $\vt \omega$ is known (after solving the Euler equation), this fact constrains the possible evolution of $\vt q$. By premultiplying $\vt L$ by $\vt C$, one has that $\vt C \vt L = \vt B \mt I \vt \omega$. In other words, $\vt q$ must vary in such a way that the mapping of both $\vt L$ and $\mt I\vt \omega$ in its orthogonal plane always coincide. Then, resorting to Eq.~\ref{eq:product_B_vector} we can write
-\begin{equation*}
-\sum_{k=1}^3\left(L_k \hat{\vt C}_k - I_k \omega_k \hat{\vt B}_k\right){\vt q} = \vt 0,
-\end{equation*}
-where $\hat{\vt C}_k$ and $\hat{\vt B}_k$ are the permutation matrices defined in Appendix~\ref{sec:auxiliary_math}.
-Therefore, $\vt q$ is constrained to lie in the null space of a matrix $\mt G = \sum_{k=1}^3(L_k \hat{\vt C}_k - I_k \omega_k \hat{\vt B}_k)$. The determinant of this matrix can be obtained as
-\begin{equation*}
-\det \mt G = (\tr{\vt \omega}{\mt I}^2{\vt \omega} - L^2)^2,
-\end{equation*}
-which is identically null in a free rotational motion. In fact, this is a requirement for a matrix to have a non-empty null space. Using a computer algebra package, it is straightforward to find out that $\vt G$ has a two-dimensional null space whose basis set is formed by the two vectors
-\begin{equation*}
-\vt v_1 = \begin{smallarray}{c}
-L_2 + I_2 \omega_2 \\
-L_3 - I_3 \omega_3 \\
-0 \\
-L_1 - I_1 \omega_1
-\end{smallarray}
-\quad \text{and} \quad
-\vt v_1 = \begin{smallarray}{c}
-L_3 + I_3 \omega_3 \\
-L_2 - I_2 \omega_2 \\
-L_1 - I_1 \omega_1 \\
-0
-\end{smallarray}.
-\end{equation*}
-
-\begin{equation*}
-\exp\left(-\begin{smallarray}{cc}
- \alpha(t) & \phi(t) \\
--\phi(t) & \alpha(t)
-\end{smallarray}\right) = 
-e^{-\alpha(t)} \begin{smallarray}{cc}
-\cos \phi(t) & -\sin \phi(t) \\
-\sin \phi(t) &  \cos \phi(t)
-\end{smallarray}
-\end{equation*}
-
-Here,
-\begin{equation}
-\alpha(t) = \frac{1}{2}\int_0^t \frac{I_1 \omega_1^\prime(\tau)}{L - I_1\omega_1(\tau)}d\tau =
-\frac{1}{2}\ln\left(\frac{L - I_1\omega_1}{L - I_1\omega_1^0}\right)
-\end{equation}
-
-\begin{equation}
-\varphi(t) = \frac{1}{2}\int_0^t \frac{2 K_r + L \omega_1(\tau)}{L + I_1\omega_1(\tau)}d\tau
-\end{equation}
-
-After some algebra\cite{Celledoni_2008}
-\begin{equation*}
-\varphi(t) = \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2 I_1 L}\int_0^t \frac{1}{1+(I_1/L)\omega_1(\tau)}d\tau.
-\end{equation*}
-
-If $\lambda_1 < \lambda_3$, then $\omega_1(t) = A_1 \text{cn}(\alpha t + \epsilon)$
-
-\begin{align*}
-\int \frac{1}{1 + \alpha \cn u}du = (\eta + 1) \Bigg[u + \Theta(\sn u,-\eta,k^2) + \\
-+ \frac{\alpha}{\sqrt{k^2+\eta}}\arctan\left(\frac{\dn u}{\sn u \sqrt{k^2+\eta}}\right)\Bigg]
-\end{align*}
-
-\begin{align*}
-\int \frac{1}{1 + \alpha \dn u}du = (\eta + 1) \Bigg[u + \Theta(\sn u,-k^2\eta,k^2) + \\
-+ \frac{\alpha}{k\sqrt{1/k^2+\eta}}\arctan\left(\frac{\cn u}{k \sn u \sqrt{1/k^2+\eta}}\right)\Bigg]
-\end{align*}
-
-\begin{align*}
-\Theta(x,n,m) &= \Pi(x,n,m) - \text{sn}^{-1}(x,m) = \\
-&= \frac{1}{3}nx^3R_J(1-x^2,1-mx^2,1,1-nx^2).
-\end{align*}
-
+\begin{figure}
+	\includegraphics{definite_integrals.eps}
+	\caption{Illustrative plot of functions $c(x)=1/(1-\alpha\cn x)$ (dark cyan line) and $d(x)=1/(1-\alpha \dn x)$ (magenta line) with $\alpha = 9/10$ and elliptic parameter $m = 1/2$, together with their definite integrals $C(x)$ (blue line) and $D(x)$ (red line), defined in Eqs.~\ref{eq:def_integral_C} and \ref{eq:def_integral_D}, respectively.}
+	\label{fig:definite_integrals}
+\end{figure}
 
 \subsection{Symplectic Numerical Integration}
 \label{sec:symplectic}
