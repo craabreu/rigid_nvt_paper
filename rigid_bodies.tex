@@ -39,56 +39,16 @@ In Molecular Dynamics, sets of atoms collectively behaving as rigid bodies are o
 
 \maketitle
 
-\section{Introduction}
-
-Along with advances in software and hardware, improvements in molecular dynamics (MD) algorithms have allowed researchers to extend both the time and the length scales attainable in atomistic simulations. This progress has fomented the ambitious attempt of elucidating complex physical phenomena such as the mechanisms underlying molecular motors, pathways for nanoparticle assembly, and interfacial phenomena, to name just a few. Because of its complexity and large computational demand, such a challenging task requires strategies to enlarge the achievable scales even further.
-
-One of the strategies employed to speed up MD simulations is the suppression of unimportant degrees of freedom, as might be the case of intramolecular vibrations. Iterative methods such as SHAKE\cite{Ryckaert1977} and RATTLE\cite{Andersen1983} achieved this suppression by adding constraints to the equations of motion. This is the standard approach in the common case of molecular models with fixed bond lengths and bending angles, but flexible dihedral angles. However, for molecules modeled as rigid structures or those containing rigid substructures,\cite{Miller2002} the dynamics of rigid bodies emerges as a suitable approach. This is expected to be computationally more efficient because the constraints are treated implicitly. In addition, and most importantly, it is possible to devise symplectic integrators for simulations in the microcanonical ensemble. Being symplectic implies phase-space volume preservation and time reversibility, which are sufficient conditions for numerical integrators to be used in hybrid Monte Carlo (HMC) methods.\cite{Duane1987} In this context, Miller \textit{et al}.\cite{Miller2002} have introduced a symplectic integrator for the rotational motion represented in terms of unit quaternions. This approach has been successfully employed in plain MD as well as in HMC methods to simulate a wide variety of systems composed of rigid molecules, including liquid water,\cite{Sakamaki2011, Reinhardt2012, Palmer2014, Gonzales2014} ice,\cite{Geiger2014} hydrates,\cite{Tribello2009, Gorman2012} gases diffusing in metal-organic frameworks,\cite{Ghoufi2010} and so forth. It has also been applied for molecules designed as collections of interconnected rigid bodies, which is a coarse-graining strategy used for proteins,\cite{Terada2003}, molecular machines,\cite{Akimov2008, Konyukhov2010} nanoparticles,\cite{Knorowski2012, Patra2013} etc.
-
-In this paper, we present a simplified formulation for the motion of rigid bodies in the microcanonical (NVE) and canonical (NVT) ensembles, as well as numerical integrators for both cases. Our contribution in the NVE case resides on a factorization of the rotation matrix that allows a Hamiltonian formalism to be devised without the need of extending the rotational phase space, thus simplifying the formulation of Miller \textit{et al}.\cite{Miller2002} In the NVT case, both the translational and rotational degrees of freedom are simultaneously coupled to a unique Nos\'e-Hoover chain (NHC) thermostat. This differs from the approach of Kamberaj \textit{et al}.,\cite{Kamberaj2005} in which two thermostat chains act separately on the rotational and the translational degrees of freedom. We also simplify the calculation of pressure for systems with rigid bodies whose constituent atoms interact via a pairwise potential under periodic boundary conditions. For this, we derive two alternative expressions: one that depends exclusively on the resultant interaction forces between body pairs and one that corrects the pressure calculated in terms of interactions among freely moving atoms.
-
-The paper is organized as follows. In Sec.~\ref{sec:mechanics}, we present a mathematical reformulation of the Hamiltonian equations of motion for rigid bodies in terms of unit quaternions. In Sec.~\ref{sec:molecular_dynamics}, we devise numerical integrators for both the NVE and NVT dynamics, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}. Moreover, we present results related to kinetic energy partition in the NVE case, analyze the statistical distributions of the sampled energies in the NVT case, and check the equation we developed for computing pressure. Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
-
-Throughout this paper, we use the word ``quaternion'' as a synonym for a four-dimensional vector, avoiding other interpretations. Thus, only ordinary matrix/vector operations are present in the formulation. Some mathematical details are given in the Appendix.
-
-\section{Mechanics of Rigid Body Motion}
-\label{sec:mechanics}
-
-In this section, we first review certain aspects of the kinematics of rigid bodies which are relevant to the present study. Unit quaternions are employed to represent the orientations of rigid bodies. Then, we introduce the use of a particular factorization of the rotation matrix, from which a mathematical relation arises between the rate of change of a four-dimensional quaternion and a three-dimensional angular velocity vector. An important feature of this relation is that it preserves the unit-norm constraint of a quaternion upon infinitesimal rotation.
-
-\subsection{Kinematics}
-\label{sec:kinematics}
-
-Consider a rigid body composed of $n_p$ individual particles, with each particle $j$ having mass $M_j$ and being located at a Cartesian coordinate $\vt R_j$. The center of mass of this body is located at
-\begin{equation*}
-\vt r = \frac{1}{m}\sum_{j=1}^{n_p} M_j {\vt R}_j,
-\end{equation*}
-where $m = \sum_{j=1}^{n_p} M_j$ is the total mass of the body. The position of each particle $j$ in a space-fixed frame of reference, whose origin coincides with the body's center of mass, is ${\vt \delta}_j = \tr{ [\begin{array}{ccc} {\delta_j}_x & {\delta_j}_y & {\delta_j}_z \end{array}]} = {\vt R}_j - {\vt r}$. In such frame, the symmetric inertia tensor for rotations of the body about the origin is\cite{Goldstein2002}
-\begin{equation*}
-{\mt I}^\ast = \sum_{j=1}^N M_j \begin{smallarray}{ccc}
-{\delta_j}_y^2 + {\delta_j}_z^2 & -{\delta_j}_x {\delta_j}_y & -{\delta_j}_x {\delta_j}_z \\
--{\delta_j}_y {\delta_j}_x & {\delta_j}_x^2 + {\delta_j}_z^2 & -{\delta_j}_y {\delta_j}_z \\
--{\delta_j}_z {\delta_j}_x & -{\delta_j}_z {\delta_j}_y & {\delta_j}_x^2 + {\delta_j}_y^2 \\
-\end{smallarray}.
-\end{equation*}
-
-For every non-collinear rigid body (for conciseness, the only case considered here), there exists a particular frame of reference in which its inertia tensor is diagonal. The formulation of the equations of motion in this frame of reference is notably simplified. Conversions from the space-fixed frame to such a body-fixed frame are performed by a rotation matrix $\mt A$ that satisfies the similarity relation\cite{Goldstein2002}
-\begin{equation*}
-{\mt I} = {\mt A} {\mt I}^\ast \tr{\mt A} = \begin{smallarray}{ccc}
-I_1 &   0 &   0 \\
-0 & I_2 &   0 \\
-0 &   0 & I_3 \\
-\end{smallarray},
-\end{equation*}
-where $I_1$, $I_2$, and $I_3$ (the eigenvalues of ${\mt I}^\ast$) are the principal moments of inertia and the columns of $\tr{\mt A}$ (the corresponding eigenvectors) are the principal axes of rotation. With no loss of generality, we can consider that $I_1 \geq I_2 \geq I_3$. Algorithms for obtaining $\mt A$ from $\mt I^\ast$ can be found in the literature (e.g. Ref.~\onlinecite{Kopp2008}). Once this is done, the position of every particle $j$ in the body-fixed frame can be obtained by ${\vt d}_j = {\mt A} {\vt \delta}_j$. Since $\mt A$ represents an orthogonal transformation, a conversion in the opposite direction is done by ${\vt \delta}_j = \tr{\mt A} {\vt d}_j$.\cite{Goldstein2002} This is so because $\mt A \tr{\mt A} = \mt 1_3$, where $\mt 1_k$ represents a $k \times k$ identity matrix. By differentiating both sides of this relation with respect to time, we conclude that ${\mt A} \tr{\dot{\mt A}} = -\dot{\mt A} \tr{\mt A}$, which means that the result of $\mt A \tr{\dot{\mt A}}$ is skew-symmetric. The angular velocity of the body expressed in the body-fixed frame, $\vt \omega$, is related to this product by $\mt S(\vt \omega) = \mt A \tr{\dot{\mt A}}$,\cite{Haug1989} where $\mt S(\cdot)$ is the skew-symmetric operator defined in Appendix \ref{sec:auxiliary_math}  (Eq.~\ref{eq:operator_S}).
-
-An arbitrary rotation can be described using three independent parameters. One can use Euler angles, for instance, but mathematical singularities arise when the equations of motion are described in such terms. Instead, we consider an alternative representation, in which the orientation of a rigid body is given by four parameters $q_1$, $q_2$, $q_3$, and $q_4$, often referred to as Euler parameters, which form a quaternion $\vt q = \tr {[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$ and satisfy the relation\cite{Goldstein2002}
+\section{New Theory}
+Exact solution for torque-free rotation
+In a previous paper\cite{Abreu_2017} we presented a formulation for the motion of rigid bodies which was simplified by the introduction of a particular factorization of the rotational matrix. 
+quaternion $\vt q = \tr {[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$ and satisfy the relation\cite{Goldstein2002}
 \begin{equation}
 \label{eq:norm_eq_1}
 \tr{\vt q}{\vt q} = \|\vt q\|^2 = q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1.
 \end{equation}
 
-Therefore, $\vt q$ is restricted to the surface of a unit hypersphere in $\mathbb{R}^4$, which is itself a three-dimensional domain. Methods are available for computing the unit quaternion related to a given rotation matrix (e.g. Ref.~\onlinecite{Shepperd1978}). Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
+Reversely, the matrix $\mt A$ can be directly computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
 \begin{equation*}
 \label{eq:A_from_q}
 \mt A(\vt q) = \begin{smallarray}{ccc}
@@ -123,7 +83,7 @@ Let us now introduce two new matrix-valued functions that depend on the quaterni
 \end{smallarray}.
 \end{equation}
 
-Some important properties of these matrices (or transposes thereof) have been reported in the literature\cite{Haug1989, Shuster1993, Dichmann1999, Ravishankar2004, Nielsen2012} and are revisited with our particular notation in Appendix~\ref{sec:auxiliary_math}. The most remarkable feature is that
+The most remarkable feature is that
 \begin{equation}
 \label{eq:factorization_of_A}
 {\mt A} = \tr{\mt B}{\mt C}.
@@ -135,59 +95,32 @@ The equation above is a simple and convenient factorization of matrix $\mt A$, s
 \dot{\vt q} = \frac{1}{2} \mt B \vt \omega.
 \end{equation}
 
-Note that, for simplicity, we might omit the argument of a matrix-valued function (like $\mt A$, $\vt B$, or $\mt C$) when such argument is $\vt q$. It is explained in Appendix~\ref{sec:auxiliary_math} that premultiplication of a vector with either $\mt B$ or $\mt C$ transforms it into a quaternion that lies in the hyperplane orthogonal to $\vt q$ and that both transformations can be reversed by applying $\tr{\vt B}$ or $\tr{\vt C}$ accordingly. Therefore, there exists an intermediary frame of reference, which is fixed with respect to the unit quaternion $\vt q$ that represents the orientation of the body. Its connection to the body-fixed and space-fixed frames are summarized as follows:
-\[
-\boxed{\substack{\text{Body-fixed} \\ \text{frame}}}
-\mathrel{\mathop{\rightleftarrows}^{\mt B}_{\tr{\mt B}}}
-\boxed{\substack{\text{Quaternion-fixed} \\ \text{frame}}}
-\mathrel{\mathop{\rightleftarrows}^{\tr{\mt C}}_{\mt C}}
-\boxed{\substack{\text{Space-fixed} \\ \text{frame}}}
-\]
+Note that, for simplicity, we might omit the argument of a matrix-valued function (like $\mt A$, $\vt B$, or $\mt C$) when such argument is $\vt q$. 
 
-Hence, Eq.~\ref{eq:relation_qdot_omega} shows that $\dot{\vt q}$ is half the quaternion-fixed version of the angular velocity vector. Besides, it guarantees that the norm of $\vt q$ remains unchanged because Eq.~\ref{eq:diff_qTq} is identically satisfied.
+\section{Introduction}
+\cite{Yan_2008,Akimov_2012,Geiger_2013} \cite{Aimoli_2014}
+\cite{Omelyan_2011} multiple time scale md for fluids with orientational dof. canonical and isokinetic ensembles.
+Along with advances in software and hardware, improvements in molecular dynamics (MD) algorithms have allowed researchers to extend both the time and the length scales attainable in atomistic simulations. This progress has fomented the ambitious attempt of elucidating complex physical phenomena such as the mechanisms underlying molecular motors, pathways for nanoparticle assembly, and interfacial phenomena, to name just a few. Because of its complexity and large computational demand, such a challenging task requires strategies to enlarge the achievable scales even further.
 
-To conclude this section, we discuss on the possibility of switching between alternative space-fixed frames when describing the motion of a rigid body. This will be useful when we deal with torque-free rotations (Sec.~\ref{sec:free_rotation}). Consider that a body-fixed vector $\vt d$ is simultaneously observed as $\vt \delta = \tr{\mt A\!}(\vt q){\vt d}$ in a space-fixed frame $\mathcal S_q$ and as $\vt \xi = \tr{\mt A\!}(\vt z){\vt d}$ in another space-fixed frame $\mathcal S_z$. It follows that $\vt \xi = \mt A(\vt g)\vt \delta$, where the composite rotation matrix $\mt A(\vt g) = \tr{\mt A\!}(\vt z){\mt A}(\vt q)$ denotes the relative orientation between $\mathcal S_q$ and $\mathcal S_z$. One key result in quaternion algebra\cite{Dichmann1999} is a simple relation that exists between $\vt q$, $\vt z$, and $\vt g$, which can be adapted to our notation as $\vt g = \tr{[\begin{array}{cc}\vt z & \mt C(\vt z)\end{array}]} \vt q$. Note that both $\vt q$ and $\vt z$ vary while the body rotates, but the quaternion $\vt g$ remains constant because $\mathcal S_q$ and $\mathcal S_z$ are fixed in space. Moreover, as Eq.~\ref{eq:relation_qdot_omega} was derived for an arbitrary space-fixed frame, it is also true that $\dot{\vt z} = \tfrac{1}{2}{\vt B}(\vt z)\vt \omega$. In conclusion, as an alternative to tracking the evolution of $\vt q(t)$ after an instant $t_0$ in which $\vt q = \vt q_0$, one can select some other convenient unit quaternion $\vt z_0$ and then track the evolution of $\vt z(t)$, starting from $\vt z(t_0) = \vt z_0$. Then, whenever $\vt q$ is needed, one can simply make 
-\begin{equation}
-\label{eq:relation_q_z}
-\vt q = [\begin{array}{cc}\vt z & \mt C(\vt z)\end{array}] \tr{[\begin{array}{cc}\vt z_0 & \mt C(\vt z_0)\end{array}]} \vt q_0,
-\end{equation}
-which is correct because these block matrices represent orthogonal transformations in $\mathbb{R}^4$.
+One of the strategies employed to speed up MD simulations is the suppression of unimportant degrees of freedom, as might be the case of intramolecular vibrations. Iterative methods such as SHAKE\cite{Ryckaert1977} and RATTLE\cite{Andersen1983} achieved this suppression by adding constraints to the equations of motion. This is the standard approach in the common case of molecular models with fixed bond lengths and bending angles, but flexible dihedral angles. However, for molecules modeled as rigid structures or those containing rigid substructures,\cite{Miller2002} the dynamics of rigid bodies emerges as a suitable approach. This is expected to be computationally more efficient because the constraints are treated implicitly. In addition, and most importantly, it is possible to devise symplectic integrators for simulations in the microcanonical ensemble. Being symplectic implies phase-space volume preservation and time reversibility, which are sufficient conditions for numerical integrators to be used in hybrid Monte Carlo (HMC) methods.\cite{Duane1987} In this context, Miller \textit{et al}.\cite{Miller2002} have introduced a symplectic integrator for the rotational motion represented in terms of unit quaternions. This approach has been successfully employed in plain MD as well as in HMC methods to simulate a wide variety of systems composed of rigid molecules, including liquid water,\cite{Sakamaki2011, Reinhardt2012, Palmer2014, Gonzales2014} ice,\cite{Geiger2014} hydrates,\cite{Tribello2009, Gorman2012} gases diffusing in metal-organic frameworks,\cite{Ghoufi2010} and so forth. It has also been applied for molecules designed as collections of interconnected rigid bodies, which is a coarse-graining strategy used for proteins,\cite{Terada2003}, molecular machines,\cite{Akimov2008, Konyukhov2010} nanoparticles,\cite{Knorowski2012, Patra2013} etc.
+
+In this paper, we present a simplified formulation for the motion of rigid bodies in the microcanonical (NVE) and canonical (NVT) ensembles, as well as numerical integrators for both cases. Our contribution in the NVE case resides on a factorization of the rotation matrix that allows a Hamiltonian formalism to be devised without the need of extending the rotational phase space, thus simplifying the formulation of Miller \textit{et al}.\cite{Miller2002} In the NVT case, both the translational and rotational degrees of freedom are simultaneously coupled to a unique Nos\'e-Hoover chain (NHC) thermostat. This differs from the approach of Kamberaj \textit{et al}.,\cite{Kamberaj2005} in which two thermostat chains act separately on the rotational and the translational degrees of freedom. We also simplify the calculation of pressure for systems with rigid bodies whose constituent atoms interact via a pairwise potential under periodic boundary conditions. For this, we derive two alternative expressions: one that depends exclusively on the resultant interaction forces between body pairs and one that corrects the pressure calculated in terms of interactions among freely moving atoms.
+
+The paper is organized as follows. In Sec.~\ref{sec:mechanics}, we present a mathematical reformulation of the Hamiltonian equations of motion for rigid bodies in terms of unit quaternions. In Sec.~\ref{sec:molecular_dynamics}, we devise numerical integrators for both the NVE and NVT dynamics, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}. Moreover, we present results related to kinetic energy partition in the NVE case, analyze the statistical distributions of the sampled energies in the NVT case, and check the equation we developed for computing pressure. Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
+
+Throughout this paper, we use the word ``quaternion'' as a synonym for a four-dimensional vector, avoiding other interpretations. Thus, only ordinary matrix/vector operations are present in the formulation. Some mathematical details are given in the Appendix.
+
+\section{Mechanics of Rigid Body Motion}
+\label{sec:mechanics}
+
+In this section, we first review certain aspects of the kinematics of rigid bodies which are relevant to the present study. Unit quaternions are employed to represent the orientations of rigid bodies. Then, we introduce the use of a particular factorization of the rotation matrix, from which a mathematical relation arises between the rate of change of a four-dimensional quaternion and a three-dimensional angular velocity vector. An important feature of this relation is that it preserves the unit-norm constraint of a quaternion upon infinitesimal rotation.
+
+\subsection{Kinematics}
 
 \subsection{Hamiltonian Dynamics}
 \label{sec:hamiltonian}
 
-The relation between $\vt q$ and $\vt \omega$ (Eq.~\ref{eq:relation_qdot_omega}) is used here to develop a Hamiltonian formalism for the motion of a rigid body. As usual, it can be described by detaching translation and rotation, represented by ${\vt r}(t)$ and ${\vt q}(t)$, respectively. The position of each particle $j$ will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$. Several authors have obtained Hamiltonian equations for the rotation of rigid bodies using quaternions as generalized coordinates.\cite{Maciejewski1985, Dichmann1996, Miller2002, Ravishankar2004, Nielsen2012} Here we try to combine convenient features of their formulations. We start by defining the Lagrangian $\mathcal{L} = K - U$ as a function of $\vt r$, $\dot{\vt r}$, $\vt q$, and $\dot{\vt q}$, where $K$ and $U$ are the kinetic and potential energies of the body, respectively. Since $K = \frac{1}{2} m \tr{\dot{\vt r}} \dot{\vt r} + \frac{1}{2} \tr{\vt \omega} \mt I \vt \omega$,\cite{Goldstein2002} we can resort to Eq.~\ref{eq:relation_qdot_omega} to write
-\begin{equation*}
-\mathcal{L} = \frac{1}{2} m \tr{\dot{\vt r}} \dot{\vt r} + 2 \tr{\dot{\vt q}} \mt B \mt I \tr{\mt B} \dot{\vt q} - U(\vt r, \vt q).
-\end{equation*}
-
-To employ the Hamiltonian approach, besides the linear momentum $\vt p = \partial \mathcal{L}/\partial \dot{\vt r} = m \dot{\vt r}$, conjugated to $\vt r$, we introduce the momentum $\vt \pi = \partial \mathcal{L}/\partial \dot{\vt q}$, conjugated to $\vt q$.\cite{Goldstein2002} By carrying out the differentiation (see Appendix \ref{sec:Diff_Rules}), we get
-\begin{equation}
-\label{eq:conj_momentum}
-\vt \pi = 4 \mt B \mt I \tr{\mt B} \dot{\vt q} = 2 \mt B \mt I \vt \omega.
-\end{equation}
-
-Hence, $\vt \pi$ is twice the quaternion-fixed version of the angular momentum $\vt L = \mt I \vt \omega$ and, as such, it is also orthogonal to $\vt q$. Using the relation above, we can write down the Hamiltonian $\mathcal{H} = K + U$ as a function of $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$, which is
-\begin{equation}
-\label{eq:H_with_B}
-\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt \pi} {\mt B} {\mt I}^{-1} \tr{\mt B} \vt \pi}{8} + U(\vt r, \vt q).
-\end{equation}
-
-The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \partial \mathcal{H} / \partial \vt p$, $\dot{\vt p} = -\partial \mathcal{H} / \partial \vt r$, $\dot{\vt q} = \partial \mathcal{H} / \partial \vt \pi$, and $\dot{\vt \pi} = -\partial \mathcal{H} / \partial \vt q$.\cite{Goldstein2002} Eq.~\ref{eq:H_with_B} is convenient for differentiation with respect to $\vt \pi$, since $\mt B(\vt q)$ does not depend on it. However, if we define $\mt \Omega = \mt B(\vt \pi)$, it follows that $\tr{\mt B}{\vt \pi} = - \tr{\mt \Omega}{\vt q}$ and, therefore, a convenient form of $\mathcal{H}$ for differentiation with respect to $\vt q$ is
-\begin{equation}
-\label{eq:H_with_Omega}
-\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + \frac{\tr{\vt q} {\mt \Omega} {\mt I}^{-1} \tr{\mt \Omega} \vt q}{8} + U(\vt r, \vt q).
-\end{equation}
-
-For a rigid body composed of $n_p$ individual particles, the derivative $\partial U/\partial \vt r$ is obtained by
-\[
-\diff{U}{\vt r} = -\vt F = -\sum_{j=1}^{n_p} {\vt F_j},
-\]
-where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference (see Appendix \ref{sec:Diff_PotEng}), and thus $\vt F$ is the resultant force on the body. To obtain the derivative $\partial U/\partial \vt q$, one must take into account that the entries of $\vt q$ are not independent, due to the constraint imposed by Eq.~\ref{eq:norm_eq_1}. The correct way of performing differentiation with respect to a constrained vector is described in Ref.~\onlinecite{Schay1995}. As demonstrated in Appendix \ref{sec:Diff_PotEng}, we have
-\[
-\diff{U}{\vt q} = -2 \mt C \vt \tau = -2 \mt C \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
-\]
-where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed frame. Therefore, $-\partial U/\partial \vt q$ is twice the torque represented in quaternion-fixed frame of reference. Finally, after carrying out the required differentiations of $\mathcal{H}$ using either Eq.~\ref{eq:H_with_B} or Eq.~\ref{eq:H_with_Omega} (see Appendix~\ref{sec:Diff_Rules}) and substituting $\tr{\mt B} \vt \pi = - \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
+The relation between $\vt q$ and $\vt \omega$ (Eq.~\ref{eq:relation_qdot_omega}) is used here to develop a Hamiltonian formalism for the motion of a rigid body. As usual, it can be described by detaching translation and rotation, represented by ${\vt r}(t)$ and ${\vt q}(t)$, respectively. The position of each particle $j$ will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$. we obtain the following Hamiltonian system of equations of motion for a rigid body:
 \begin{subequations}
 \label{eq:EDO_system}
 \begin{align}
@@ -221,151 +154,10 @@ Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as 
 \subsection{Symplectic Numerical Integration}
 \label{sec:symplectic}
 
-An exact solution of Eq.~\ref{eq:EDO_system_alternative} would describe a symplectic form in the phase space determined by $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$. Hence, the described dynamics would be time-reversible and preserve both the Hamiltonian and the phase-space volume element. Even though one cannot obtain a closed-form solution for Eq.~\ref{eq:EDO_system_alternative}, it is possible to derive a symplectic approximate solution by applying the Liouville operator formalism.\cite{Tuckerman2010} For a given trajectory in phase space, any function $f(\vt r, \vt p, \vt q, \vt \pi)$ will vary with time according to
-\begin{equation*}
-\dot{f} = \left( \tr{\dot{\vt r}} \diff{}{\vt r} + \tr{\dot{\vt p}} \diff{}{\vt p} + \tr{\dot{\vt q}} \diff{}{\vt q} + \tr{\dot{\vt \pi}} \diff{}{\vt \pi} \right) f = i\!L f,
-\end{equation*}
-where $i\!L$ is the Liouville operator. This equation has a formal solution expressed by $f(t) = e^{t i\!L}f_0$, where $f_0$ is the initial value of $f$. As $f$ can be a phase-space coordinate, the exponential operator $e^{t i\!L}$, known as the classical time-evolution propagator,\cite{Tuckerman2008} represents a transformation from the initial condition to the phase-space point occupied at time $t$. Nevertheless, as no analytical solution is known for Eq.~\ref{eq:EDO_system_alternative}, the actual effect of its corresponding propagator cannot be determined.
-
-Analytical solutions exist for some simpler hypothetical cases related to Eq.~\ref{eq:EDO_system_alternative}. Let us analyze three of them, which will be useful later on to derive a complete approximate solution. In what follows, an index $0$ stands for ``initial value''. We start by considering a hypothetical Hamiltonian $\mathcal{H}_t = (1/2m) \tr{\vt p} \vt p$, whose resulting equations of motion are $\dot{\vt r} = {\vt p}/m$, $\dot{\vt p} = 0$, $\dot{\vt q} = 0$, and $\dot{\vt \pi} = 0$. The exact solution for this case is
-\[
-{\vt r}(t) = {\vt r}_0 + \frac{t}{m} {\vt p}_0,
-\]
-with ${\vt p}(t) = {\vt p}_0$, ${\vt q}(t) = {\vt q}_0$, and ${\vt \pi}(t) = {\vt \pi}_0$. This corresponds to a free translation (hence the subscript $t$). As the momentum $\vt p$ remains constant, the Hamiltonian $\mathcal{H}_t$ is conserved, as expected. Of course, the solution above is the exact effect of the propagator $e^{t i\!L_t}$, where the Liouville operator $i\!L_t$ is, simply,
-\[
-i L_t = \frac{\tr{\vt p}}{m}\diff{}{\vt r}.
-\]
-
-In the second hypothetical case, referred to as the boost case, we consider a Hamiltonian $\mathcal{H}_b = U(\vt r, \vt q)$. The resulting equations of motion are $\dot{\vt r} = 0$, $\dot{\vt p} = \vt F$, $\dot{\vt q} = 0$, and $\dot{\vt \pi} = 2 \mt C \vt \tau$, whose exact solution is
-\begin{align*}
-&{\vt p}(t) = {\vt p}_0 + t \vt F \\
-&{\vt \pi}(t) = {\vt \pi}_0 +  2 t \mt C \vt \tau
-\end{align*}
-with ${\vt r}(t) = {\vt r}_0$ and ${\vt q}(t) = {\vt q}_0$. As $\vt r$ and $\vt q$ remain unaltered, $\vt F$, $\mt C$, and $\vt \tau$ are constant as well. This solution clearly conserves $\mathcal{H}_b$ and marks the effect of a propagator $e^{t i\!L_b}$, obtained from the operator
-\[
-i\!L_b = \tr{\vt F} \diff{}{\vt p} + 2 \tr{\vt \tau} \tr{\mt C} \diff{}{\vt \pi}.
-\]
-
-Finally, the third hypothetical case consists of a Hamiltonian $\mathcal{H}_k = (1/2) I_k \omega_k^2$. Note that a single entry of $\vt \omega$ is accounted for in this case, so that it corresponds to a free uniaxial rotation. The equations of motion resulting from $\mathcal{H}_k$ are $\dot{\vt r} = 0$, $\dot{\vt p} = 0$, $\dot{\vt q} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt q$, and $\dot{\vt \pi} = \frac{1}{2} \omega_k \hat{\mt B}_k \vt \pi$. A special feature of this system facilitates its solution. It is known beforehand that the solution will keep $\mathcal{H}_k$ unaltered and, as a consequence, $\omega_k$ will be a constant as well. As noticed by Miller~\textit{el al.}~\cite{Miller2002}, this decouples the equations for $\dot{\vt q}$ and $\dot{\vt \pi}$, which are identical in form. The analytical solution that takes place is\cite{Miller2002}
-\begin{align*}
-&{\vt q}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt q_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt q_0 \\
-&{\vt \pi}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt \pi_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt \pi_0
-\end{align*}
-with ${\vt r}(t) = {\vt r}_0$ and ${\vt p}(t) = {\vt p}_0$. These equations, with $\omega_k$ calculated from $\vt q_0$ and $\vt \pi_0$ using Eq.~\ref{eq:omega_entry}, represent the effect of a propagator $e^{t i\!L_k}$ derived from the operator
-\[
-i\!L_k = \frac{1}{2} \omega_k \left( \tr{\vt q}\tr{\hat{\mt B}_k} \diff{}{\vt q} + \tr{\vt \pi}\tr{\hat{\mt B}_k} \diff{}{\vt \pi} \right).
-\]
-
-Now note that the Hamiltonian in Eq.~\ref{eq:H_split_omega} is equal to the sum ${\mathcal H}_t + {\mathcal H}_b + \sum_{k=1}^3 {\mathcal H}_k$, so that the Liouville operator corresponding to the original case of Eq.~\ref{eq:EDO_system_alternative} can be written as
-\begin{align}
-\label{eq:full_operator}
-i\!L = i\!L_t + i\!L_b + \sum_{k=1}^3 i\!L_k.
-\end{align}
-
-The Trotter-Suzuki splitting formula\cite{Trotter1959, Suzuki1976} can be used to devise a numerical solution for the rigid body motion which preserves the symplectic structure of Eq.~\ref{eq:EDO_system_alternative}. For a sum of two operators $i\!L_A$ and $i\!L_B$, such formula is
-\[
-e^{t(i\!L_A + i\!L_B)} \approx \left( e^{\frac{\Delta t}{2} i\!L_B} e^{\Delta t i\!L_A} e^{\frac{\Delta t}{2} i\!L_B} \right)^\mathcal{N} + \mathcal{O}(\Delta t^2),
-\]
-where $\Delta t = t/\mathcal N$ is the time step size and $\mathcal N$ is the number of steps. We recall that each exponential operator above will act having as initial condition the result of the operator at its right-hand side. By defining $i\!L_r = \sum_{k=1}^3 i\!L_k$ as the Liouville operator for a complete free rotation and realizing that the operators $i\!L_r$ and $i\!L_t$ are commutable, the factorization we employ here for the Liouville operator in Eq.~\ref{eq:full_operator} is
-\begin{equation}
-\label{eq:trotter_splitting_NVE}
-e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t} e^{\frac{\Delta t}{2} i\!L_b}.
-\end{equation}
-
-Update of forces and torques is required only after the free translation and free rotation have been carried out. Each complete rotation is split as\cite{Miller2002}
-\begin{equation}
-\label{eq:splitting_rot}
-e^{\Delta t i\!L_r} = \prod_{j=1}^n \left( e^{\frac{\delta t_j}{2} i\!L_3} e^{\frac{\delta t_j}{2} i\!L_2} e^{\delta t_j i\!L_1} e^{\frac{\delta t_j}{2} i\!L_2} e^{\frac{\delta t_j}{2} i\!L_3} \right),
-\end{equation}
-where $\sum_{j=1}^n {\delta t}_j = \Delta t$. This means that free rotation, which is computationally inexpensive for not involving force calculations, can be carried out with a smaller time step for accuracy improvement. Following Miller \textit{et al}.,\cite{Miller2002} one could simply make $\delta t_j = \Delta t/n$ for all $j$. Alternatively, one could use a higher-order factorization scheme, such as the one due to Yoshida\cite{Yoshida1990} and Suzuki,\cite{Suzuki1991a, Suzuki1991b} in which $\delta t_j = \omega_j \Delta t$ and the weights $\omega_j$ are carefully chosen to determine the order of approximation. It is our intention in this paper to investigate how the performance of the integrator as a whole is affected by using such a higher-order scheme. For that, we will consider $n = 1$ with $\omega_1 = 1$ (zero-order) and $n = 7$ with $\omega_1 = \omega_7 = 0.784513610477560$, $\omega_2 = \omega_6 = 0.235573213359357$, $\omega_3 = \omega_5 = -1.17767998417887$, and $\omega_4 = 1 - \sum_{j \neq 4} \omega_j$ (sixth-order).
-
-Finally, we remark that an analytical solution for the complete rotation exists\cite{vanZon2007} and that splitting schemes with higher-order approximations have been used for rigid body dynamics.\cite{Omelyan2007, Omelyan2008, vanZon2008} However, they result in methods that are more complex and often require expensive force-gradient calculations. Moreover, it is unclear how their benefits would extend to non-Hamiltonian numerical integrators, as required for molecular dynamics in ensembles other than the microcanonical one.
-
-
-
+An exact solution of Eq.~\ref{eq:EDO_system_alternative} would describe a symplectic form in the phase space determined by $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$. Hence, the described dynamics would be time-reversible and preserve both the Hamiltonian and the phase-space volume element. 
 \subsection{Exact Solution for Free Rotation}
 \label{sec:free_rotation}
 
-Eq.~\ref{eq:EDO_system} cannot be integrated analytically for a general potential $U(\vt r,\vt q)$, but closed-form solutions for Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi} are known in the case when $\vt \tau = \vt 0$. Torque-free rotations are useful in Molecular Dynamics as part of numerical integration methods based on splitting strategies. This is the topic addressed in Sec.~\ref{sec:symplectic}. As shown in Appendix~\ref{sec:derivation_euler}, Eq.~\ref{eq:EDO_pi} results in the well-known Euler equation $\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau$, which is totally decoupled from Eq.~\ref{eq:EDO_q} when $\vt \tau = \vt 0$. It is a known fact that both the rotational energy $K_r = \frac{1}{2}\tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-fixed angular momentum vector $\vt L$ (whose squared norm is $L^2 = \tr{\vt \omega}{\mt I}^2{\vt \omega}$) are integrals of motion in a free rotation. This allows us to solve the Euler equation analytically for $\vt \omega$. In the case of a spherical top ($I_1 = I_2 = I_3$), the solution is simply $\vt \omega(t) = \vt \omega(0)$. Inspired by the derivations in Refs.~\onlinecite{Landau1976, Thorn2012, vanZon2007}, we present the general solution in a form that facilitates computer implementation and allows a unified treatment for both asymmetric ($I_1 > I_2 > I_3$) and symmetric tops (either $I_1 = I_2$ or $I_2 = I_3$) if infinities are properly dealt with (IEEE 754 standard). From an initial condition $\vt \omega(0) = \vt \omega_0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, the solution starts by computing $K_r = \frac{1}{2}\tr{\vt \omega_0}{\mt I}{\vt \omega}_0$ and $L = (\tr{\vt \omega_0}{\mt I}^2{\vt \omega_0})^{1/2}$, followed by evaluating a set of prefactors defined as
-\begin{align*}
-a_1 &= \text{sgn}(\omega_1^0)\sqrt{\frac{L^2 - 2 I_3 K_r}{I_1(I_1 - I_3)}}, \\
-a_2 &= \sqrt{\min(\lambda_1,\lambda_3)}, \quad \text{and} \\
-a_3 &= \text{sgn}(\omega_3^0)\sqrt{\frac{2 I_1 K_r - L^2}{I_1(I_1 - I_3)}}, \\
-\end{align*}
-where $\lambda_1 = \frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}$ and $\lambda_3 = \frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}$. Note that the value of $a_2$ depends on a comparison between $\lambda_1$ and $\lambda_3$. This also occurs for $\vt \omega$, whose functional form is
-\begin{subequations}
-\begin{align}
-\vt \omega(t) &= \left[\begin{array}{c}
-a_1\text{cn}(\omega_p t + \epsilon) \\
-a_2\text{sn}(\omega_p t + \epsilon) \\
-a_3\text{dn}(\omega_p t + \epsilon)
-\end{array}\right] \quad \text{if} \quad \lambda_1 \le \lambda_3 \quad \text{or} \\
-\vt \omega(t) &= \left[\begin{array}{c}
-a_1\text{dn}(\omega_p t + \epsilon) \\
-a_2\text{sn}(\omega_p t + \epsilon) \\
-a_3\text{cn}(\omega_p t + \epsilon)
-\end{array}\right] \quad \text{if} \quad \lambda_1 > \lambda_3,
-\end{align}
-\end{subequations}
-where $\text{sn}$, $\text{cn}$, and $\text{dn}$ are the Jacobi elliptic functions\cite{Byrd_1971} with parameter $m = k^2 = {a_2}/{\text{max}(\lambda_1,\lambda_3)}$ and the constants $\omega_p$ and $\epsilon$ are given by
-\begin{equation*}
-\omega_p = \frac{(I_3 - I_1)a_1 a_3}{I_2 a_2} \quad \text{and} \quad
-\epsilon = \text{sn}^{-1}\left(\frac{\omega_2^0}{a_2}\right).
-\end{equation*}
-
-In order to compute the inverse function $\text{sn}^{-1}$, one can resort to its relation with an elliptic integral in Carlson form,\cite{Carlson_1977, Gradshteyn2014} $\text{sn}^{-1}(x) = x R_F(1-x^2,1-mx^2,1)$. One can numerically evaluate Jacobi functions and Carlson integrals by using, for instance, the routines available in the GNU Scientific Library.\cite{Galassi_2009}
-
-Once $\vt \omega(t)$ is known, we can solve Eq.~\ref{eq:EDO_q} for the unit quaternion $\vt q$ with initial condition $\vt q(0) = \vt q_0$. Here we propose a new procedure that is closely linked to the methods by Kosenko\cite{Kosenko_1998} and by Celledoni \textit{et al}.,\cite{Celledoni_2008} but that relies on the rotation matrix factorization (Eq.~\ref{eq:factorization_of_A}) to facilitate the task. These methods are also related to the one by van Zon and Schofield,\cite{vanZon2007} as shown in Ref.~\onlinecite{Celledoni_2008}. During a free rotation, any space-fixed representation of the angular momentum vector will remain constant. Thus, instead of solving Eq.~\ref{eq:EDO_q} directly for obtaining $\vt q(t)$, we solve an analogous equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$ for determining a unit quaternion $\vt z(t)$ specially chosen so that $\tr{\mt A\!}(\vt z)\mt I\vt \omega = \tr{[\begin{array}{ccc} L & 0 & 0 \end{array}]}$. In other words, we look for an alternative space-fixed frame whose first axis is aligned with the angular momentum vector. After replacing $\tr{\mt A\!}(\vt z) = \tr{\mt C}(\vt z){\mt B}(\vt z)$, we premultiply both sides by $\mt C(\vt z)$ and then apply Eq.~\ref{eq:product_B_vector} to obtain the homogeneous linear system $\mt G \vt z = \vt 0$, where $\mt G = L \hat{\vt C}_1 - \sum_{j=1}^3 I_j \omega_j \hat{\vt B}_j$. This means that $\vt z$ will continuously lie in the kernel of matrix $\mt G$, which can be determined by a standard elimination method. Such kernel turns out to be a (moving) linear space defined by the orthogonal basis vectors
-\begin{equation*}
-\vt u(t) = \begin{smallarray}{c} I_3\omega_3(t) \\ I_2\omega_2(t) \\ L-I_1\omega_1(t) \\ 0 \end{smallarray}
-\quad \text{and} \quad
-\vt v(t) = \begin{smallarray}{c} -I_2\omega_2(t) \\ I_3\omega_3(t) \\ 0 \\ L-I_1\omega_1(t) \end{smallarray}.
-\end{equation*}
-
-At all times, therefore, $\vt z$ will be a linear combination of $\vt u$ and $\vt v$. We can then write the expression
-\begin{equation*}
-\vt z(t) = \frac{b(t) \vt u(t) + c(t) \vt v(t)}{\sqrt{2L[L-I_1\omega_1(t)]}},
-\end{equation*}
-whose denominator is the norm of both $\vt u$ and $\vt v$. The problem has now been reduced to determining how the coefficients $b$ and $c$ vary with time. Further reduction is achieved by realizing that both the unit-norm constraint ($\tr{\vt z}{\vt z} = 1$) and the orthogonality condition ($\tr{\vt u}{\vt v} = 0$) hold at all times, which makes
-\begin{equation*}
-\tr{\vt z}{\vt z} = \frac{b^2 \tr{\vt u}{\vt u} + 2bc\tr{\vt u}{\vt v} + c^2 \tr{\vt v}{\vt v}}{2L[L-I_1\omega_1(t)]} = b^2 + c^2 = 1.
-\end{equation*}
-
-Hence, the values of $b$ and $c$ are restricted to a unit circle, so that we can finally rewrite $\vt z(t)$ as
-\begin{equation*}
-\vt z(t) = \frac{\vt u(t) \cos \theta(t) + \vt v(t) \sin \theta(t)}{\sqrt{2L[L-I_1\omega_1(t)]}}.
-\end{equation*}
-
-The next step consists in replacing this result into the equation $\dot{\vt z} = \frac{1}{2}{\mt B(\vt z)}{\vt \omega}$. This yields, after some algebra, a single differential equation whose solution can be expressed as
-\begin{equation*}
-\theta(t) = \theta_0 + \frac{L}{2I_1}t + \frac{2 I_1 K_r - L^2}{2L I_1}\int_0^t \frac{1}{1-(I_1/L)\omega_1(s)}ds.
-\end{equation*}
-
-
-
-In order to solve this equation, we introduce the following functions derived from definite integrals: $C(x) = \int_0^x \frac{1}{1 - \alpha \cn y}dy$ and $D(x) = \int_0^x \frac{1}{1 - \alpha \dn y}dy$, where $\alpha = I_1a_1/L$.
-
-\begin{widetext}
-	\begin{subequations}
-\begin{gather}
-\label{eq:def_integral_C} \frac{C(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,\eta) + 2\Theta(1,\eta) \left\lfloor \frac{x}{2 K} \right\rceil +
-\frac{\alpha}{\sqrt{m+\eta}} \arctan\left(\frac{\sqrt{m+\eta} \; \sn x}{\dn x}\right) \\
-\label{eq:def_integral_D} \frac{D(x)}{\eta + 1} = x + \text{sgn}(\cn x) \Theta(\sn x,m\eta) + 2\Theta(1,m\eta) \left\lfloor\frac{x}{2 K}\right\rceil +
-\frac{\alpha}{\sqrt{m\eta + 1}} \left\{\arctan\left(\frac{\sqrt{m\eta + 1} \; \sn x}{\cn x}\right) + \pi \left\lfloor \frac{x}{2 K} \right\rceil\right\}
-\end{gather}
-	\end{subequations}
-\end{widetext}
-
-In the equations above, $\eta = \frac{\alpha^2}{1-\alpha^2}$, the function $\text{sgn}(\cdot)$ returns $-1$ if its argument is negative or $+1$ otherwise, the operator $\lfloor \cdot \rceil$ rounds a real value to its nearest integer (with the unusual feature that halfway values are rounded towards zero), and the function $\Theta$ is defined in terms of the Carlson elliptic integral $R_J$ as
-\begin{equation*}
-\Theta(x,n) = -\frac{1}{3}nx^3 R_J(1-x^2,1-mx^2,1,1+nx^2).
-\end{equation*}
-
-\begin{figure}
-	\includegraphics{definite_integrals.eps}
-	\caption{Illustrative plot of functions $c(x)=1/(1-\alpha\cn x)$ (dark cyan line) and $d(x)=1/(1-\alpha \dn x)$ (magenta line) with $\alpha = 9/10$ and elliptic parameter $m = 1/2$, together with their definite integrals $C(x)$ (blue line) and $D(x)$ (red line), defined in Eqs.~\ref{eq:def_integral_C} and \ref{eq:def_integral_D}, respectively.}
-	\label{fig:definite_integrals}
-\end{figure}
 
 \section{Molecular Dynamics}
 \label{sec:molecular_dynamics}
@@ -582,30 +374,7 @@ e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta 
 
  Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. Note that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed.
 
-\subsection{Pressure of a System of Rigid Bodies}
-\label{sec:pressure}
 
-The pressure of a system with constant NVT, for which $\sum_{i=1}^N{\vt F}_i = 0$, is calculated by\cite{Louwerse2006, Tuckerman2001}
-\[
-P = \frac{(N-1) k_B T + \left\langle W \right\rangle}{V},
-\]
-where $W$ is the internal virial of the system, defined as $W = - V \frac{dU}{dV}$. For simplicity, we consider a system of rigid bodies under periodic boundary conditions whose potential energy function is pairwise additive with respect to individual atoms, so that the approach of Louwerse and Baerends\cite{Louwerse2006} can be applied (otherwise, one can employ the approach of Thompson \textit{et al.}\cite{Thompson2009}). Due to the rigidity of the bodies, interactions amongst companion atoms (i.e., atoms belonging to the same body) are irrelevant. Assuming that the minimum image convention\cite{Allen1989} applies for entire bodies, meaning that the simulation box is large enough to preclude any atom from having their own images or images of its companion atoms within its cutoff radius, the potential energy per unit box is given by
-\begin{equation}
-\label{eq:U_pairwise_pbc}
-U({\vt r}, {\vt q}) = \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \upsilon(r_{ijkl}),
-\end{equation}
-where $\upsilon(r)$ is a pair interaction potential and $r_{ijkl}$ is the distance between the $k$-th atom of body $i$ to its nearest image of the $l$-th atom of body $j$. Such distance is the norm of a vector ${\vt r}_{ijkl} = \hat{\vt r}_{ij} + \tr{[{\mt A}({\vt q}_i)]}{{\vt d}_k}_i - \tr{[{\mt A}({\vt q}_j)]}{{\vt d}_l}_k$, where $\hat{\vt r}_{ij}$ is the minimum-image vector pointing from the center of mass of body $j$ to that of body $i$. We note that $U$ does not depend explicitly on $V$, which makes ${\partial U}/{\partial V} = 0$. If the atoms were free to move individually, an isotropic change in volume would displace all atoms and we would have ${\partial {\vt r}_{ijkl}}/{\partial V} = (3V)^{-1} \tr{\vt r}_{ijkl}$.\cite{Louwerse2006} In this event, the atomic internal virial would be computed by
-\begin{equation}
-\label{eq:virial_atoms}
-W_\text{a} = \frac{1}{3} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \tr{\vt r}_{ijkl} {\vt f}_{ijkl},
-\end{equation}
-where $\vt f_{ijkl} = -{\partial \upsilon}/{\partial \vt r_{ijkl}}$ is the minimum-image force exerted by the $l$-th atom of body $j$ on the $k$-th atom of body $i$. In the case of rigid bodies, considering that an isotropic change in volume would neither deform nor rotate them, but only promote center-of-mass displacements, we have that ${\partial \hat{\vt r}_{ij}}/{\partial V} = (3V)^{-1} \tr{\hat{\vt r}}_{ij}$ and ${\partial {\vt q}_i}/{\partial V} = {\partial {\vt q}_j}/{\partial V} = \tr{\vt 0}$. Therefore, by applying the chain rule to Eq.~\ref{eq:U_pairwise_pbc} and realizing that $\partial \vt r_{ijkl}/\partial \hat{\vt r}_{ij} = \vt 1_3$, we obtain
-\[
-\label{eq:dUdV_rigid_bodies}
-\frac{dU}{dV} = -\frac{1}{3V} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \tr{\hat{\vt r}}_{ij} \vt f_{ijkl}.
-\]
-
-There are two convenient ways of employing this result to compute the internal virial of a system of rigid bodies. On one hand, we can explore the fact that ${\hat{\vt r}}_{ij}$ does not depend on the indexes $k$ and $l$. On the other hand, we can replace $\hat{\vt r}_{ij} = {\vt r}_{ijkl} - {{\vt \delta}_k}_i + {{\vt \delta}_l}_k$ and make use of the fact that $\vt f_{ijkl} = -\vt f_{jilk}$. Finally, we have
 \begin{subequations}
 	\label{eq:virial_rigid_bodies}
 	\begin{align}
@@ -632,94 +401,10 @@ In order to evaluate the stability of the numerical integrators, we employ a mea
 \label{eq:performance}
 D\!E =  \frac{1}{\mathcal N} \sum_{t=1}^{\mathcal N} \left| \frac{E_t - E_0}{E_0} \right|,
 \end{equation}
-from which it is possible to quantify the average deviation of the supposedly conserved quantity $E$ (either $\mathcal{H}$ of Eq.~\ref{eq:H_NVE} or $H$ of Eq.~\ref{eq:H_nvt}) from its initial value $E_0$ after a certain number of time steps $\mathcal N$. Both the instantaneous fluctuations, given by the term inside the summation, and the long-time conservation of energy, $D\!E$, are monitored.
-
-Recall that, when the splitting scheme of Eq.~\ref{eq:splitting_rot} is executed with $\delta t_j = \Delta t/n$ for all $j$, the method introduced here for the NVE dynamics is just a mathematical reformulation of the algorithm of Miller \textit{et al}.\cite{Miller2002} Therefore, short trajectories obtained with both methods should coincide up to round-off errors. In Fig.~\ref{fig:miller1fs}, we plot the instantaneous fluctuations of total energy obtained with $n = 1$ and a time step of 1~fs using both methods. The simulation with the algorithm of Ref.~\onlinecite{Miller2002} was performed using the LAMMPS software package.\cite{Plimpton1995} For the purpose of comparison, we did not carry out force shifting for the Lennard-Jones model, as this is not implemented in LAMMPS. It can be seen in Fig.~\ref{fig:miller1fs} that, in fact, the fluctuations of both methods are of similar magnitudes.
-
-\begin{figure}
-	\includegraphics{millerourmd}
-	\caption{Instantaneos fluctuations of energy for liquid water using Eq.~\ref{eq:trotter_splitting_NVE} (solid line) and the LAMMPS implementation of the algorithm of Ref.~\onlinecite{Miller2002} (dotted line) with $n = 1$, $\Delta t = 1$ fs, and $E_0 = -2799.87$ kcal/mol.}
-	\label{fig:miller1fs}
-\end{figure}
-
-In Table~\ref{table:nve}, we compare the energy drifts observed when the rotational operator in Eq.~\ref{eq:splitting_rot} is split using either $n = 1$ or the sixth-order Yoshida-Suzuki factorization scheme ($n = 7$). As observed, for a small time steps of 1~fs, increasing the order of factorization does not provide any improvement. As the time step size increases, trajectories with higher accuracy are achieved with $n = 7$. Nevertheless, the improvement is only marginal and all trajectories are stable, exhibiting a small long-time energy drift. Thus, we proceed by considering $n = 1$ in the analysis of the NVT dynamics.
-
-\begin{table}
-	\caption{Average total-energy deviations for liquid water in NVE simulations for Eq.~\ref{eq:splitting_rot} with either $n = 1$ or $n = 7$ with Yoshida-Suzuki factorization.}
-	\label{table:nve}
-	\begin{ruledtabular}
-		\begin{tabular}{ccc}
-			 & \multicolumn{2}{c}{ $D\!E$ } \\
-			 \cline{2-3}
-			 $\Delta t$/fs & $n = 1$ & $n = 7$ \\
-			 \hline
-			 1.0 & 0.000055 & 0.000074 \\
-			 2.0 & 0.00048  & 0.00031  \\
-			 3.0 & 0.0012   & 0.0011   \\
-		\end{tabular}
-	\end{ruledtabular}
-\end{table}
-
+from which it is possible to quantify the average deviation of the supposedly conserved quantity $E$ (either $\mathcal{H}$ of Eq.~\ref{eq:H_NVE} or $H$ of Eq.~\ref{eq:H_nvt}) from its initial value $E_0$ after a certain number of time steps $\mathcal N$.
 It is not the purpose of this work to propose an optimal factorization scheme for the NVT dynamics, but rather to show that a unique thermostat chain is capable of maintaining the average temperature at its specified value while providing the proper sampling of the canonical ensemble. \textbf{In order to use a constant value for the smaller time step in the NHC and NHC* operators $(\Delta t/4)$, we factorized those operators analogously to the scheme given by Eq.~\ref{eq:splitting_rot}}. Recalling that in the NVT dynamics the conserved quantity is the extended energy $H$, in Table~\ref{table:denvt} we show the results of Eq.~\ref{eq:performance} as well as the average temperatures obtained in each case. It can be seen that both integrators, represented by the Eq.~\ref{eq:trotter_splitting_NHC} and Eq.~\ref{eq:modified_splitting}, systematically achieve the specified temperature, regardless of the time step size. In addition, the energy drift is, at its worst, around $1 \%$.
 
-\begin{table}
-	\begin{threeparttable}
-		\caption{Average deviation of the conserved quantity ($DE$) and average temperatures from liquid water simulation with NVT integration \tnote{a}\tnote{b}}
-		\label{table:denvt}
-		\begin{ruledtabular}
-			\begin{tabular}{ccccc}
-				& \multicolumn{2}{c}{Eq.~\ref{eq:trotter_splitting_NHC}} & \multicolumn{2}{c}{Eq.~\ref{eq:modified_splitting}} \\
-				\cline{2-5}
-				$\Delta t$/fs & $D\!E$ & $T$/K & $D\!E$ & $T$/K \\
-				\hline
-				1.0 & 0.000043 & 298.16  & 0.000052  & 298.15 \\
-				2.0 & 0.00013  & 298.23  & 0.00017   & 298.06 \\
-				3.0 & 0.00089  & 298.17  & 0.0013    & 298.12
-			\end{tabular}
-		\end{ruledtabular}
-		\begin{tablenotes}
-			\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.037$.
-			\item[b] The smaller time step in the NHC and NHC* operators is 0.25 fs.
-		\end{tablenotes}
-	\end{threeparttable}
-\end{table}
-
 \subsection{New Results}
-
-
-\begin{table*}
-	\caption{Results with Exact Solution for Free Rotations}
-	\label{table:NVE}
-	\begin{ruledtabular}
-		\begin{tabular}{cccccccc}
-			$\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (kcal/mol) & $\langle K_t\rangle$ (kcal/mol) & $\langle K_r\rangle$ (kcal/mol) & P (atm) & $R$ (kcal/mol.ns) \\
-			\hline
-			1.0 & $	305.91	\pm	0.03	$ & $	-8395.1	\pm	0.1	$ & $	1645.9	\pm	0.1	$ & $	823.2	\pm	0.1	$ & $	822.7	\pm	0.1	$ & $	146	\pm	2	$ & $0.0456$ \\
-			2.0 & $	305.21	\pm	0.02	$ & $	-8389.5	\pm	0.1	$ & $	1642.1	\pm	0.1	$ & $	823.0	\pm	0.1	$ & $	819.1	\pm	0.1	$ & $	149	\pm	2	$ & $0.656$ \\
-			3.0 & $	304.30	\pm	0.03	$ & $	-8375.4	\pm	0.9	$ & $	1637.2	\pm	0.1	$ & $	824.0	\pm	0.1	$ & $	813.3	\pm	0.1	$ & $	156	\pm	2	$ & $2.87$ \\
-			4.0 & $	304.5	\pm	0.5	$ & $	-8339	\pm	6	$ & $	1638	\pm	3	$ & $	829	\pm	1	$ & $	808.8	\pm	0.6	$ & $	180	\pm	2	$ & $10.1$ \\
-		\end{tabular}
-	\end{ruledtabular}
-\end{table*}
-
-
-
-\begin{table*}
-\caption{Results.....}
-\label{table:NVE}
-\begin{ruledtabular}
-\begin{tabular}{cccccccc}
-$\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (kcal/mol) & $\langle K_t\rangle$ (kcal/mol) & $\langle K_r\rangle$ (kcal/mol) & P (atm) & $R$ (kcal/mol.ns) \\
-\hline
-1.0 & $305.95\pm0.03$ & $-8395.4\pm0.1$ & $1646.1\pm0.1$ & $823.3\pm0.1$ & $822.9\pm0.1$ & $151\pm2$ & $0.0471$ \\
-2.0 & $305.17\pm0.03$ & $-8389.0\pm0.1$ & $1641.9\pm0.1$ & $823.2\pm0.1$ & $818.8\pm0.1$ & $148\pm2$ & $0.853$ \\
-3.0 & $304.34\pm0.03$ & $-8374\pm2$ & $1637.5\pm0.2$ & $824.0\pm0.1$ & $813.4\pm0.1$ & $152\pm2$ & $3.96$ \\
-4.0 & $303.6\pm0.4$ & $-8349\pm5$ & $1633\pm2$ & $826.8\pm0.2$ & $806.5\pm0.4$ & $168\pm2$ & $8.25$ \\
-\end{tabular}
-\end{ruledtabular}
-\end{table*}
-
-
 
 \begin{table*}
 \caption{Results.....}
@@ -810,78 +495,6 @@ $\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (
 \subsection{Partition of Energy}
 \label{sec:energypartition}
 
-Checking the consistency between the equipartition of energy and the simulated energies serves as another approach for investigating the precision of a simulation. In fact, as stated by Eastwood \textit{et al}.,\cite{Eastwood_2010} this kind of checking has been useful to improve methodologies related to the calculation of  electrostatic\cite{Levitt_1988, Guenot_1992, Arnold_1994} and dispersive\cite{Sagui_1999} interactions, as well as to detect errors in thermostats\cite{Harvey_1998, Mor_2008} and barostats.\cite{Feller_1995} The truncation error associated to the numerical schemes is a potential source of error, and is the focus of the work of Eastwood \textit{et al}.,\cite{Eastwood_2010} which investigates a solvated protein and a temperature difference of approximately 5.5~K is observed between the protein and the solvent using a time step of 2~fs.
-
-In this paper, we analyze the partition of energy between the translational and rotational degrees of freedom, which are related to the temperature by the equipartition theorem as follows
-\begin{subequations}
-\begin{align}
-\label{eq:tras_equipartition}
-2 \langle E_\text{trans} \rangle = (3N - 3) k_b T
-\end{align}
-\begin{align}
-\label{eq:rot_equipartition}
-2 \langle E_\text{rot} \rangle = 3N k_b T
-\end{align} 
-\end{subequations}
-
-In these equations, $N$ is the number of rigid bodies. In microcanonical MD simulations, conservation of total linear momentum $\boldsymbol{P}$ results in the loss of three translational degrees of freedom, which is the reason why the factor $3N-3$ appears in Eq.~\ref{eq:tras_equipartition}. For a cubic box with periodic boundary conditions, there is no rotational symmetry,\cite{Frenkel_2013, Kuzkin_2014} with which the total angular momentum is not conserved, giving a number of $3N$ rotational degrees of freedom. We calculate the average energy per DOF $\langle E_{cin} \rangle_{DOF} = \langle E_{cin} \rangle /N_{DOF}$ and then we calculate both the translational and rotational energies from equipartition as follows
-
-\begin{equation}
-\langle E_{kin}^{trans}\rangle =  \langle E_{kin} \rangle_{DOF} \, (3N-3)
-\end{equation}
-
-\begin{equation}
-\langle E_{kin}^{rot} \rangle =  \langle E_{kin} \rangle_{DOF} \, (3N)
-\end{equation}
-
-In the tables below we report the translational and rotational energies using Eqs.~\ref{eq:tras_equipartition} and~\ref{eq:rot_equipartition}, together with those obtained in the NVE simulations. In this case, we simulated 903 molecules of liquid water in order to examine the behavior for a cutoff distance of $13$ {\AA}, which is a more conservative criterion as it provides better numerical stability. In Table~\ref{table:water_partition_LJ-SF} we observe that for a small time step of 0.5 fs the energies are in good correspondence, which is lost when the time step is increased. This result is confirmed also in Table~\ref{table:water_partition_13A_LJ-SF} for the cutoff distance of 13 {\AA}. This allows us to prove the influence of the truncation error on in this effect, in accordance with what Eastwood~\textit{et al.}~\cite{Eastwood_2010} point out. For significant deviations, the main implication is that Eqs.~\ref{eq:tras_equipartition} and~\ref{eq:rot_equipartition} are no longer suitable for the temperature calculation, which becomes an undefined property. In the aforementioned paper, the authors introduce an alternative approach for calculating the temperature which is based on the generalized equipartition theorem applied to the Shadow Hamiltonian, which will be investigated in future work.
-
-\begin{table}
-	\begin{threeparttable}
-		\caption{Kinetic energy partition in NVE simulations of 903 water molecules with $r_c$ = 9~{\r A} and a shifted-force Lennard-Jones potential.\tnote{a}} %($5415 grados de libertad$)}
-		\label{table:water_partition_LJ-SF}
-		\begin{ruledtabular}
-			\begin{tabular}{ccccccc}
-				& & & \multicolumn{2}{c}{Equipartitioned} & \multicolumn{2}{c}{Simulated}\\
-%				& & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c}{partition}\\
-				\cline{4-7}
-				$\Delta t$/fs & $T_\text{sim}$/K & $\langle E_\text{kin}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ \\
-				\hline
-				0.5 & 305.20  & 1642.11  & 820.60  & 821.06  & 820.60 & 821.51  \\
-				1.0 & 304.92  & 1640.57  & 819.83  & 820.74  & 820.63 & 819.94  \\
-				2.0 & 304.20  & 1636.74  & 817.92  & 818.82  & 820.56 & 816.18  \\
-				3.0 & 302.97  & 1630.07  & 814.59  & 815.48  & 820.47 & 809.60
-			\end{tabular}
-		\end{ruledtabular}
-		\begin{tablenotes}
-			\item[a] Energies are in kcal/mol.
-		\end{tablenotes}
-	\end{threeparttable}
-\end{table}
-
-\begin{table}
-	\begin{threeparttable}
-		\caption{Kinetic energy partition in NVE simulations of 903 water molecules with $r_c$ = 13~{\r A} and a shifted-force Lennard-Jones potential.\tnote{a}} %($5415 grados de libertad$)}
-		\label{table:water_partition_13A_LJ-SF}
-		\begin{ruledtabular}
-			\begin{tabular}{ccccccc}
-				& & & \multicolumn{2}{c}{Equipartitioned} & \multicolumn{2}{c}{Simulated}\\
-%				& & & \multicolumn{2}{c}{of energy} & \multicolumn{2}{c}{partition}\\
-				\cline{4-7}
-				$\Delta t$/fs & $T_\text{sim}$/K & $\langle E_\text{kin}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ & $\langle E_\text{trans}\rangle$ & $\langle E_\text{rot}\rangle$ \\
-				\hline
-				0.5 & 307.17 & 1652.71  & 825.90  & 826.81  & 825.96 & 826.75  \\
-				1.0 & 306.98 & 1651.68  & 825.38  & 826.30  & 826.09 & 825.59  \\
-				2.0 & 306.04 & 1646.60  & 822.85  & 823.75  & 825.57 & 821.03  \\
-				3.0 & 304.79 & 1639.89  & 819.49  & 820.40  & 825.63 & 814.26
-			\end{tabular}
-		\end{ruledtabular}
-		\begin{tablenotes}
-			\item[a] Energies are in kcal/mol.
-		\end{tablenotes}
-	\end{threeparttable}
-\end{table}
-
 \subsection{Sampling Validation}
 \label{sec:samplingvalidation}
 
@@ -961,25 +574,12 @@ Finally, in Table~\ref{table:ensemblevalidation} we present the results of the m
 	\end{threeparttable}
 \end{table}
 
-\subsection{Pressure Calculations}
-
-In Fig.~\ref{fig:pressure} we compare the results using Eq.~\ref{eq:virial_rigid_bodies} with those from a simulation performed with LAMMPS, which uses a numerical estimation of the constraint forces in the pressure calculation. The simulations were run in the NVE ensemble, for which neither shifting to the LJ forces nor analytical tail corrections were considered.
-
-Our purpose is....
-
-As one can see in Fig.~\ref{fig:pressure}....
-
 %\begin{center}
 %  \label{fig:pressure}
 %  \includegraphics{pressure2}
 %  \captionof{figure}{Histograms of pressure obtained in this work (filled bars) and using LAMMPS %(unfilled bars). Simulation of liquid water with NVE integration. $\Delta t : 1 fs$  }
 %\end{center}
 
-\begin{figure}
-	\includegraphics[width=0.5\textwidth,keepaspectratio]{FiguraAna}
-	\caption{Histogram of pressure values obtained using Eq.~\ref{eq:virial_rigid_bodies} (filled bars), along with the results from a simulation using LAMMPS (unfilled bars). The average pressures are $\bar{P} = -0.60$~bar and $\bar{P} = 2.14$~bar, respectively. Simulation of liquid water with NVE integration, $\Delta t = 1$~fs, and $n = 1$.}
-	\label{fig:pressure}
-\end{figure}
 
 \section{Concluding Remarks}
 \label{sec:conclusion}
@@ -988,273 +588,55 @@ As one can see in Fig.~\ref{fig:pressure}....
 The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
 \end{acknowledgments}
 
-\appendix
-
-\section{Differentiation with vectors and matrices}
-\label{sec:Diff_Rules}
-
-Along the paper, we employ the gradient convention (rather than the Jacobian convention) for expressing derivatives with respect to vector variables. In this context, very often we differentiate a scalar function using one of the following rules:
-\[
-\diff{(\tr{\vt x}\vt a)}{\vt x} = \diff{(\tr{\vt a}\vt x)}{\vt x} = \vt a \quad \text{or} \quad \diff{(\tr{\vt x}\mt A \vt x)}{\vt x} = (\mt A + \tr{\mt A})\vt x,
-\]
-where $\vt a$ is a constant vector and $\mt A$ is a constant matrix. If $\mt A$ is symmetric, then $\mt A + \tr{\mt A} = 2\mt A$.
-
-\section{Algebraic relations involving unit quaternions}
-\label{sec:auxiliary_math}
-
-We start by analyzing the matrix $\mt B$ as defined in Eq.~\ref{eq:def_B_and_C}. Note that $\tr{\mt B}\vt q = \vt 0$, where $\vt 0$ is a null vector.\cite{Haug1989, Shuster1993, Dichmann1999} This means that all columns of $\mt B$ are orthogonal to $\vt q$. As these columns have unit norm and are also orthogonal to each other, they form an orthonormal basis for the hyperplane orthogonal to $\mt q$, which is a subspace of $\mathbb{R}^4$. Therefore, the general operation $\vt y = \mt B \vt x$ transforms a vector $\vt x \in \mathbb{R}^3$ into a quaternion $\vt y \in \mathbb{R}^4$, but restricted to the mentioned hyperplane. Other two identities that hold for $\mt B$ are\citep{Haug1989}
-\begin{equation}
-\label{eq:basics_B}
-\begin{aligned}
-\tr{\mt B}\mt B &= (\tr{\vt q}{\vt q}) {\mt 1}_3 \text{ and} \\
-\mt B\tr{\mt B} &= (\tr{\vt q}{\vt q}) {\mt 1}_4 - {\vt q}\tr{\vt q}.
-\end{aligned}
-\end{equation}
-
-If $\tr{\vt q}{\vt q} = 1$, then the operation $\vt y = \mt B \vt x$ can always be reverted by $\tr{\mt B}$. This is not true for a general operation in the opposite direction, $\vt x = \tr{\mt B} \vt y$. Besides unit norm, it is necessary that $\tr{\vt q}\vt y = 0$ (i.e. orthogonality of $\vt y$ and $\vt q$) for the operation to be reversible by $\mt B$. In fact, the composite transformation $\mt B\tr{\mt B}$ corresponds to a projection into the hyperplane orthogonal to $\vt q$.\cite{Dichmann1999}
-
-As the columns of $\mt B$ are permutations of the components of $\vt q$, one can write $\mt B = \begin{smallarray}{ccc} \hat{\mt B}_1{\vt q} & \hat{\mt B}_2{\vt q} & \hat{\mt B}_3{\vt q}\end{smallarray}$, where $\hat{\mt B}_1$, $\hat{\mt B}_2$, and $\hat{\mt B}_3$ are the following skew-symmetric permutation matrices:
-\[
-\hat{\mt B}_1 = \begin{smallarray}{cccc}
- 0 & \text{-}1 &  0 &  0 \\
- 1 &  0 &  0 &  0 \\
- 0 &  0 &  0 &  1 \\
- 0 &  0 & \text{-}1 &  0 \\
-\end{smallarray} \quad
-\hat{\mt B}_2 = \begin{smallarray}{cccc}
- 0 &  0 & \text{-}1 &  0 \\
- 0 &  0 &  0 & \text{-}1 \\
- 1 &  0 &  0 &  0 \\
- 0 &  1 &  0 &  0 \\
-\end{smallarray} \quad
-\hat{\mt B}_3 = \begin{smallarray}{cccc}
- 0 &  0 &  0 & \text{-}1 \\
- 0 &  0 &  1 &  0 \\
- 0 & \text{-}1 &  0 &  0 \\
- 1 &  0 &  0 &  0 \\
-\end{smallarray}
-\]
-
-The product of $\mt B$ with an arbitrary vector $\vt x$ results in
-\begin{equation}
-\label{eq:product_B_vector}
-\mt B \vt x = \begin{smallarray}{ccc} \hat{\mt B}_1 \vt q & \hat{\mt B}_2 \vt q & \hat{\mt B}_3 \vt q \end{smallarray} \begin{smallarray}{c} x_1 \\ x_2 \\ x_3 \end{smallarray} = \sum_{j=1}^3 x_j \hat{\mt B}_j \vt q.
-\end{equation}
-
-Similarly, the product of $\tr{\mt B}$ with an arbitrary quaternion $\vt \pi$ results in
-\begin{equation}
-\label{eq:vector_entries}
-\tr{\mt B}\vt \pi =
-\begin{smallarray}{c}
-\tr{\vt q}\tr{\hat{\mt B}}_1 \\
-\tr{\vt q}\tr{\hat{\mt B}}_2 \\
-\tr{\vt q}\tr{\hat{\mt B}}_3 \\
-\end{smallarray}\vt \pi = 
-\begin{smallarray}{c}
-\tr{\vt q}\tr{\hat{\mt B}}_1\vt \pi \\
-\tr{\vt q}\tr{\hat{\mt B}}_2\vt \pi \\
-\tr{\vt q}\tr{\hat{\mt B}}_3\vt \pi \\
-\end{smallarray} = 
-\begin{smallarray}{c}
-\tr{\vt \pi}{\hat{\mt B}}_1\vt q \\
-\tr{\vt \pi}{\hat{\mt B}}_2\vt q \\
-\tr{\vt \pi}{\hat{\mt B}}_3\vt q \\
-\end{smallarray}.
-\end{equation}
-
-With $\dot{\mt B} = \begin{smallarray}{ccc} \hat{\mt B}_1\dot{\vt q} & \hat{\mt B}_2\dot{\vt q} & \hat{\mt B}_3\dot{\vt q}\end{smallarray}$ being the time-derivative of matrix $\mt B$, we now focus on the product $\tr{\mt B}\dot{\mt B}$, whose each entry is $\{\tr{\mt B}\dot{\mt B}\}_{ij} = \tr{\vt q}\tr{\hat{\mt B}_i} \hat{\mt B}_j\dot{\vt q}$. By noting that products involving the permutation matrices satisfy the relations\cite{Dichmann1999}
-\begin{equation}
-\label{eq:BB_products}
-\begin{aligned}
-&\tr{\hat{\mt B}}_1 \hat{\mt B}_1 = \tr{\hat{\mt B}}_2 \hat{\mt B}_2 = \tr{\hat{\mt B}}_3 \hat{\mt B}_3 = \mt 1_4, \\
-&\tr{\hat{\mt B}}_1 \hat{\mt B}_2 = -\tr{\hat{\mt B}}_2 \hat{\mt B}_1 = -\tr{\hat{\mt B}_3}, \\
-&\tr{\hat{\mt B}}_2 \hat{\mt B}_3 = -\tr{\hat{\mt B}}_3 \hat{\mt B}_2 = -\tr{\hat{\mt B}_1}, \; \text{and} \\
-&\tr{\hat{\mt B}}_3 \hat{\mt B}_1 = -\tr{\hat{\mt B}}_1 \hat{\mt B}_3 = -\tr{\hat{\mt B}_2}, \\
-\end{aligned}
-\end{equation}
-and recalling that $\vt q$ and $\dot{\vt q}$ are mutually orthogonal (Eq.~\ref{eq:diff_qTq}), we can obtain a simplified expression for $\tr{\mt B}\dot{\mt B}$, which is
-\begin{equation}
-\label{eq:BtBdot}
-\tr{\mt B}\dot{\mt B} = \begin{smallarray}{ccc}
-0 & -\tr{\vt q} \tr{\hat{\mt B}_3}\dot{\vt q} &  \tr{\vt q} \tr{\hat{\mt B}_2}\dot{\vt q} \\
-\tr{\vt q} \tr{\hat{\mt B}_3}\dot{\vt q} & 0 & -\tr{\vt q} \tr{\hat{\mt B}_1}\dot{\vt q} \\
--\tr{\vt q} \tr{\hat{\mt B}_2}\dot{\vt q} & \tr{\vt q} \tr{\hat{\mt B}_1}\dot{\vt q} & 0
-\end{smallarray}.
-\end{equation}
-
-Skew-symmetric matrices like the one above are associated to cross products. For arbitrary vectors $\vt x$ and $\vt y$ in $\mathbb R^3$, it turns out that $\vt x \times \vt y = \mt S(\vt x)\vt y$, where $\mt S(\cdot)$ is an operator defined as
-\begin{equation}
-\label{eq:operator_S}
-\mt S(\vt x) = \begin{smallarray}{ccc}
-0   & -x_3 &  x_2 \\
-x_3 &  0   & -x_1 \\
--x_2 &  x_1 &  0
-\end{smallarray}.
-\end{equation}
-
-By contrasting the definition above with Eqs.~\ref{eq:vector_entries} and \ref{eq:BtBdot}, it becomes clear that
-\begin{equation}
-\label{eq:relation_B_qdot}
-\tr{\mt B}\dot{\mt B} = {\mt S}\left( \tr{\mt B}\dot{\vt q} \right).
-\end{equation}
-
-We can also express $\mt C = \begin{smallarray}{ccc} \hat{\mt C}_1{\vt q} & \hat{\mt C}_2{\vt q} & \hat{\mt C}_3{\vt q}\end{smallarray}$, where $\hat{\mt C}_1$, $\hat{\mt C}_2$, and $\hat{\mt C}_3$ are the following skew-symmetric permutation matrices:
-\[
-\hat{\mt C}_1 = \begin{smallarray}{cccc}
- 0 & \text{-}1 &  0 &  0 \\
- 1 &  0 &  0 &  0 \\
- 0 &  0 &  0 & \text{-}1 \\
- 0 &  0 &  1 &  0 \\
-\end{smallarray} \quad
-\hat{\mt C}_2 = \begin{smallarray}{cccc}
- 0 &  0 & \text{-}1 &  0 \\
- 0 &  0 &  0 &  1 \\
- 1 &  0 &  0 &  0 \\
- 0 & \text{-}1 &  0 &  0 \\
-\end{smallarray} \quad
-\hat{\mt C}_3 = \begin{smallarray}{cccc}
- 0 &  0 &  0 & \text{-}1 \\
- 0 &  0 & \text{-}1 &  0 \\
- 0 &  1 &  0 &  0 \\
- 1 &  0 &  0 &  0 \\
-\end{smallarray}
-\]
-
-Products involving these matrices are slightly different from those in Eq.~\ref{eq:BB_products}. They are
-\begin{equation}
-\label{eq:CC_products}
-\begin{aligned}
-&\tr{\hat{\mt C}}_1 \hat{\mt C}_1 = \tr{\hat{\mt C}}_2 \hat{\mt C}_2 = \tr{\hat{\mt C}}_3 \hat{\mt C}_3 = \mt 1_4, \\
-&\tr{\hat{\mt C}}_1 \hat{\mt C}_2 = -\tr{\hat{\mt C}}_2 \hat{\mt C}_1 = \tr{\hat{\mt C}_3}, \\
-&\tr{\hat{\mt C}}_2 \hat{\mt C}_3 = -\tr{\hat{\mt C}}_3 \hat{\mt C}_2 = \tr{\hat{\mt C}_1}, \; \text{and} \\
-&\tr{\hat{\mt C}}_3 \hat{\mt C}_1 = -\tr{\hat{\mt C}}_1 \hat{\mt C}_3 = \tr{\hat{\mt C}_2}. \\
-\end{aligned}
-\end{equation}
-
-A special connection between the permutation matrices that make $\mt B$ and $\mt C$ is the fact that $\tr{\hat{\mt B}_i}{\hat{\mt C}_j}$ is symmetric for any combination of $i$ and $j$. A direct consequence is that $\tr{\vt q}\tr{\hat{\mt B}}_i\hat{\mt C}_j\dot{\vt q} = \tr{\dot{\vt q}}\tr{\hat{\mt B}}_i\hat{\mt C}_j{\vt q}$, which means that $\tr{\mt B}\dot{\mt C} = \tr{\dot{\mt B}}{\mt C}$. Thus, differentiating Eq.~\ref{eq:factorization_of_A} with respect to time yields $\dot{\mt A} = \tr{\mt B}\dot{\mt C} + \tr{\dot{\mt B}}{\mt C} = 2 \tr{\dot{\mt B}}{\mt C}$. Note that Eq.~\ref{eq:basics_B} also applies for matrix $\mt C$, which means that, as far as $\tr{\vt q}\vt q = 1$, we can insert the product $\mt C\tr{\mt C}$ between $\tr{\mt B}$ and $\dot{\mt B}$ in Eq.~\ref{eq:relation_B_qdot} without altering its result. Then, using Eq.~\ref{eq:factorization_of_A} again and the conclusion above about $\dot{\mt A}$, we have that
-\begin{equation}
-\frac{1}{2} {\mt A}\tr{\dot{\mt A}} = {\mt S}\left( \tr{\mt B}\dot{\vt q} \right).
-\end{equation}
-
-As mentioned in Sec.~\ref{sec:kinematics}, ${\mt A}\tr{\dot{\mt A}} = \mt S(\vt \omega)$, which makes the equation above equivalent to Eq.~\ref{eq:relation_qdot_omega}.
-
-\section{Potential energy differentiation}
-\label{sec:Diff_PotEng}
-
-Care must be taken when differentiating the potential energy with respect to $\vt q$ because the quaternion components are interdependent. According to Schay,\cite{Schay1995} when a vector variable $\vt x$ is subject to a constraint $g(\vt x) = 0$, the derivative of $f$ with respect to $\vt x$ must be computed by
-\[
-\diff{f}{\vt x} = (\vt 1 - \vt n \tr{\vt n})\left( \diff{f}{\vt x} \right)^\ast,
-\]
-where $\vt n$ is the unit vector proportional to $(\partial g/\partial \vt x)^\ast$, with the asterisk denoting a differentiation performed without considering the interdependence of the entries of $\vt x$. Note that transpositions are necessary when comparing the equation above, based on the gradient convention, with that in Ref.~\onlinecite{Schay1995}, where the Jacobian convention is used. In the case of a unit quaternion,
-\[
-g(\vt q) = \tr{\vt q}\vt q - 1 = 0 \; \rightarrow \; \left(\diff{g}{\vt q}\right)^\ast = 2 \vt q.
-\]
-
-Hence, the unit vector proportional to $(\partial g/\partial \vt x)^\ast$ is exactly $\vt q$. As the same constraint makes ${\mt C}\tr{\mt C} = \mt 1_4 - \vt q\tr{\vt q}$ (in analogy to Eq.~\ref{eq:basics_B}), the constrained derivative of $U$ can be represented by
-\begin{equation}
-\label{eq:diff_projection}
-\diff{U}{\vt q} = {\mt C}\tr{\mt C} \left( \diff{U}{\vt q} \right)^\ast.
-\end{equation}
-
-Therefore, the constrained derivative is the projection of the unconstrained one in the hyperplane orthogonal to $\vt q$. Recently, Nielsen and Krenk\cite{Nielsen2012} employed a Lagrange multiplier approach to demonstrate the need of carrying out such a projection. Schay\cite{Schay1995, Schay1998} discussed on the equivalence of these two approaches.
-
-By applying the chain rule, we have
-\[
-\left( \diff{U}{\vt q} \right)^\ast = \sum_{j=1}^{n_p} \left( \diff{\vt R_j}{\vt q} \right)^\ast \diff{U}{\vt R_j} = - \sum_{j=1}^{n_p} \left( \diff{\vt \delta_j}{\vt q} \right)^\ast {\vt F_j},
-\]
-where $\vt R_j = \vt r + \vt \delta_j$ and $\vt F_j = -\partial U/\partial \vt R_j$ is, by definition, the force applied on particle $j$. Temporarily dropping the particle index for simplicity, we recall from Sec.~\ref{sec:kinematics} that $\vt \delta = \tr{\mt A}\vt d$, where $\vt d$ is a constant vector. As each entry of $\mt A = \tr{\mt B}{\mt C}$ is $A_{ij}=\tr{\vt q} \tr{\hat{\mt B}}_i \hat{\mt C}_j {\vt q}$, an entry of $\vt \delta$ is given by
-\[
-\delta_j = \sum_{i=1}^{3} d_i \tr{\vt q} \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q}.
-\]
-
-Due to the symmetry of $\tr{\hat{\mt C}}_j \hat{\mt B}_i$, an unconstrained differentiation results in
-\[
-\left(\diff{\delta_j}{\vt q}\right)^\ast = 2 \sum_{i=1}^{3} d_i \tr{\hat{\mt C}}_j \hat{\mt B}_i {\vt q} = -2{\hat{\mt C}}_j {\mt B}{\vt d},
-\]
-where we have factored out $\tr{\hat{\mt C}}_j = -\hat{\mt C}_j$ from the summation and then employed Eq.~\ref{eq:product_B_vector}. The constrained differential $\partial \vt \delta/\partial \vt q$ is, therefore,
-\[
-\diff{\vt \delta}{\vt q} = -2{\mt C}\tr{\mt C}
-\begin{smallarray}{ccc}
-{\hat{\mt C}}_1 {\mt B}{\vt d} & {\hat{\mt C}}_2 {\mt B}{\vt d} & {\hat{\mt C}}_3 {\mt B}{\vt d}
-\end{smallarray} = 2{\mt C}\;{\mt S}\!\left(\tr{\mt C}{\mt B}\vt d\right),
-\]
-where we have carried out the second matrix product above, employed the properties presented in Eq.~\ref{eq:CC_products}, and then used the operator defined in Eq.~\ref{eq:operator_S}. Finally, after realizing that $\tr{\mt C}{\mt B}\vt d = \tr{\mt A}{\vt d} = \vt \delta$, we can use the result above to obtain
-\[
-\diff{U}{\vt q} = - 2 \mt C \sum_{j=1}^{n_p} \mt S(\vt \delta_j) {\vt F_j}  = - 2 \mt C \sum_{j=1}^{n_p} \vt \delta_j \times {\vt F_j}.
-\]
-
-Therefore, the constrained derivative of $U$ with respect to $\vt q$ is proportional to the quaternion-fixed representation of the resultant torque over the body.
-
-\section{Derivation of the Euler equation and its solution for a torque-free rotation}
-\label{sec:derivation_euler}
-
-Recall that $\vt \pi$ is twice the quaternion-fixed version of the angular momentum vector. Thus, it is expected that Eq.~\ref{eq:EDO_pi} will result in the well-known Euler equation, which describes the evolution of the angular momentum in the body-fixed frame, if $\frac{1}{2} \tr{\mt B}$ is premultiplied to both sides. In order to show that this actually occurs, we start by carrying out the premultiplication to obtain
-\[
-\frac{1}{2} \tr{\mt B} \dot{\vt \pi} = \frac{1}{4} \tr{\mt B} \mt \Omega \vt \omega + \mt A \vt \tau.
-\]
-
-Once $\mt \Omega = \begin{smallarray}{ccc} \hat{\mt B}_1{\vt \pi} & \hat{\mt B}_2{\vt \pi} & \hat{\mt B}_3{\vt \pi}\end{smallarray}$, in analogy with Eq.~\ref{eq:BtBdot} we conclude that $\tr{\mt B} \mt \Omega = \mt S(\tr{\mt B}\vt \pi) = 2 \mt S(\mt I \vt \omega)$. In addition,
-\[
-\tr{\mt B} \dot{\vt \pi} = \frac{d(\tr{\mt B}\vt \pi)}{dt} - \tr{\dot{\mt B}}\vt \pi = 2 \mt I\dot{\vt \omega} - 2 \tr{\dot{\mt B}} \mt B \mt I \vt \omega,
-\]
-where we have inserted $\mt B \tr{\mt B}$ between $\tr{\dot{\mt B}}$ and $\vt \pi$ and substituted $\tr{\mt B} \vt \pi = 2 \mt I \vt \omega$. Finally, after transposing Eq.~\ref{eq:relation_B_qdot} with $\tr{\mt B}\dot{\vt q}$ replaced by $\frac{1}{2} \vt \omega$ and resorting to the relation between $\mt S(\cdot)$ and a cross product, we obtain
-\[
-\mt I \dot{\vt \omega} + \vt \omega \times (\mt I \vt \omega) = \mt A \vt \tau,
-\]
-which is exactly the Euler equation of motion for rigid bodies.\cite{Goldstein2002} Its main advantage, in comparison with Eq.~\ref{eq:EDO_pi}, is that it completely decouples from the quaternion $\vt q$ when $\vt \tau = \vt 0$. In such a torque-free situation, the vector equation can be rewritten as the following system:
-\begin{align*}
-I_1 \dot{\omega}_1 - (I_2 - I_3) \omega_2 \omega_3 = 0\\
-I_2 \dot{\omega}_2 + (I_1 - I_3) \omega_1 \omega_3 = 0 \\
-I_3 \dot{\omega}_3 - (I_1 - I_2) \omega_1 \omega_2 = 0
-\end{align*}
-
-Analytical solutions for this system are a textbook subject.\cite{Landau1976} Here we present the solution for the case under consideration, when $I_1 > I_2 > I_3$ (an asymmetrical top), in a form that aims to facilitate computer implementation, inspired by the forms presented in Refs.~\onlinecite{Landau1976} and \onlinecite{Thorn2012}. In a free rotation, the kinetic energy $K_r = \tfrac{1}{2} \tr{\vt \omega}{\mt I}{\vt \omega}$ and the space-frame angular momentum $\vt L = \tfrac{1}{2}\tr{\mt C}{\vt \pi} = \tr{\mt A}{\mt I}{\vt \omega}$ are integrals of motion. Note that the square norm of $\vt L$ does not depend explicitly on $\vt q$ in any frame of reference:
-\[
-L^2 = \tr{\vt L}{\vt L} = \tr{\vt \omega}{\mt I}^2{\vt \omega} = \frac{1}{4}\tr{\vt \pi}{\vt \pi}.
-\]
-
-Therefore, if we compute $K_r$ and $L^2$ from the initial angular velocity ${\vt \omega}^0 = \tr{[\omega_1^0 \; \omega_2^0 \; \omega_3^0]}$, we can apply the following constraints to the Euler equations:
-\begin{align*}
-I_1 \omega_1^2 + I_2 \omega_2^2 + I_3 \omega_3^2 = 2 K_r \\
-I_1^2 \omega_1^2 + I_2^2 \omega_2^2 + I_3^2 \omega_3^2 = L^2
-\end{align*}
-
-By solving these equations for $\omega_1^2$ and $\omega_3^2$, we obtain
-\begin{equation}
-\label{eq:omegas_1_and_3}
-\omega_1^2 = A_1^2 \left[1-\left(\frac{\omega_2}{\lambda_1}\right)^2\right] \;\; \text{and} \;\; \omega_3^2 = A_3^2 \left[1-\left(\frac{\omega_2}{\lambda_3}\right)^2\right],
-\end{equation}
-where
-\begin{equation}
-\lambda_1 = \sqrt{\frac{L^2 - 2 I_3 K_r}{I_2(I_2 - I_3)}} \;\; \text{and} \;\; \lambda_3 = \sqrt{\frac{2 I_1 K_r - L^2}{I_2(I_1 - I_2)}}.
-\end{equation}
-
-In order to obtain the prefactors $A_1$ and $A_3$ with the correct signs, we realize that Eqs.~\ref{eq:omegas_1_and_3} must be valid at the initial instant ($t = 0$), which makes
-\begin{equation}
-A_1 = \frac{\omega_1^0}{\sqrt{1 - (\omega_2^0/\lambda_1)^2}} \;\; \text{and} \;\;
-A_3 = \frac{\omega_3^0}{\sqrt{1 - (\omega_2^0/\lambda_3)^2}}.
-\end{equation}
-
-By defining $x = {\omega_2}/{\lambda_\text{min}}$ and $\kappa = {\lambda_\text{min}}/{\lambda_\text{max}}$, where $\lambda_\text{min} = \min(\lambda_1,\lambda_3)$ and $\lambda_\text{max} = \max(\lambda_1,\lambda_3)$, we can transform the Euler equation for $\omega_2$ into to the following initial value problem for $x$:
-\[
-\begin{cases}
-I_2 \lambda_\text{min} \dot{x} + (I_1-I_3) A_1 A_3 \sqrt{(1-x^2)(1-\kappa^2x^2)} = 0 \\
-x(0) = \omega_2^0/\lambda_\text{min}.
-\end{cases}
-\]
-
-The solution of the equation above and its application to 
-
-
-can be expressed using the elliptic Jacobi function $\text{sn}$, so that we can calculate $\omega_2$ at any time as
-\[
-\omega_2(t) = \lambda_\text{min} \text{sn}(\alpha t + \epsilon,\kappa),
-\]
-where
-\[
-\alpha = -\frac{(I_1-I_3)A_1A_3}{\lambda_\text{min} I_2} \quad \text{and} \quad \epsilon = \text{arcsn}\left(\frac{\omega_{2,0}}{\lambda_\text{min}},\kappa\right).
-\]
-
 \bibliography{rigid_bodies}
+%\begin{table*}
+%	\caption{Results with Exact Solution for Free Rotations}
+%	\label{table:NVE}
+%	\begin{ruledtabular}
+%		\begin{tabular}{cccccccc}
+%			$\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (kcal/mol) & $\langle K_t\rangle$ (kcal/mol) & $\langle K_r\rangle$ (kcal/mol) & P (atm) & $R$ (kcal/mol.ns) \\
+%			\hline
+%			1.0 & $	305.91	\pm	0.03	$ & $	-8395.1	\pm	0.1	$ & $	1645.9	\pm	0.1	$ & $	823.2	\pm	0.1	$ & $	822.7	\pm	0.1	$ & $	146	\pm	2	$ & $0.0456$ \\
+%			2.0 & $	305.21	\pm	0.02	$ & $	-8389.5	\pm	0.1	$ & $	1642.1	\pm	0.1	$ & $	823.0	\pm	0.1	$ & $	819.1	\pm	0.1	$ & $	149	\pm	2	$ & $0.656$ \\
+%			3.0 & $	304.30	\pm	0.03	$ & $	-8375.4	\pm	0.9	$ & $	1637.2	\pm	0.1	$ & $	824.0	\pm	0.1	$ & $	813.3	\pm	0.1	$ & $	156	\pm	2	$ & $2.87$ \\
+%			4.0 & $	304.5	\pm	0.5	$ & $	-8339	\pm	6	$ & $	1638	\pm	3	$ & $	829	\pm	1	$ & $	808.8	\pm	0.6	$ & $	180	\pm	2	$ & $10.1$ \\
+%		\end{tabular}
+%	\end{ruledtabular}
+%\end{table*}
 
+%\begin{table*}
+%\caption{Results.....}
+%\label{table:NVE}
+%\begin{ruledtabular}
+%\begin{tabular}{cccccccc}
+%$\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (kcal/mol) & $\langle K_t\rangle$ (kcal/mol) & $\langle K_r\rangle$ (kcal/mol) & P (atm) & $R$ (kcal/mol.ns) \\
+%\hline
+%1.0 & $305.95\pm0.03$ & $-8395.4\pm0.1$ & $1646.1\pm0.1$ & $823.3\pm0.1$ & $822.9\pm0.1$ & $151\pm2$ & $0.0471$ \\
+%2.0 & $305.17\pm0.03$ & $-8389.0\pm0.1$ & $1641.9\pm0.1$ & $823.2\pm0.1$ & $818.8\pm0.1$ & $148\pm2$ & $0.853$ \\
+%3.0 & $304.34\pm0.03$ & $-8374\pm2$ & $1637.5\pm0.2$ & $824.0\pm0.1$ & $813.4\pm0.1$ & $152\pm2$ & $3.96$ \\
+%4.0 & $303.6\pm0.4$ & $-8349\pm5$ & $1633\pm2$ & $826.8\pm0.2$ & $806.5\pm0.4$ & $168\pm2$ & $8.25$ \\
+%\end{tabular}
+%\end{ruledtabular}
+%\end{table*}
+%\begin{table}
+%	\begin{threeparttable}
+%		\caption{Average deviation of the conserved quantity ($DE$) and average temperatures from liquid water simulation with NVT integration \tnote{a}\tnote{b}}
+%		\label{table:denvt}
+%		\begin{ruledtabular}
+%			\begin{tabular}{ccccc}
+%				& \multicolumn{2}{c}{Eq.~\ref{eq:trotter_splitting_NHC}} & \multicolumn{2}{c}{Eq.~%\ref{eq:modified_splitting}} \\
+%				\cline{2-5}
+%				$\Delta t$/fs & $D\!E$ & $T$/K & $D\!E$ & $T$/K \\
+%				\hline
+%				1.0 & 0.000043 & 298.16  & 0.000052  & 298.15 \\
+%				2.0 & 0.00013  & 298.23  & 0.00017   & 298.06 \\
+%				3.0 & 0.00089  & 298.17  & 0.0013    & 298.12
+%			\end{tabular}
+%		\end{ruledtabular}
+%		\begin{tablenotes}
+%			\item[a] The standard deviation of the mean temperature for all cases is $\sigma = 0.037$.
+%			\item[b] The smaller time step in the NHC and NHC* operators is 0.25 fs.
+%		\end{tablenotes}
+%	\end{threeparttable}
+%\end{table}
 \end{document}
