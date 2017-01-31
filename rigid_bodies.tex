@@ -107,40 +107,47 @@ For a three-dimensional system consisting of $N$ non-collinear rigid bodies that
 \mathcal{H} = U(\vt r,\vt q) + \sum_{i=1}^N \left(\frac{\tr{\vt p}_i{\vt p}_i}{2m_i} + \frac{\tr{\vt \pi}_i {\mt B}_i {\mt I}_i^{-1} \tr{\mt B}_i {\vt \pi}_i}{8}\right),
 \end{equation}
 
-
-
-\begin{equation}
-\label{eq:H_split_omega}
-\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + U(\vt r, \vt q) + \frac{1}{2} \sum_{k=1}^3 I_k \omega_k^2.
-\end{equation}
-
-where an index $i$ ranging from $1$ to $N$ indicates the quantities related to each body, with $m_i$ is the mass and  $\mt I_i$ the inertia tensor which in the principal frame is a diagonal matrix withe entries given by ($I_1$,$I_2$,$I_3$). The equations of motion 
+The equations of motion are obtained from the Hamiltonian by $\dot{\vt r} = \partial \mathcal{H} / \partial \vt p$, $\dot{\vt p} = -\partial \mathcal{H} / \partial \vt r$, $\dot{\vt q} = \partial \mathcal{H} / \partial \vt \pi$, and $\dot{\vt \pi} = -\partial \mathcal{H} / \partial \vt q$.\cite{Goldstein2002}. some algebra manipulations where we defined $\mt \Omega = \mt B(\vt \pi)$, it follows that $\tr{\mt B}{\vt \pi} = - \tr{\mt \Omega}{\vt q}$. For a rigid body composed of $n_p$ individual particles, the derivative $\partial U/\partial \vt r$ is obtained by
+\[
+\diff{U}{\vt r} = -\vt F = -\sum_{j=1}^{n_p} {\vt F_j},
+\]
+where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference and thus $\vt F$ is the resultant force on the body. As demonstrated in Abreu, we have
+\[
+\diff{U}{\vt q} = -2 \mt C \vt \tau = -2 \mt C \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
+\]
+where $\vt \tau$ is the resultant torque exerted on the body, also expressed in the space-fixed frame. e. Finally, after carrying out the required differentiations of $\mathcal{H}$  and substituting $\tr{\mt B} \vt \pi = - \tr{\mt \Omega} \vt q = 2 {\mt I} \vt \omega$, we obtain the following Hamiltonian system of equations of motion for a rigid body:
 \begin{subequations}
 \label{eq:EDO_system}
 \begin{align}
 &\dot{\vt r} = \frac{1}{m} \vt p \\
 &\dot{\vt p} = \mt F \\
-&\dot{\vt q} = \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k \vt q \label{eq:edo_q} \\
-&\dot{\vt \pi} = \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k \vt \pi + 2 \mt C \vt \tau \label{eq:edo_pi}
+&\dot{\vt q} = \frac{1}{2} \mt B \vt \omega \label{eq:EDO_q} \\
+&\dot{\vt \pi} = \frac{1}{2} \mt \Omega \vt \omega + 2 \mt C \vt \tau \label{eq:EDO_pi}
 \end{align}
 \end{subequations}
 
-consider the entries of $\vt \omega$ individually. Given that $2{\mt I}{\vt \omega} = \tr{\mt B}{\vt \pi}$, according to Eq.~\ref{eq:vector_entries}, each entry of $\vt \omega$ is obtained by
+we now consider the entries of $\vt \omega$ individually. Given that $2{\mt I}{\vt \omega} = \tr{\mt B}{\vt \pi}$, according to Eq.~\eqref{eq:vector_entries}, each entry of $\vt \omega$ is obtained by
 \begin{equation}
 \label{eq:omega_entry}
 \omega_k = \frac{\tr{\vt \pi} \hat{\mt B}_k \vt q}{2 I_k},
 \end{equation}
-where $\hat{\mt B}_k$ is one of the permutation matrices presented in Appendix~\ref{sec:auxiliary_math} of the aforementione peper.
+where $\hat{\mt B}_k$ is one of the permutation matrices presented in Appendix~\ref{sec:auxiliary_math}. In this context, the Hamiltonian of the rigid body can be rewritten as
+\begin{equation}
+\label{eq:H_split_omega}
+\mathcal{H} = \frac{\tr{\vt p} \vt p}{2m} + U(\vt r, \vt q) + \frac{1}{2} \sum_{k=1}^3 I_k \omega_k^2.
+\end{equation}
 
+Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as in Eq.~\eqref{eq:product_B_vector}, which leads us to the following new form for the equations of motion in Eqs.~\eqref{eq:EDO_q} and \eqref{eq:EDO_pi}:
+\begin{subequations}
+\label{eq:EDO_system_alternative}
+\begin{align}
+&\dot{\vt q} = \frac{1}{2} \left( \sum_{k=1}^3 \omega_k \hat{\mt B}_k \right) \vt q \label{eq:edo_q} \\
+&\dot{\vt \pi} = \frac{1}{2} \left( \sum_{k=1}^3 \omega_k \hat{\mt B}_k \right) \vt \pi + 2 \mt C \vt \tau \label{eq:edo_pi}
+\end{align}
+\end{subequations}
 
-%Finally, we open the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ as in Eq.~\ref{eq:product_B_vector}, which leads us to the following new form for the equations of motion in Eqs.~\ref{eq:EDO_q} and \ref{eq:EDO_pi}:
-%\begin{subequations}
-%\label{eq:EDO_system_alternative}
-%\begin{align}
-%&\dot{\vt q} = \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k \vt q \label{eq:edo_q} \\
-%&\dot{\vt \pi} = \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k \vt \pi + 2 \mt C \vt \tau %\label{eq:edo_pi}
-%\end{align}
-%\end{subequations}
+where an index $i$ ranging from $1$ to $N$ indicates the quantities related to each body, with $m_i$ is the mass and  $\mt I_i$ the inertia tensor which in the principal frame is a diagonal matrix withe entries given by ($I_1$,$I_2$,$I_3$). 
+
 
 The phase space of the whole system contains $3N$ spatial coordinates and $4N$ quaternion components, along with their $7N$ conjugate momenta. Of course, $2N$ implicit constraints are known to exist, as $\tr{\vt q}_i{\vt q}_i = 1$ and $\tr{\vt q}_i{\vt \pi}_i = 0$ for all $i$. A Hamiltonian dynamics in phase space will have $\mathcal{H} = E$ as an integral of motion. The dynamics of this system is governed by a Liouville operator with individual operators defined as
 \[
