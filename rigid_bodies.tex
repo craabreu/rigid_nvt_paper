@@ -369,18 +369,6 @@ e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta 
  Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. Note that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed.
 
 
-\begin{subequations}
-	\label{eq:virial_rigid_bodies}
-	\begin{align}
-	W &= \frac{1}{3} \sum_{i=1}^{N-1} \sum_{j=i+1}^N \tr{\hat{\vt r}}_{ij} \vt F_{ij} \\
-	  &= W_\text{a} - \frac{1}{3} \sum_{i=1}^N \sum_{k=1}^{{n_p}_i} {\tr{\vt \delta}_k}_i {{\vt f}_k}_i,
-	\end{align}
-\end{subequations}
-where $W_\text{a}$ is the atomic virial given by Eq.~\eqref{eq:virial_atoms}, while $\vt F_{ij}$ is the total action of body $j$ (and its images) over body $i$ and $\vt f_{ik}$ is the resultant force exerted on the $k$-th atom of body $i$, respectively given by
-\
-\[
-\vt F_{ij} = \sum_{k=1}^{{n_p}_i} \sum_{l=1}^{{n_p}_j} \vt f_{ijkl} \quad \text{and} \quad \vt f_{ik} = \sum_{\substack{j=1\\j \neq i}}^N \sum_{l=1}^{{n_p}_j} \vt f_{ijkl}.
-\]
 
 \section{Numerical Results}
 \label{sec:numerical_results}
