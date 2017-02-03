@@ -41,6 +41,7 @@ In Molecular Dynamics, sets of atoms collectively behaving as rigid bodies are o
 
 
 \section{Introduction}
+Nos\'{e}-Hoover thermostat is routinely used in Molecular Dynamics to maintain the temperature
 \cite{Omelyan_2011} multiple time scale md for fluids with orientational dof. canonical and isokinetic ensembles.
 systematic errors
 \begin{itemize}
@@ -368,12 +369,78 @@ e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta 
 
 We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However...the energy drift...
 
+\subsection{Sampling Validation}
+\label{sec:samplingvalidation}
+
+In this subsection we briefly review a simple method that serves for checking the consistency between the sampled and theoretical energy distributions. The procedures implemented by Shirts ~\cite{Shirts2013} rely on quantitative statistical analysis of fitting, and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too. Fist recall that in the NVT ensemble the probability of observing an energy E is given by
+\[
+P(E/\beta) = Q(\beta)^{-1}\Omega(E)\exp\left(-\beta E\right),
+\]
+where $ \Omega(E) $ is the density of states, which does not depend on $ \beta $, and $ Q(\beta) $  is the canonical partition function, linked to the Helmholtz Free Energy $ (A) $ by $A = -\beta^{-1}\ln(Q)$. 
+
+Taking the ratio of the probability distributions at different temperatures, the unknown density of states cancels out and we get
+\begin{equation}
+\frac{P(E/\beta_2)}{P(E/\beta_1)} = \exp\left[(\beta_2 A_2 - \beta_1 A_1) - (\beta_2 - \beta_1)E\right].
+\end{equation}
+Taking the logarithm of the equation above, we obtain
+\begin{equation}
+\label{eq:ln_probability_ratio}
+\ln\frac{P(E/\beta_2)}{P(E/\beta_1)} = \left(\beta_2 A_2 - \beta_1 A_1\right) - \left(\beta_2 - \beta_1\right)E,
+\end{equation}
+which is the basis for the statistical analysis carried out in the ensemble validation that determines how many standard deviations the calculated slope is from the specified one,  $ \beta_2 - \beta_1 $. Note that it is independent of the unknown free energies. For a guidance on how to choose the temperature gap the reader is referred to the aforementioned paper.
+
+Furthermore,  it is possible to examine the consistency between the sampled kinetic energy $K$ and the corresponding Maxwell-Boltzmann distribution, which is given by the following expression:
+\begin{equation}
+\label{eq:mb}
+P(K) = \frac{\beta}{\sqrt{N_{dof}\pi}} \exp\left[-\frac{\left(\beta K - \frac{N_{dof}}{2}\right)^2}{N_{dof}} \right],
+\end{equation}
+where $N_{dof}$ is the number of degrees of freedom. Eq.~\eqref{eq:mb} is a normal distribution, with average  $ \langle K \rangle = N_{dof}/2\beta $ and variance $\sigma^2 = N_{dof}/2\beta^2$.
+
 \section{Results}
 \label{sec:numerical_results}
- Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. 
-In this section, we analyze the integration schemes introduced in Subsection~\ref{sec:numerical_solvers} and compare the results with those obtained employing the method of Kamberaj~\cite{Kamberaj2005}. For that, we simulated a system containing 356 TIP3P water molecules\cite{Price2004} at a density of 999.56 $kg/m^3$. The intermolecular interactions were truncated at 9 \AA. The shifted-force (SF) method\cite{Allen1989, Fennell2006, Toxvaerd_2011} was used to treat both the Coulombic and the 12-6 Lennard-Jones (LJ) interactions.
 
-It is not the purpose of this work to propose an optimal factorization scheme for the NVT dynamics, but rather to show that a unique thermostat chain is capable of maintaining the average temperature at its specified value while providing the proper sampling of the canonical ensemble. \textbf{In order to use a constant value for the smaller time step in the NHC and NHC* operators $(\Delta t/4)$, we factorized those operators analogously to the scheme given by Eq.~\eqref{eq:splitting_rot}}. Recalling that in the NVT dynamics the conserved quantity is the extended energy $H$, in Table~\eqref{table:denvt} we show the results of Eq.~\eqref{eq:performance} as well as the average temperatures obtained in each case. It can be seen that both integrators, represented by the Eq.~\eqref{eq:trotter_splitting_NHC} and Eq.~\eqref{eq:modified_splitting}, systematically achieve the specified temperature, regardless of the time step size. In addition, the energy drift is, at its worst, around $1 \%$.
+CÓDIGO: CHECAR FACTORIZACIÓN Y DELTA T DE LOS OPERADORES DE NHC
+
+In this section, we analyze the numerical integrators introduced in Subsection~\ref{sec:numerical_solvers}, and compare the results with those obtained employing the method of Kamberaj~\textit{et al.}\cite{Kamberaj2005}, which is implemented in the LAMMPS\cite{Plimpton1995} software package. For that, we considered a system of 900 TIP3P\cite{Jorgensen_1983} water molecules in a cubic box of length {\AA} subject to periodic boundary conditions. The intermolecular interactions were truncated at 9 \AA and to avoid a discontinuity in the force, we applied the so-called shifted-force (SF) method\cite{Allen1989, Fennell2006, Toxvaerd_2011} to treat both the Coulombic and the 12-6 Lennard-Jones (LJ) interactions.
+
+It is not the purpose of this work to propose an optimal factorization scheme for the NVT dynamics, but rather to prove that a unique thermostat chain is capable of maintaining the average temperature at its specified value while providing the proper sampling of the canonical ensemble. First we present some results as first mented. That is, the proposed methods coupling to a single thermostat, while in Kamberaj the translational and rotational degrees of freedom are separatedly coupled. In Table~\ref{table:new_results}, it can be seen that the integrators proposed here, which are represented by the Eqs.~\eqref{eq:trotter_splitting_NHC} and ~\eqref{eq:modified_splitting}, systemcatically achive the specifed temperature, regardless of the time step size. By contrast, the numerical solver introduced by Kamberaj and co-workers\cite{Kamberaj2005} fails to yield the specified temperature for even the smaller time step size of 1 fs.
+ 
+Resultados sobre o checkensemble: We report the results corresponding to that method, and since it is instructive to have a graphical insight, we also show some figures of the linear fitting. Given that the potential and kinetic energies are separable, the analysis can be made separately as follows.This last approach does not involve any binning of the energies, hence no discretization error is present. m-b distribution valid when equipartition of energy is satisfied.
+
+Recalling that in the NVT dynamics the conserved quantity is the extended energy $H$ of Eq.~\eqref{eq:H_nvt}, in Table~\ref{table:new_results_2} we report the energy drift, denoted by $R$, as the the rate of change of $H$ (kcal/mol) with time (ns), which is the angular coefficient obtained from linear regression fitting  between those variables. Except for the case of $\Delta$ = 1 fs, there is also a clear correspondece between an incresing $R$ with the failure in keeping the temperature at its specified value.
+
+\begin{table}
+	\caption{New results involving Kamberaj \text{et al}.\cite{Kamberaj2005}}
+	\label{table:new_results}
+	\begin{ruledtabular}
+		\begin{tabular}{cccc}
+			& \multicolumn{3}{c}{ Temperature (K) } \\
+			\cline{2-4}
+			$\Delta t$/fs & Proposed & Alternative & Kamberaj \text{et al}. \\
+			\hline
+			1.0 & $300.01 \pm 0.02$ & $300.00 \pm 0.02$ & $299.52 \pm 0.02$ \\
+			2.0 & $300.01 \pm 0.03$ & $299.99 \pm 0.03$ & $298.24 \pm 0.03$ \\
+			3.0 & $299.97 \pm 0.04$ & $299.98 \pm 0.04$ & $295.94 \pm 0.04$
+		\end{tabular}
+	\end{ruledtabular}
+\end{table}
+
+\begin{table}
+	\caption{New results involving Kamberaj \text{et al}.\cite{Kamberaj2005}}
+	\label{table:new_results_2}
+	\begin{ruledtabular}
+		\begin{tabular}{cccc}
+			& \multicolumn{3}{c}{Drift rate [(kcal/mol)/ns]} \\
+			\cline{2-4}
+			$\Delta t$/fs & Proposed & Alternative & Kamberaj \text{et al}. \\
+			\hline
+			1.0 & $0.0328$ & $0.108$ & $0.023$ \\
+			2.0 & $0.597$  & $1.31$  & $17.0$ \\
+			3.0 & $3.44$   & $2.53$  & $53.2$
+		\end{tabular}
+	\end{ruledtabular}
+\end{table}
+
 
 \begin{table*}
 \caption{Results.....}
@@ -429,77 +496,7 @@ $\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (
 \end{table*}
 
 
-\begin{table}
-	\caption{New results involving Kamberaj \text{et al}.\cite{Kamberaj2005}}
-	\label{table:new_results}
-	\begin{ruledtabular}
-		\begin{tabular}{cccc}
-			& \multicolumn{3}{c}{ Temperature (K) } \\
-			\cline{2-4}
-			$\Delta t$/fs & Proposed & Alternative & Kamberaj \text{et al}. \\
-			\hline
-			1.0 & $300.01 \pm 0.02$ & $300.00 \pm 0.02$ & $299.52 \pm 0.02$ \\
-			2.0 & $300.01 \pm 0.03$ & $299.99 \pm 0.03$ & $298.24 \pm 0.03$ \\
-			3.0 & $299.97 \pm 0.04$ & $299.98 \pm 0.04$ & $295.94 \pm 0.04$
-		\end{tabular}
-	\end{ruledtabular}
-\end{table}
 
-\begin{table}
-	\caption{New results involving Kamberaj \text{et al}.\cite{Kamberaj2005}}
-	\label{table:new_results_2}
-	\begin{ruledtabular}
-		\begin{tabular}{cccc}
-			& \multicolumn{3}{c}{Drift rate [(kcal/mol)/ns]} \\
-			\cline{2-4}
-			$\Delta t$/fs & Proposed & Alternative & Kamberaj \text{et al}. \\
-			\hline
-			1.0 & $0.0328$ & $0.108$ & $0.023$ \\
-			2.0 & $0.597$  & $1.31$  & $17.0$ \\
-			3.0 & $3.44$   & $2.53$  & $53.2$
-		\end{tabular}
-	\end{ruledtabular}
-\end{table}
-
-\section{Sampling Validation}
-\label{sec:samplingvalidation}
-
-In this subsection we present the results from a simple method that serves for checking the consistency between the sampled energy distributions and the theoretical ones. The procedure, introduced and implemented by Shirts ~\cite{Shirts2013}, relies on a quantitative statistical analysis of fitting and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too. This last approach does not involve any binning of the energies, hence no discretization error is present. We report the results corresponding to that method, and since it is instructive to have a graphical insight, we also show some figures of the linear fitting.
-
-Recall that in the NVT ensemble the probability of observing an energy E is given by
-\[
-P(E/\beta) = Q(\beta)^{-1}\Omega(E)\exp\left(-\beta E\right),
-\]
-where $ \beta $ is the Boltzmann's constant, $ \Omega(E) $ is the density of states which does not depend on $ \beta $ , and $ Q(\beta) $  is the canonical partition function, linked to the Helmholtz Free Energy $ (A) $ by $A = -\beta^{-1}\ln(Q)$. 
-
-Taking the ratio of the probability distributions at different temperatures, the unknown density of states cancels out and we get
-\begin{equation}
-\label{eq:probability_ratio}
-\frac{P(E/\beta_2)}{P(E/\beta_1)} = \exp\left[(\beta_2 A_2 - \beta_1 A_1) - (\beta_2 - \beta_1)E\right].
-\end{equation}
-Taking the logarithm of Eq.~\eqref{eq:probability_ratio}, we obtain
-\begin{equation}
-\label{eq:ln_probability_ratio}
-\ln\frac{P(E/\beta_2)}{P(E/\beta_1)} = \left(\beta_2 A_2 - \beta_1 A_1\right) - \left(\beta_2 - \beta_1\right)E.
-\end{equation}
-
-The Eq.~\eqref{eq:ln_probability_ratio} is the basis for the statistical analysis in the ensemble validation, which determines how many standard deviations the calculated slope is from the specified one,  $ \beta_2 - \beta_1 $. Note that it is independent of the unknown free energies. For a guidance on how to choose the temperature gap the reader is referred to the aforementioned paper. Given that the potential and kinetic energies are separable, the analysis can be made separately as follows
-
-\begin{equation}
-\label{eq:probability_ratio_pot}
-\frac{P_{pot}(E/\beta_2)}{P_{pot}(E/\beta_1)} = \frac{Q_{pot}(\beta_1)}{Q_{pot}(\beta_2)}  \exp\left[(-\beta_2 - \beta_1)E_{pot}\right]
-\end{equation}
-
-\begin{equation}
-\label{eq:probability_ratio_kin}
-\frac{P_{kin}(E/\beta_2)}{P_{kin}(E/\beta_1)} = \frac{Q_{kin}(\beta_1)}{Q_{kin}(\beta_2)}  \exp\left[(-\beta_2 - \beta_1)E_{kin}\right]
-\end{equation}
-Furthermore,  it is possible to examine the consistency between the sampled kinetic energy and the corresponding Maxwell-Boltzmann distribution, which is given by the following expression:
-\begin{equation}
-\label{eq:mb}
-P(E_{cin}) = \frac{\beta}{\sqrt{N_{DOF}\pi}} \exp\left[-\frac{\left(\beta E_{kin} - \frac{N_{DOF}}{2}\right)^2}{N_{DOF}} \right],
-\end{equation}
-where $N_{DOF}$ is the number of degrees of freedom. This last equations is a normal distribution characterized by an average of $ \langle E_{kin} \rangle = (N_{DOF}/2\beta) $ and variance $\sigma^2 = N_{DOF}/2\beta^2$, valid when equipartition of energy is satisfied.
 
 In Fig.~\ref{fig:checkensemble} we show the result from the linear regression analysis for the potential energies sampled using Eq.~\eqref{eq:trotter_splitting_NHC}. In figure legends we show the averages temperatures simulated. It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies. Likewise, in Fig.~\ref{fig:mbdistribution} we observe a good correspondence between the kinetic energy distribution at $T= 304.99 K$ and the corresponding Maxwell-Boltzmann distribution We arrive at the same conclusions for the approach given by Eq.~\eqref{eq:modified_splitting}.
 
@@ -549,7 +546,8 @@ Finally, in Table~\ref{table:ensemblevalidation} we present the results of the m
 
 \section{Concluding Remarks}
 \label{sec:conclusion}
-
+Nevertheless, as will be shown in the forthcoming section, those numerical schemes successfully achieve the specified temperature and an acceptable long-term conservation of the extended energy $H$. 
+by contrast
 \begin{acknowledgments}
 The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
 \end{acknowledgments}
@@ -640,6 +638,16 @@ The authors acknowledge the financial support provided by Petrobras (project cod
 %D\!E =  \frac{1}{\mathcal N} \sum_{t=1}^{\mathcal N} \left| \frac{E_t - E_0}{E_0} \right|,
 %\end{equation}
 %from which it is possible to quantify the average deviation of the supposedly conserved quantity $E$ %(either $\mathcal{H}$ of Eq.~\eqref{eq:H_NVE} or $H$ of Eq.~\eqref{eq:H_nvt}) from its initial value $E_0$ %after a certain number of time steps $\mathcal N$.
+% \textbf{In order to use a constant value for the smaller time step in the NHC and NHC* operators $(\Delta t/4)$, we factorized those operators analogously to the scheme given by Eq.~\eqref{eq:splitting_rot}}. 
 
 
+%\begin{equation}
+%\label{eq:probability_ratio_pot}
+%\frac{P_{pot}(E/\beta_2)}{P_{pot}(E/\beta_1)} = \frac{Q_{pot}(\beta_1)}{Q_{pot}(\beta_2)}  \exp\left[(-\beta_2 - \beta_1)E_{pot}\right]
+%\end{equation}
+
+%\begin{equation}
+%\label{eq:probability_ratio_kin}
+%\frac{P_{kin}(E/\beta_2)}{P_{kin}(E/\beta_1)} = \frac{Q_{kin}(\beta_1)}{Q_{kin}(\beta_2)}  \exp\left[(-%\beta_2 - \beta_1)E_{kin}\right]
+%\end{equation}
 \end{document}
