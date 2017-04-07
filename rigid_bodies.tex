@@ -477,6 +477,25 @@ $\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (
 \end{table*}
 
 
+\begin{figure}
+    \caption{SHAKE: $\Delta t$ = 1 fs ($\bar{T}$ = 299.98 K, $\bar{U}$ = -8428.86 kcal/mol) HMC: $\bar{U}$ = -8470.71 kcal/mol  }
+	\includegraphics{potenergy}
+\end{figure}
+
+\begin{figure}
+    \caption{$\Delta t$ = 1 fs ($\bar{T}$ = 300.04 K, $\bar{U}$ = -8465.63 kcal/mol)}
+	\includegraphics{potenergy2}
+\end{figure}
+
+\begin{figure}
+    \caption{$\Delta t$ = 0.5 fs ($\bar{T}$ = 299.99 K, $\bar{U}$ = -8468.19 kcal/mol)}
+	\includegraphics{potenergy_05}
+\end{figure}
+
+\begin{figure}
+    \caption{$\Delta t$ = 1 fs ($\bar{T}$ = 299.52 K, $\bar{U}$ = -8470.21 kcal/mol)}
+	\includegraphics{potenergy_kamb}
+\end{figure}
 
 
 In Fig.~\ref{fig:checkensemble} we show the result from the linear regression analysis for the potential energies sampled using Eq.~\eqref{eq:trotter_splitting_NHC}. In figure legends we show the averages temperatures simulated. It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies. Likewise, in Fig.~\ref{fig:mbdistribution} we observe a good correspondence between the kinetic energy distribution at $T= 304.99 K$ and the corresponding Maxwell-Boltzmann distribution We arrive at the same conclusions for the approach given by Eq.~\eqref{eq:modified_splitting}.
