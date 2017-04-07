@@ -41,35 +41,26 @@
 
 \section{Introduction}
 
-Molecular Simulation, being the computational realization of Statistical Mechanics,\cite{Tuckerman2010} involves several types of approximations in order to mimic ``real'' physical systems. Naively, one would expect those approximations to only produce quantitative deviation from experimental values, and usually we tend to attribute any disagreement to a lack of accuracy of the force field. However, what can be hidden in the deviations are actually systematic errors, which may introduce non-physical behaviour. For instance, it has already been shown that the unavoidable truncation errors, associated with the numerical integration in Molecular Dynamics (MD), disrupt the equipartition of kinetic energy and, as a consequence, the temperature becomes an undefined property.\cite{Eastwood_2010} In a previous paper,\citep{Abreu_2017} we reported the same artifact to occur on the partition of kinetic energy between translational and rotational degrees of freedom in rigid-body Molecular Dynamics. That finding brings into question the method introduced by Kamberaj and co-workers\cite{Kamberaj2005} which, assuming equipartition, couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom, but fails to reproduce the specified temperature for certain time step sizes.
+Molecular Simulation, being the computational realization of Statistical Mechanics,\cite{Tuckerman2010} involves several types of approximations in order to mimic ``real'' physical systems. Naively, one would expect those approximations to only produce quantitative deviation from experimental values, and usually we tend to attribute any disagreement to a lack of accuracy of the force field. However, what can be hidden in the deviations are actually systematic errors, which may introduce non-physical behaviour. For instance, it has already been shown that the unavoidable truncation errors, associated with the numerical integration in Molecular Dynamics (MD), disrupt the equipartition of kinetic energy and, as a consequence, the temperature becomes an undefined property.\cite{Eastwood_2010} In a previous paper,\citep{Abreu_2017} we reported the same artifact to occur on the partition of kinetic energy between translational and rotational degrees of freedom in rigid-body MD. That finding brings into question the method introduced by Kamberaj and co-workers\cite{Kamberaj2005} which, assuming equipartition, couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom, but fails to reproduce the specified temperature for certain time step sizes.
 
-The relevance of rigid-body Molecular Dynamics stems from the fact that not only some molecules are modelled as rigid bodies, like the ubiquitous case of water,\cite{Jorgensen_1983} but also it is a simple coarse-graining strategy for systems that might be designed as collection of interconected rigid bodies, like proteins and nanoparticules.\cite{Knorowski2012, Patra2013} As a matter of fact, the approach of Kamberaj~\textit{et al.},\cite{Kamberaj2005} which is implemented, for instance, in the softwares packages HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton1995}, has been applied to simulate small molecules,\cite{Geiger_2013,Aimoli_2014,Aimoli_2014_2} as well as membranes,\cite{Bucior_2012} molecular motors,\cite{Akimov_2012} micelles\cite{Yan_2008} and nanoparticles.\cite{Patra_2014}
+The relevance of rigid-body MD stems from the fact that not only some molecules are modelled as rigid bodies, like the ubiquitous case of water,\cite{Jorgensen_1983} but also it is a simple coarse-graining strategy for systems that might be designed as collection of interconected rigid bodies, like proteins and nanoparticules.\cite{Knorowski2012, Patra2013} As a matter of fact, the approach of Kamberaj~\textit{et al.},\cite{Kamberaj2005} which is implemented, for instance, in the softwares packages HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS,\cite{Plimpton1995} has been applied to simulate small molecules,\cite{Geiger_2013,Aimoli_2014,Aimoli_2014_2} as well as membranes,\cite{Bucior_2012} molecular motors,\cite{Akimov_2012} micelles\cite{Yan_2008} and nanoparticles.\cite{Patra_2014}
 
-The Nos\'{e}-Hoover chain thermostat,\cite{Martyna1992} routinely used in Molecular Dynamics, is based on the extended phase-space approach that includes both the system of interest and extra degrees of freedom, which in turn are intended to control the kinetic energy fluctuations of the physical variables. The dynamics of those extra degrees of freedom introduces non-Hamiltonian components to the equations of motion, with which backward error analysis is not longer feasible. Altough it is not possible to devise symplectic integrators, one can rigurously obtain measure-preserving numerical solvers.\cite{Sergi2001,Ezra2004,Ezra2006}
+The Nos\'{e}-Hoover chain thermostat,\cite{Martyna1992} routinely used in MD, is based on the extended phase-space approach that includes both the system of interest and extra degrees of freedom, which in turn are intended to control the kinetic energy fluctuations of the physical variables. The dynamics of those extra degrees of freedom introduces non-Hamiltonian components to the equations of motion, with which backward error analysis is no longer feasible. Altough it is not possible to devise symplectic integrators, one can rigurously obtain measure-preserving numerical solvers.\cite{Sergi2001,Ezra2004,Ezra2006}
 
-In this paper, we derive time reversible and measure-preserving numerical integrators for rigid-body Molecular Dynamics in the canonical (NVT) ensemble. The starting point is our previous work on the microcanonical ensemble,\citep{Abreu_2017} which employs the unit quaternion representation for the rotational degrees of freedom. Simultaneosuly coupling the translational and rotational degrees of freedom to a unique Nos\'{e}-Hoover chain thermostat, we are able to mantain the temperature of the system at its specified value. The analysis of the integrators includes comparisons with results from the method introduced by Kamberaj~\textit{et al.},\cite{Kamberaj2005} as well as with the Hybrid Monte Carlo (HMC) method,\cite{Duane1987} which is exact in the sense that truncation errors do not affect its accuracy. We also include results from simulations using the conventional SHAKE\cite{Ryckaert1977} procedure, also coupled to a unique Nos\'{e}-Hoover chain.
+In this paper, we derive time reversible and measure-preserving numerical integrators for rigid-body MD in the canonical (NVT) ensemble. The starting point is our previous work on the microcanonical (NVE) ensemble,\citep{Abreu_2017} which employs the unit quaternion representation for the rotational degrees of freedom. Simultaneosuly coupling the translational and rotational degrees of freedom to a unique Nos\'{e}-Hoover chain thermostat, we are able to mantain the temperature of the system at its specified value. The analysis of the integrators includes comparisons with results from the method introduced by Kamberaj~\textit{et al.},\cite{Kamberaj2005} as well as with the Hybrid Monte Carlo (HMC) method,\cite{Duane1987} which is exact in the sense that truncation errors do not affect its accuracy. We also include results from simulations using the conventional SHAKE\cite{Ryckaert1977} procedure, also coupled to a unique Nos\'{e}-Hoover chain.
 
-The paper is organized as follows. In Sec.~\ref{sec:theory} we briefly review the equations of motion in the microcanonical (NVT) ensemble, which are the basis for developing the corresponding dynamics in the NVT ensemble. In Sec.~\ref{sec:numerical_solvers} we devise the corresponding numerical integrators, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}. Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
+The paper is organized as follows. In Sec.~\ref{sec:theory} we briefly review the equations of motion in the NVE ensemble, which are the basis for developing the corresponding dynamics in the NVT ensemble. In Sec.~\ref{sec:numerical_solvers} we devise the corresponding numerical integrators, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}. Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
 
 \section{Theory}
 \label{sec:theory}
 
-Prompted by a particular factorization of the rotational matrix, in a previous paper\cite{Abreu_2017} we introduced symplectic numerical integrators for MD in the NVE ensemble, for which we derived an analytical, as well as an approximate solution for torque-free rotations. This last approach is a reformulation of the method introduced by Miller~\textit{et al.},\cite{Miller2002} and given that it demonstrated to be as accurate as the exact solution, the thermostatted version of the equations of motion will be derived considering the approximate solution. In the next subsection, we will skip over the mathematical derivations and restrict ourselves to some fundamental expressions.
+Prompted by a particular factorization of the rotational matrix, in a previous paper\cite{Abreu_2017} we derived symplectic numerical integrators in the NVE ensemble: one that uses the exact solution for torque-free rotation and another approach, based on the method introduced by Miller~\textit{et al.},\cite{Miller2002}, that employs an approximate solution for rotation. For mathematical details the reader is referred to our paper.\cite{Abreu_2017} Next, we restrict ourselves to present the expressions required to develop the NVT case.
 
 \subsection{Microcanonical Ensemble}
 
-When describing the motion of rigid bodies, first recall that the translational and rotational degrees of freedom are decoupled. Mathematically, the position of a particle $j$ constituent of a body, will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$, where $\vt r(t)$ is the center of mass position of the body, $\vt d_j$ is the particle position in the body-fixed frame of reference, and $\tr{\mt A(\vt q(t))}$ is obtained by transposing the rotational matrix $\mt A$, which in turn is a function of the unit quaternion $\vt q = \tr {[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$. In terms of $\vt q$, the dynamics must satisfy the known relation\cite{Goldstein2002} $\tr{\vt q}{\vt q} = \|\vt q\|^2 = q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$, as well as $\tr{\vt q}{\dot{\vt q}} = 0$.
+When describing the motion of rigid bodies, first recall that the translational and rotational degrees of freedom are decoupled. The position of a particle $j$ constituent of a body, will vary with time as $\vt r_j(t) = \vt r(t) + \tr{[{\mt A}(\vt q(t))]}\vt d_j$, where $\vt r(t)$ is the center of mass position of the body, $\vt d_j$ is the particle position in the body-fixed frame of reference, and $\tr{\mt A(\vt q(t))}$ is obtained by transposing the rotational matrix $\mt A$, which in turn is a function of the unit quaternion $\vt q = \tr {[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$. In terms of $\vt q$, the dynamics must satisfy the known relation\cite{Goldstein2002} $\tr{\vt q}{\vt q} = \|\vt q\|^2 = q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$ and, as a consequence, $\tr{\vt q}{\dot{\vt q}} = 0$.
 
-The matrix $\mt A$ is computed from a given unit quaternion $\vt q$ by\cite{Allen1989,Miller2002}
-\begin{equation*}
-\label{eq:A_from_q}
-\mt A(\vt q) = \begin{smallarray}{ccc}
-q_1^2 + q_2^2 - q_3^2 - q_4^2 & 2(q_2 q_3 + q_1 q_4) & 2(q_2 q_4 - q_1 q_3) \\
-2(q_2 q_3 - q_1 q_4) & q_1^2 - q_2^2 + q_3^2 - q_4^2 & 2(q_3 q_4 + q_1 q_2) \\
-2(q_2 q_4 + q_1 q_3) & 2(q_3 q_4 - q_1 q_2) & q_1^2 - q_2^2 - q_3^2 + q_4^2  
-\end{smallarray},
-\end{equation*}
-which admits the following factorization:
+The matrix $\mt A$ which can be computed from a given unit quaternion $\vt q$ as explained in Refs.~\onlinecite{Allen1989,Miller2002} admits the following factorization:
 \begin{equation}
 \label{eq:factorization_of_A}
 {\mt A} = \tr{\mt B}{\mt C},
@@ -91,14 +82,14 @@ where
  q_3 & -q_2 &  q_1
 \end{smallarray}.
 \end{equation}
-Note that both $\mt B$ and $\mt C$ depend linearly on the Euler parameters, which makes Eq.~\eqref{eq:factorization_of_A} a convenient factorization of matrix $\mt A$ and most important, it provides the mathematical relation between the three-dimensional angular velocity vector $\vt \omega$ and the four-dimensional rate of change of the quaternion components, which is given by
+That factorization of matrix $\mt A$ provides the mathematical relation between the three-dimensional angular velocity vector $\vt \omega$ and the four-dimensional rate of change of the quaternion components $\dot{\vt q}$, which is given by
 \begin{equation}
 \label{eq:relation_qdot_omega}
 \dot{\vt q} = \frac{1}{2} \mt B \vt \omega.
 \end{equation}
- For the sake of brevity, the argument of a matrix-valued function (like $\mt A$, $\vt B$, or $\mt C$) might be omitted, when such argument is $\vt q$.
+For the sake of brevity, the argument of a matrix-valued function (like $\mt A$, $\vt B$, or $\mt C$) might be omitted, when such argument is $\vt q$.
 
-In the Hamiltonian approach, we employ the linear momentum $\vt p = m \dot{\vt r}$, conjugated to $\vt r$, as well as the momentum $\vt \pi= 4 \mt B \mt I \tr{\mt B} \dot{\vt q} = 2 \mt B \mt I \vt \omega$, conjugated to $\vt q$\cite{Goldstein2002}. In these equations, $m$ is the mass of the body and $\mt I$ is the inertia tensor, which is a digonal matrix in the principal frame. For a three-dimensional system consisting of $N$ non-collinear rigid bodies that interact via a potential $U(\vt r, \vt q)$, we define the Hamiltonian in terms of its generalized coordinates ($\vt r_i$ and $\vt q_i$) and conjugate momenta ($\vt p_i$ and $\vt \pi_i$), as follows:~\cite{Abreu_2017}
+In the Hamiltonian approach, we employ the linear momentum $\vt p = m \dot{\vt r}$, conjugated to $\vt r$, as well as the momentum $\vt \pi= 4 \mt B \mt I \tr{\mt B} \dot{\vt q} = 2 \mt B \mt I \vt \omega$, conjugated to $\vt q$\cite{Goldstein2002}. In these equations, $m$ is the mass of the body and $\mt I$ is the inertia tensor, which is a diagonal matrix in the principal frame. For a three-dimensional system consisting of $N$ non-collinear rigid bodies that interact via a potential $U(\vt r, \vt q)$, we define the Hamiltonian in terms of its generalized coordinates ($\vt r_i$ and $\vt q_i$) and conjugate momenta ($\vt p_i$ and $\vt \pi_i$), as follows:~\cite{Abreu_2017}
 
 \begin{equation}
 \label{eq:H_NVE}
@@ -178,7 +169,7 @@ where the individual operators are defined as follows:
 &i\!L_b = \sum_{i=1}^N \left( \tr{\vt F}_i \diff{}{\vt p_i} + 2 \tr{\vt \tau}_i \tr{\mt C}_i \diff{}{\vt \pi_i} \right) \\
 &translation: \\
 & i\!L_t = \sum_{i=1}^N \frac{\tr{\vt p}_i}{m_i}\diff{}{\vt r_i} \\
-&uniaxial \; rotation:\\
+&rotation \; about \; a \; principal \; axis:\\
 & i\!L_k = \frac{1}{2} \sum_{i=1}^N {\omega_i}_k \left( \tr{\vt q}_i\tr{\hat{\mt B}_k} \diff{}{\vt q_i} + \tr{\vt \pi_i}\tr{\hat{\mt B}_k} \diff{}{\vt \pi_i} \right)
 \end{split}
 \]
@@ -190,7 +181,7 @@ The individual operators can be evaluated analytically according to
 &{\vt \pi} = {\vt \pi}_0 +  2 {\mt C}_0 {\vt \tau}_0 t\\
 &translation:\\
 &{\vt r} = {\vt r}_0 + (t/m) {\vt p}_0\\
-&uniaxial \; rotation:\\
+&rotation \; about \; a \; principal \; axis:\\
 &{\vt q}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt q_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt q_0 \\
 &{\vt \pi}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt \pi_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt \pi_0
 \end{split}
@@ -356,12 +347,12 @@ e^{\Delta t i\!L} = e^{\frac{\Delta t}{2} i\!L_\text{NHC}^\ast} e^{\frac{\Delta 
 \end{split}
 \end{equation}
 
-We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However...the energy drift...
+We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However, as will be shown in the numerical results of Sec.~\ref{sec:numerical_results}, 
 
 \subsection{Sampling Validation}
 \label{sec:samplingvalidation}
 
-In this subsection we briefly review a simple method that serves for checking the consistency between the sampled and theoretical energy distributions. The procedures implemented by Shirts ~\cite{Shirts2013} rely on quantitative statistical analysis of fitting, and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too. Fist recall that in the NVT ensemble the probability of observing an energy E is given by
+In this subsection we briefly review a simple method that serves for checking the consistency between the sampled and theoretical energy distributions. The procedures, implemented by Shirts,\cite{Shirts2013} rely on quantitative statistical analysis of fitting, and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too. First, recall that in the NVT ensemble the probability of observing an energy E is given by
 \[
 P(E/\beta) = Q(\beta)^{-1}\Omega(E)\exp\left(-\beta E\right),
 \]
