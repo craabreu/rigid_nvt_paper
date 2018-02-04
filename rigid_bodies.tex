@@ -123,7 +123,7 @@ The equations of motion are derived from the Hamiltonian Eq.\eqref{eq:H_NVE} by 
 \[
 \diff{U}{\vt r_i} = -\vt F_i = -\sum_{j=1}^{n_p} {\vt F_j},
 \]
-where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference, and thus $\vt F_i$ is the resultant force on the body. As demonstrated in Abreu~\textit{et al.},\citep{Silveira_2017} $\partial{U}/\partial \vt q_i$ is given by
+where $\vt F_j$ is the force applied on particle $j$, expressed in the space-fixed frame of reference, and thus $\vt F_i$ is the resultant force on the body. As demonstrated in \citeauthor{Silveira_2017} \cite{Silveira_2017}, $\partial{U}/\partial \vt q_i$ is given by
 \[
 \diff{U}{\vt q_i} = -2 \mt C_i \vt \tau_i = -2 \mt C_i \sum_{j=1}^{n_p} {\vt \delta_j} \times {\vt F_j},
 \]
@@ -218,6 +218,80 @@ where ${\Delta t}$ is the time step size. The splitting of the Liouville operato
 \label{eq:trotter_splitting_NVE}
 e^{\Delta t i\!L_\text{NVE}} = e^{\frac{\Delta t}{2} i\!L_b} e^{\Delta t i\!L_r} e^{\Delta t i\!L_t} e^{\frac{\Delta t}{2} i\!L_b}.
 \end{equation}
+
+\subsection{Shadow Hamiltonian}
+\label{sec:shadown hamiltonian}
+
+First-order derivative of a scalar function with respect to a vector variable (gradient vector):
+\begin{equation*}
+f_{\vt x} = \diff{f}{\vt x}
+\end{equation*}
+
+Second-order derivative of a scalar function with respect to two vector variables (Hessian matrix):
+\begin{equation*}
+f_{\vt x \vt y} = \diff{(\tr{f}_{\vt x})}{\vt y}.
+\end{equation*}
+
+Liouville operator:
+\begin{equation}
+\label{eq:general Lioville operator}
+\Liu{} = \tr{{\mathcal H}_{\vt p}} \diff{}{\vt r} - \tr{{\mathcal H}_{\vt r}} \diff{}{\vt p} = \{\circ,\Ham{}\}.
+\end{equation}
+
+For non-commutative operators $A$ and $B$ and a real constant $h$, the symmetric Baker-Campbell-Hausdorff (BCH) formula (Ref.~\citenum{Hairer_2006}, p.~86) can be expressed as
+\begin{equation}
+\label{eq:symmetric BCH exponential}
+e^{\frac{h}{2} B} e^{h A} e^{\frac{h}{2} B} = e^{h S},
+\end{equation}
+with
+\begin{equation}
+\label{eq:symmetric BCH operator}
+S = A + B + \frac{h^2}{24} \left[2 A + B,[A,B]\right] + \mathcal{O}(h^4).
+\end{equation}
+
+In this expression, $[A,B]$ is the commutator of operators $A$ and $B$, defined as $[A,B] = AB - BA$. The remaining terms of the infinite series involve nested commutators with increasing levels of recursion \cite{Hairer_2006}. If $A$ and $B$ are Liouville operators $\Liu A = \{\circ,\Ham A\}$ and $\Liu B = \{\circ,\Ham B\}$, respectively, then we have that
+\begin{align*}
+[\Liu A,\Liu B] &= \{\{\circ,\Ham B\},\Ham A\} - \{\{\circ,\Ham A\},\Ham B\} = \\
+&= -\{\Ham A,\{\circ,\Ham B\}\} - \{\Ham B,\{\Ham A,\circ\}\} = \\
+&= \{\circ,\{\Ham B,\Ham A\}\} = \\
+&= \{\circ,{\Liu A} {\Ham B}\}.
+\end{align*}
+
+In the expression above, the Jacobi identity \cite{Hairer_2006} has been employed after some convenient permutations. This result means that the commutator of two Liouville operators is, in fact, a new Liouville operator $\Liu C$ with Hamiltonian $\Ham C = {\Liu A}{\Ham B}$. By induction, we can conclude that the operator $S$ in Eq.~\eqref{eq:symmetric BCH operator} is also a Liouville operator $\Liu S$ with Hamiltonian
+\begin{equation}
+\label{eq:symmetric BCH hamiltonian}
+\Ham S = \Ham A + \Ham B + \frac{h^2}{24} (2 \Liu A + \Liu B){\Liu A}{\Ham B} + \mathcal{O}(h^4).
+\end{equation}
+
+Considering a separable Hamiltonian $\Ham{}(\vt r, \vt p) = K(\vt p) + U(\vt r)$, where $K$ and $U$ are the kinetic and potential energies, respectively, the Velocity Verlet integrator consists in splitting $\Ham{} = \Ham A + \Ham B$, where $\Ham A = K(\vt p)$ and $\Ham B = U(\vt r)$. Therefore, $\Liu A = \tr{K_{\vt p}} \diff{}{\vt r}$ and $\Liu B = -\tr{U_{\vt r}} \diff{}{\vt p}$, which makes ${\Liu A}{\Ham B} = \tr{K_{\vt p}} U_{\vt r} = \tr{U_{\vt r}} K_{\vt p}$. Hence, Eq.~\eqref{eq:symmetric BCH hamiltonian} becomes
+\begin{equation*}
+\Ham S = K + U + \frac{{\Delta t}^2}{24} \left(2\tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p} - \tr{U_{\vt r}} K_{\vt p \vt p} U_{\vt r} \right) + \mathcal{O}({\Delta t}^4).
+%\Ham S = K + U + \frac{h^2}{12} \tr{\left(\diff{K}{\vt p}\right)}\left(\sdiff{U}{\vt r}\right) \left(\diff{K}{\vt p}\right) + \frac{h^2}{24} \tr{\left(\diff{U}{\vt r}\right)}\left(\sdiff{K}{\vt p}\right) \left(\diff{U}{\vt r}\right) + \mathcal{O}(h^4).
+\end{equation*}
+
+The kinetic energy is given by $K = \frac{1}{2} \tr{\vt p}{\mt M}^{-1}{\vt p}$, where $\mt M$ is a diagonal matrix containing the mass associated to each degree of freedom. This makes $K_{\vt p} = {\mt M}^{-1}{\vt p}$ and $K_{\vt p \vt p} = {\mt M}^{-1}$. The vector containing the force acting on each degree of freedom is $\vt F = -U_{\vt r}$. Thus,
+\begin{align*}
+\Ham S &= K + U + \frac{{\Delta t}^2}{24} \left(2\tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p} - \tr{\vt F} {\mt M}^{-1} {\vt F} \right) \\ &+ \mathcal{O}({\Delta t}^4).
+\end{align*}
+
+Let us introduce $\tilde{\mt M}$ as a mass tensor\cite{Bennett_1975} whose definition is given by
+\begin{equation*}
+\tilde{\mt M}^{-1} = {\mt M}^{-1} + \frac{{\Delta t}^2}{6} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1}.
+\end{equation*}
+
+Therefore,
+\begin{equation}
+\Ham S = \frac{1}{2}\tr{\vt p} \tilde{\mt M}^{-1} {\vt p} + {\tilde U} + \mathcal{O}({\Delta t}^4),
+\end{equation}
+where
+\begin{equation*}
+{\tilde U} = U - \frac{{\Delta t}^2}{24}\tr{\vt F}{\mt M}^{-1} {\vt F}.
+\end{equation*}
+
+The important thing is that $\tilde{\mt M}$ depends exclusively on the coordinates, which makes $\diff{\tilde K}{\vt p} = \tilde{\mt M}^{-1} {\vt p}$. In this way, the equipartition theorem (valid at least in this direction? something to do with integrating through momenta at least internally to the integral in coordinates?) states that
+\begin{equation*}
+3N k_B T = \left\langle \tr{\vt p} \diff{\tilde K}{\vt p} \right\rangle = 2\langle \tilde K \rangle
+\end{equation*}
 
 \subsection{Canonical Ensemble}
 \label{sec:canonical}
@@ -488,7 +562,7 @@ $\Delta t$ (fs) & $T$ (K) & $\langle U\rangle$ (kcal/mol) & $\langle K\rangle$ (
 4.0 & $300.75\pm0.04$ & $-8384.7\pm0.6$ & $1618.1\pm0.2$ & $811.6\pm0.1$ & $806.6\pm0.2$ & $123\pm2$ & $4.33\times10^4$ \\
 
 \hline
-\multicolumn{8}{c}{Single-Thermostat Analogue of the Method of Kamberaj \textit{et al}.\cite{Kamberaj2005}} \\
+\multicolumn{8}{c}{Single-Thermostat Analogue of the Method of \citeauthor{Kamberaj2005} \cite{Kamberaj2005}} \\
 1.0 & $299.52\pm0.02$ & $-8470.2\pm0.5$ & $1611.6\pm0.1$ & $805.9\pm0.1$ & $805.6\pm0.1$ & $58\pm2$ & $0.272$ \\
 2.0 & $298.18\pm0.03$ & $-8471.8\pm0.5$ & $1604.3\pm0.2$ & $804.4\pm0.1$ & $799.9\pm0.1$ & $44\pm2$ & $0.390$ \\
 3.0 & $295.97\pm0.04$ & $-8474.6\pm0.5$ & $1592.4\pm0.2$ & $801.6\pm0.1$ & $790.8\pm0.2$ & $29\pm2$ & $3.00$ \\
@@ -572,8 +646,120 @@ Nevertheless, as will be shown in the forthcoming section, those numerical schem
 by contrast
 
 \begin{acknowledgement}
-The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
+	The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
 \end{acknowledgement}
+
+\appendix
+
+\section{Shadow Hamiltonian of Rigid Bodies}
+
+In the development that follows, we consider a single rigid body and, in the end, we generalize the result for a system of rigid bodies. The Hamiltonian is:
+\begin{equation*}
+\Ham{}(\vt r, \vt p, \vt q, \vt \pi) = K(\vt p, \vt q, \vt \pi) + U(\vt r, \vt q),
+\end{equation*}
+where
+\begin{equation*}
+K = \frac{1}{2} \tr{\vt p}{\mt M}^{-1}{\vt p} + \frac{1}{8}\tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi,
+\end{equation*}
+with
+\begin{equation*}
+\mt B(\vt q) = \left[\begin{array}{rrrr}
+-q_2 & -q_3 & -q_4 \\
+q_1 & -q_4 &  q_3 \\
+q_4 &  q_1 & -q_2 \\
+-q_3 &  q_2 &  q_1
+\end{array}\right].
+\end{equation*}
+
+If a splitting is done so that $\Ham A = K(\vt p, \vt q, \vt \pi)$ and $\Ham B = U(\vt r, \vt q)$, then from Eq.~\eqref{eq:general Lioville operator} we have that $\Liu{A} = \tr{K_{\vt p}}\diff{}{\vt r} + \tr{K_{\vt \pi}}\diff{}{\vt q} - \tr{K_{\vt q}}\diff{}{\vt \pi}$ and $\Liu{B} = -\tr{U_{\vt r}}\diff{}{\vt p} - \tr{U_{\vt q}}\diff{}{\vt \pi}$. Therefore, $\Liu A \Ham B = \tr{K_{\vt p}} U_{\vt r} + \tr{K_{\vt \pi}} U_{\vt q}$. This makes
+\begin{align*}
+\Liu A \Liu A \Ham B &= \tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p}
++ 2 \tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p}
++ \tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} \\
+&+ \tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}
+- \tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q},
+\end{align*}
+where the fact that $\tr{U_{\vt q \vt r}} = U_{\vt r \vt q}$ has been exploited. As reported in Ref.~\citenum{Silveira_2017}, the identity $\tr{\mt B}(\vt q) {\vt \pi} = -\tr{\mt B}(\vt \pi) {\vt q}$ is useful for performing differentiations. The first-order derivatives of $K$ with respect to $\vt p$, $\vt q$, and $\vt \pi$ are, respectively,
+\begin{align*}
+&K_{\vt p} = {\mt M}^{-1} {\vt p}, \\
+&K_{\vt q} = -\frac{1}{2} {\mt B}(\vt \pi) {\vt \omega}, \; \text{and} \\
+&K_{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\vt \omega},
+\end{align*}
+where $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi = -\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt \pi) \vt q$ is the vector of angular velocities.\cite{Silveira_2017} Hence,
+\begin{gather*}
+\tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p} = \tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p}, \\
+\tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p} = \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}, \\
+\tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} = \frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega.
+\end{gather*}
+
+As $\diff{\tr{\vt \omega}}{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1}$, the second-order derivative of $K$ with respect to $\vt \pi$ turns out to be
+\begin{equation*}
+K_{\vt \pi \vt \pi} = \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q).
+\end{equation*}
+
+Pre-multiplication by $\tr{K_{\vt q}}$ will introduce a product $\tr{\mt B}(\vt \pi) {\mt B}(\vt q)$, which has been shown in Ref.~\citenum{Silveira_2017} to be equal to ${\mt S}\left( \tr{\mt B}(\vt \pi) {\vt q} \right) = -2 {\mt S}({\mt I} {\vt \omega})$, where the operator ${\mt S}(\cdot)$ builds a skew-symmetric matrix from the entries of a vector. In addition, post-multiplication by $U_{\vt q}$ will introduce a product $\tr{\mt B}(\vt q) U_{\vt q}$, which is equal to $-2 {\vt \tau}^b$, where ${\vt \tau}^b$ is the body-fixed frame representation of the torque. Then, the fact that ${\mt S}(\vt x) {\vt y} = -{\mt S}(\vt y) {\vt x}$ leads to
+\begin{equation*}
+\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = \frac{1}{2} \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega}.
+\end{equation*}
+
+Another helpful identity taken from Appendix B of Ref.~\citenum{Silveira_2017} is ${\mt B}(\vt q){\vt \omega} = ( \sum_{k=1}^3 \omega_k \hat{\mt B}_k ) \vt q$, where each $\hat{\mt B}_k$ is a skew-symmetric permutation matrix (i.e. $\tr{\hat{\mt B}}_k = -\hat{\mt B}_k$). This allows us to obtain
+\begin{align*}
+K_{\vt \pi \vt q} &= \frac{1}{2} (\diff{\tr{\vt \omega}}{\vt q}) \tr{\mt B}(\vt q) + \frac{1}{2} \sum_{k=1}^3 \omega_k \tr{\hat{\mt B}}_k = \\
+&= -\frac{1}{4} {\mt B}(\vt \pi) {\mt I}^{-1} \tr{\mt B}(\vt q) - \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k.
+\end{align*}
+
+Pre-multiplication by $\tr{K_{\vt \pi}}$ and post-multiplying $U_{\vt q}$, followed by some algebraic transformations, ultimately lead to
+\begin{equation*}
+\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q} = -\frac{1}{2} \tr{\vt \omega} \tr{\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega} + \frac{1}{2} \tr{\vt \omega} {\mt S}({\vt \tau}^b){\vt \omega}.
+\end{equation*}
+
+The second term in the right-hand side of the equation above is identically null whenever (a quadratic form whose matrix is skew-symmetric), which makes $\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = -\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}$. Finally,
+\begin{align*}
+\Liu A \Liu A \Ham B = &\tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p} + \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}
++ \\
+&\frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega - \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}_b) {\mt I} {\vt \omega}.
+\end{align*}
+
+The last term above need to be double checked.
+
+For the second part:
+\begin{align*}
+\Liu B \Liu A \Ham B &= -\tr{U_{\vt r}} \tr{K_{\vt p \vt p}} U_{\vt r} - \tr{U_{\vt q}} \tr{K_{\vt \pi \vt \pi}} U_{\vt q} = \\
+&= -\tr{\vt F} {\mt M}^{-1} {\vt F} - \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b.
+\end{align*}
+
+Overall:
+\begin{equation*}
+\Ham S = \frac{1}{2} \tr{\left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \tilde{\mt \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right] + \tilde{U} + \mathcal{O}({\Delta t}^4),
+\end{equation*}
+where
+\begin{equation*}
+\tilde{U} = U - \frac{\Delta t^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right)
+\end{equation*}
+and
+\begin{equation*}
+\tilde{\mt \Omega} = {\mt \Omega} + \frac{\Delta t^2}{6} \left( {\mt \Omega} {\mt U}_{\vt x \vt x} \tr{\mt \Omega} + {\mt \Gamma} \right)
+\end{equation*}
+with
+\begin{equation*}
+\mt \Omega = \left[\begin{array}{cc}
+{\mt M}^{-1} & \mt 0 \\
+\mt 0 & \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q)
+\end{array}\right],
+\end{equation*}
+\begin{equation*}
+\mt \Gamma = \left[\begin{array}{cc}
+\mt 0 & \mt 0 \\
+\mt 0 & \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} {\mt S}({\mt I}^{-1} {\vt \tau}_b) \tr{\mt B}(\vt q)
+\end{array}\right],
+\end{equation*}
+and
+\begin{equation*}
+{\mt U}_{\vt x \vt x} = \left[\begin{array}{cc}
+U_{\vt r \vt r} & U_{\vt r \vt q} \\
+U_{\vt q \vt r} & U_{\vt q \vt q}
+\end{array}\right].
+\end{equation*}
 
 \bibliography{rigid_bodies}
 %\begin{table*}
