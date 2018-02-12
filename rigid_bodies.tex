@@ -25,7 +25,7 @@
 \newcommand{\Ham}[1]{{\mathcal H}_\text{#1}}    % Hamiltonian
 \newcommand{\Liu}[1]{i\!L_\text{#1}}            % Liouville
 \newcommand{\timestep}{h}
-\newcommand{\shadow}[1]{\widetilde{#1}}
+\newcommand{\modified}[1]{\widetilde{#1}}
 
 \usepackage{array}
 \newcolumntype{L}{>{$}l<{$}}
@@ -85,15 +85,19 @@ The ordinary differential equation (ODE) system that describes a Hamiltonian rig
 \begin{subequations}
 	\label{eq:ODE system for NVE}
 	\begin{align}
+%
 	&\dot{\vt r} =
 	%+\diff{\Ham{}}{\vt p} =
 	{\mt M}^{-1} {\vt p}, \\
+%
 	&\dot{\vt p} =
 	%-\diff{\Ham{}}{\vt r} = 
 	{\vt F}, \\
+%
 	&\dot{\vt q} =
 	%+\diff{\Ham{}}{\vt \pi} =
 	\frac{1}{2} \mt B(\vt q) \vt \omega, \text{ and} \label{eq:EDO_q} \\
+%
 	&\dot{\vt \pi} =
 	%-\diff{\Ham{}}{\vt q} =
 	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau, \label{eq:EDO_pi}
@@ -145,15 +149,27 @@ Here we propose a new method for simulating a system of rigid bodies in the cano
 \begin{subequations}
 	\label{eq:ODE system for NVT}
 	\begin{align}
+%
+\label{eq:nhc_r}
 	&\dot{\vt r} =
 	{\mt M}^{-1} {\vt p}, \\
+%
+\label{eq:nhc_p} 
 	&\dot{\vt p} =
-	{\vt F} - \alpha_1 {\vt p}, \\
+	{\vt F} - \alpha_1 {\vt p},\\
+%
+\label{eq:nhc_q}
 	&\dot{\vt q} =
 	\frac{1}{2} \mt B(\vt q) \vt \omega, \text{ and} \\
+%
+\label{eq:nhc_pi}
 	&\dot{\vt \pi} =
 	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau - \alpha_1 {\vt \pi}, \\
+%
+\label{eq:nhc_eta}
 	&\dot{\eta}_j = \alpha_j, \text{ and} \\
+%
+\label{eq:nhc_p_eta}
 	&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j} \qquad \text{for} \quad 1 \leq j \le M,
 	\end{align}
 \end{subequations}
@@ -167,18 +183,18 @@ In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and
 \end{align}
 \end{subequations}
 where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, and $L = 6N-3$ if the vector-sum of all linear momenta is set as null, as usual (otherwise, $L = 6N$).\cite{Martyna_1994} As recommended in Ref.~\citenum{Martyna_1992}, one can make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the system.
-%Finally, $\shadow K$ is the total kinetic energy of the system, whose computation (not using Eq.~\ref{eq:kinetic energy}, hence the distinct symbol) is the central feature of the method we propose.
-
+%Finally, $\modified K$ is the total kinetic energy of the system, whose computation (not using Eq.~\eqref{eq:kinetic energy}, hence the distinct symbol) is the central feature of the method we propose.
 The ``extended energy'' which is conserved by the non-Hamiltonian system in Eq.~\eqref{eq:ODE system for NVT} is \cite{Martyna_1992}
 \begin{equation}
 \label{eq:nvt extended energy}
-H_\text{\tiny NVT} = \Ham{} + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
+H = \Ham{} + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
 \end{equation}
 
 As in the previous case, it is possible to devise a splitting method to solve Eq.~\eqref{eq:ODE system for NVT} numerically \cite{Tuckerman_2010}. By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e. non-Hamiltonian) Liouville operator, the splitting goes as
-\begin{equation*}
+\begin{equation}
+\label{eq:splitting NVT}
 e^{\timestep \mathcal{L}_\text{\tiny NVT}} = e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} e^{\timestep \Liu{\tiny NVE}} e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} + \mathcal{O}(\timestep^3),
-\end{equation*}
+\end{equation}
 where $\Liu{\tiny NVE}$ is the same operator of the previous case and $\mathcal{L}_\text{\tiny NHC}$ aggregates all new terms introduced by the Nos\'e-Hoover chain. Of course, the NVE part can be integrated exactly as described before. The NHC part, in turn, can be split even further as
 \begin{equation*}
 e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\limits_{j=M}^1 e^{\frac{\timestep}{4n} \mathcal{L}_j }\right) e^{\frac{\timestep}{2n} \mathcal{L}_0 } \left(  \textstyle\prod\limits_{j=1}^M e^{\frac{\timestep}{4n} \mathcal{L}_j }\right)  \right]^n.
@@ -191,273 +207,177 @@ In our scheme, the first propagator to act, $e^{\frac{\timestep}{4n} \mathcal{L}
 \end{align*}
 
 After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ enacts the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of the thermostat coordinate $\eta_1$. Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
-%Note that momentum vectors $\vt p$ and $\vt \pi$ are scaled the same factor, which causes $\shadow K$ to be scaled by the square of it, hence ${\shadow K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\shadow K}^\ast$. In Sec.~\ref{sec:backward error analysis} we demonstrate why such effect on $\shadow K$ is observed even though we do not use Eq.~\eqref{eq:kinetic energy} to compute it.
-Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_1}$ to $e^{\frac{\timestep}{4n} \mathcal{L}_M}$ are applied again, but now in the increasing order of their indices. It is worth noting that the $\eta$'s are driven variables with no influence on the dynamics, but they are often computed just for checking how well the integrator conserves $H_\text{\tiny NVT}$.
+%Note that momentum vectors $\vt p$ and $\vt \pi$ are scaled the same factor, which causes $\modified K$ to be scaled by the square of it, hence ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$. In Sec.~\ref{sec:backward error analysis} we demonstrate why such effect on $\modified K$ is observed even though we do not use Eq.~\eqref{eq:kinetic energy} to compute it.
+Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_1}$ to $e^{\frac{\timestep}{4n} \mathcal{L}_M}$ are applied again, but now in the increasing order of their indices. It is worth noting that the $\eta$'s are driven variables with no influence on the dynamics, but they are often computed just for checking how well the integrator conserves $H$.
 
-The whole procedure described above is repeated $n$ times. Because of its low computational cost, the compensation required for increasing the time step $\timestep$ without degrading the accuracy of the NHC part (that is, employing a larger $n$) causes a small impact in the overall integration effort. In contrast, evaluating the NVE part is expensive for involving force/torque computations and its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}. A high-order integration scheme\cite{Omelyan_2007, vanZon_2008} could possibly admit larger time steps, but it would raise both cost and complexity because for entailing the computation (or numerical estimation) of force/torque gradients. The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development.
+The whole procedure described above is repeated $n$ times. Because of its low computational cost, the compensation required for increasing the time step $\timestep$ without degrading the accuracy of the NHC part (i.e. employing a larger $n$) causes a small impact in the overall integration effort. In contrast, evaluating the NVE part is expensive for involving force/torque computations and its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}. A high-order integration scheme\cite{Omelyan_2007, vanZon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients. The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development. Nevertheless, we choose to take a simpler path. Instead of attempting to improve the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we try to quantify the obtained deviations and then use them to tune the thermostatting procedure and properly weight the sampled configurations when canonical averages are computed.
 
-Here we take a simpler path. Instead of attempting to improve the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we try to quantify the obtained deviations and then use them to tune the thermostatting procedure and properly weight the sampled configurations when canonical averages are computed.
+A known property of splitting methods applied to Hamiltonian ODE systems is that they provide Hamiltonian approximate solutions. In other words, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian. Thus, whereas $\Ham{}$ exhibits a certain degree of oscillation along that trajectory, the value of $\Ham{S}$ is actually conserved (up to round-off errors). It is also known that $\Ham{S}$ depends on the time step size $\timestep$ and that, for a time-reversible splitting such as Eq.~\eqref{eq:splitting NVE}, one can write $\Ham{S} = \Ham{} + \mathcal{O}(\timestep^2)$. Estimating the trailing term is a task of backward error analysis.
 
-A known property of splitting methods applied to Hamiltonian ODE systems is that they provide approximate solutions which are also Hamiltonian. Thus, a trajectory generated to be roughly consistent with the specified Hamiltonian $\Ham{}$ will be exactly consistent with a nearby, albeit unknown, function $\shadow{\mathcal H}$. It is also known that $\shadow{\mathcal H}$, referred to as a shadow Hamiltonian, depends on the time step size $\timestep$ and that, for a time-reversible splitting like Eq.~\eqref{eq:splitting NVE}, $\shadow{\mathcal H} = \Ham{} + \mathcal{O}(\timestep^2)$. Estimating the trailing term of this equality, either analytically or numerically, is a task of backward error analysis. As demonstrated in Sec.~\ref{sec:backward error analysis}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be better approximated as $\shadow{\Ham{}} = \shadow K + \shadow U + \mathcal{O}(h^4)$, where $\shadow K$ and $\shadow U$ will be called shadow kinetic and shadow potential energies, respectively. The former is given by
+As shown in Sec.~\ref{sec:backward error analysis}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be better approximated by $\Ham{S} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are named modified kinetic and modified potential energies, respectively. The former can be expressed as
 \begin{equation}
 \label{eq:shadow kinetic energy}
-\shadow K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \shadow{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
+\modified K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation}
-where $\shadow{\mathbf \Omega}$ is a complicated matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$, but independent of both $\vt p$ and $\vt \pi$. The shadow potential is also independent of these momenta and is given by
+where $\modified{\mathbf \Omega}$ is a symmetric matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$. The modified potential, which is also independent of $\vt p$ and $\vt \pi$, is given by
 \begin{equation}
 \label{eq:shadow potential energy}
-\shadow U = U - \frac{\timestep^2}{24} \left[ \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau} \tr{\mt A}(\vt q) {\mt I}^{-1} {\mt A}(\vt q) {\vt \tau} \right].
+\modified U = U - \frac{\timestep^2}{24} \left[ \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right],
 \end{equation}
-
-Therefore, the outcome of solving Eq.~\eqref{eq:ODE system for NVE} using a Trotter-Suzuki splitting will be close to the exact solution of Eq.~\eqref{eq:ODE system for NVE}, but it will be even closer to the solution of a system composed of equations
+where ${\vt \tau}_b = {\mt A}(\vt q) {\vt \tau}$ is the body-fixed representation of the torques. Therefore, the outcome of solving Eq.~\eqref{eq:ODE system for NVE} using a Trotter-Suzuki splitting will be close to the exact solution of Eq.~\eqref{eq:ODE system for NVE}, but it will be even closer to the solution of
 \begin{equation}
 \label{eq:shadow ODE system}
 \left[\begin{array}{c} \dot{\vt r} \\ \dot{\vt q} \end{array}\right] =
-\left[\begin{array}{c} \diff{\shadow K}{\vt p} \\ \diff{\shadow K}{\vt \pi} \end{array}\right] =
-\shadow{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
+\left[\begin{array}{c} \diff{\modified K}{\vt p} \\ \diff{\modified K}{\vt \pi} \end{array}\right] =
+\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation}
-as well as $\dot{\vt p} = -\diff{\shadow{\mathcal H}}{\vt r}$ and $\dot{\vt \pi} = -\diff{\shadow{\mathcal H}}{\vt q}$. In our proposed method, we acknowledge this fact and thus use the Nos\'e-Hoover chain to provide a canonical distribution consistent with $\shadow{\mathcal H}$ (rather than $\Ham{}$) at temperature $T$. Note that this entails solving Eq.~\eqref{eq:ODE system for NVT} exactly as described before, with the only requirement of replacing $K$ by $\shadow K$ in the definition of the generalized force $G_1$. By contrasting Eqs.~\eqref{eq:generalized force NVT}, \eqref{eq:shadow kinetic energy}, and \eqref{eq:shadow ODE system}, we can see that
+together with $\dot{\vt p} = -\diff{\modified{\Ham{}}}{\vt r}$ and $\dot{\vt \pi} = -\diff{\modified{\Ham{}}}{\vt q}$, where $\modified{\Ham{}} = \modified K + \modified U$. Our proposal consists in acknowledging this fact and then tuning the Nos\'e-Hoover chain to provide a canonical distribution consistent with $\modified{\Ham{}}$ (instead of $\Ham{}$) at temperature $T$. Fortunately, this entails solving Eq.~\eqref{eq:ODE system for NVT} almost exactly as described before. The only requirement is to replace $K$ by $\modified K$ in the definition of the generalized force in thermostat $1$, given by Eq.~\eqref{eq:generalized force NVT}. By contrasting this one with Eqs.~\eqref{eq:shadow kinetic energy} and \eqref{eq:shadow ODE system}, we observe that such force becomes
 \begin{equation}
-G_1 = 2 \shadow K - L k_\text{\tiny B} T.
+G_1 = 2 \modified K - L k_\text{\tiny B} T.
 \end{equation}
 
-Direct evaluation of Eq.~\eqref{eq:shadow kinetic energy} for computing $\shadow K$ is quite complex and expensive. However, one can do it very easily using the approach devised by \citeauthor{Eastwood_2010} \cite{Eastwood_2010}, which consists in using numerical differentiation to estimate the derivatives in the left-hand side of Eq.~\eqref{eq:shadow ODE system}. Denoting the obtained estimators as $\dot{\vt r}_\text{\tiny NVE}$ and $\dot{\vt q}_\text{\tiny NVE}$ and substituting Eq.~\eqref{eq:shadow ODE system} into Eq.~\eqref{eq:shadow kinetic energy}, we find out that
+It is possible to evaluate Eq.~\eqref{eq:shadow kinetic energy} directly for computing $\modified K$, but this is quite complex and expensive. Instead, one can do it very easily by means of a method devised by \citeauthor{Eastwood_2010} \cite{Eastwood_2010}, which consists in using numerical differentiation to estimate the derivatives in the left-hand side of Eq.~\eqref{eq:shadow ODE system}. By denoting the obtained estimators as $\dot{\vt r}_\text{\tiny NVE}$ and $\dot{\vt q}_\text{\tiny NVE}$, and substituting Eq.~\eqref{eq:shadow ODE system} into Eq.~\eqref{eq:shadow kinetic energy}, we find out that
 \begin{equation}
-\shadow K = \frac{1}{2} \left( \tr{\vt p} \dot{\vt r}_\text{\tiny NVE} + \tr{\vt \pi} \dot{\vt q}_\text{\tiny NVE} \right).
+\modified K = \frac{1}{2} \left( \tr{\vt p} \dot{\vt r}_\text{\tiny NVE} + \tr{\vt \pi} \dot{\vt q}_\text{\tiny NVE} \right).
 \end{equation}
 
 - Pratical estimation of numerical derivatives: virtual steps and interpolation
 
 
-- Scaling of $\shadow K$ during the NHC integration.
+- Scaling of $\modified K$ during the NHC integration.
 
 Reweighting:
 \begin{equation}
 \label{eq:reweighting}
-\langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\shadow{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\shadow{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
+\langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
 \end{equation}
-
 
 \section{Theoretical Background}
 \label{sec:theory}
 
-\subsection{Microcanonical Ensemble}
+\subsection{Hamiltonian Dynamics}
+\label{eq:hamiltonian dynamics}
 
-When describing the motion of a rigid body, the translational and rotational modes can be decoupled and expressed, respectively, as the evolution of a center-of-mass coordinate $\vt r(t)$ in a space-fixed frame of reference and the evolution of a quaternion $\vt q(t) = \tr{[\begin{array}{cccc} q_1 & q_2 & q_3 & q_4 \end{array}]}$ which continuously satisfies the unit-norm constraint $\tr{\vt q}{\vt q} = 1$ \cite{Goldstein_2002}. In this way, the position of any constituent particle $j$ will vary with time as $\vt R_j(t) = \vt r(t) + \tr{\mt A}(\vt q(t))\vt d_j$, where $\vt d_j$ is the (constant) position of particle $j$ in a body-fixed frame of reference centered in $\vt r$ and ${\mt A}(\vt q)$ is the body's orientation matrix (that is, the rotation matrix connecting the body-fixed and space-fixed frames) expressed as a function of the quaternion components. The superscript $t$ stands for transposition, which is equivalent to inversion in the case of a canonical transformation like $\mt A$ \cite{Goldstein_2002}. The central feature explored in Ref.~\citenum{Silveira_2017} is the fact that $\mt A$ admits the simple factorization
-\begin{equation}
-\label{eq:factorization_of_A}
-{\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q),
-\end{equation}
-where
+When describing the motion of a rigid body, the translational and rotational modes can be decoupled and expressed, respectively, as the evolution of the center-of-mass coordinate $\vt r(t)$ in a space-fixed frame of reference and the evolution of a quaternion $\vt q(t)$ which continuously satisfies the unit-norm constraint $\tr{\vt q}{\vt q} = 1$ \cite{Goldstein_2002}. In this way, the connection between the body-fixed and space-fixed frames of reference can be recovered at any time by the rotation matrix $\mt A(\vt q)$, which admits the factorization mentioned in Sec.~\ref{sec:methodology}. This factorization creates an intermediate frame of reference for representing three-dimensional vectors in $\mathbb{R}^3$ as quaternions that lie in the hyperplane orthogonal to $\vt q$, since the columns of matrix $\mt B$ and those of matrix $\mt C$ form two different bases for such a subspace of $\mathbb{R}^4$. Transformations amongst three distinct reference frames are enacted by multiplications with these matrices or their transposes, such as represented in the following scheme:
 \begin{equation*}
-\label{eq:def_B_and_C}
-\mt B(\vt q) = \begin{smallarray}{rrrr}
--q_2 & -q_3 & -q_4 \\
- q_1 & -q_4 &  q_3 \\
- q_4 &  q_1 & -q_2 \\
--q_3 &  q_2 &  q_1
-\end{smallarray}
-\; \text{and} \;
-\mt C(\vt q) = \begin{smallarray}{rrrr}
--q_2 & -q_3 & -q_4 \\
- q_1 &  q_4 & -q_3 \\
--q_4 &  q_1 &  q_2 \\
- q_3 & -q_2 &  q_1
-\end{smallarray}.
-\end{equation*}
-
-This factorization creates an intermediate frame of reference for representing three-dimensional vectors in $\mathbb{R}^3$ as quaternions that lie in the hyperplane orthogonal to $\vt q$, since the columns of matrix $\mt B$ and those of matrix $\mt C$ form two different bases for such a subspace of $\mathbb{R}^4$. Transformations amongst three distinct reference frames are enacted by multiplications with these matrices or their transposes, such as represented in the following scheme:
-\[
 \boxed{\substack{\text{Body-fixed} \\ \text{frame}}}
 \mathrel{\mathop{\rightleftarrows}^{\mt B}_{\tr{\mt B}}}
 \boxed{\substack{\text{Quaternion-fixed} \\ \text{frame}}}
 \mathrel{\mathop{\rightleftarrows}^{\tr{\mt C}}_{\mt C}}
 \boxed{\substack{\text{Space-fixed} \\ \text{frame}}}
-\]
+\end{equation*}
 
-The intermediate frame is exactly the subspace of $\mathbb{R}^4$ that must contain the rate-of-change vector $\dot{\vt q}$ if the norm of $\vt q$ is to remain constant, since $\tr{\vt q} {\vt q} = 1$ implies that $\tr{\vt q} \dot{\vt q} = 0$. In the Hamiltonian approach for the motion of a rigid body, the momentum $\vt \pi$ conjugated to $\vt q$ is given by $\vt \pi = 2 \mt B(\vt q) \mt I \vt \omega$, where $\vt \omega$ is the three-dimensional angular velocity and $\mt I$ is a diagonal matrix containing the body's principal moments of inertia.\cite{Silveira_2017} This means that $\vt \pi$ is the quaternion-fixed representation of the angular momentum $\vt L = \mt I \vt \omega$, thus being orthogonal to $\vt q$ as well. After this notation has been introduced, the Hamiltonian of a rigid body can be written as
-\begin{equation}
-\label{eq:Hamiltonian}
-\Ham{} = K(\vt p, \vt q, \vt \pi) + U(\vt r,\vt q),
-\end{equation}
-where $K$ and $U$ are the kinetic and potential energies of the body, respectively. While the potential energy can have any functional form, the kinetic energy is given by
-\begin{equation}
-\label{eq:kinetic energy}
-K = \frac{1}{2} \tr{\vt p} {\mt M}^{-1} {\vt p} + \frac{1}{8} \tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi},
-\end{equation}
-where $\vt p$ is the linear momentum of the body and $\mt M$ is a diagonal matrix containing the body's mass in all three diagonal entries. Note that the kinetic energy is composed of two independent contributions, a translational and a rotational one. An advantage of this notation is that Eqs.~\eqref{eq:Hamiltonian} and \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies once we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the respective properties of all bodies piled together. The same occurs for matrices $\mt M$ and $\mt I$, which turn into diagonal matrices of size $3N \times 3N$. In addition, $\mt B(\vt q)$ becomes a block-diagonal matrix with $4N$ rows and $3N$ columns.
+The intermediate frame is exactly the subspace of $\mathbb{R}^4$ that must contain the rate-of-change vector $\dot{\vt q}$ if the norm of $\vt q$ is to remain constant, since $\tr{\vt q} {\vt q} = 1$ implies that $\tr{\vt q} \dot{\vt q} = 0$. In the Hamiltonian approach for the motion of a rigid body, the momentum $\vt \pi$ conjugated to $\vt q$ is given by $\vt \pi = 2 \mt B(\vt q) \mt I \vt \omega$.\cite{Silveira_2017} This means that $\vt \pi$ is the quaternion-fixed representation of the angular momentum $\vt L = \mt I \vt \omega$, thus being orthogonal to $\vt q$ as well.
 
-The Liouville operator \cite{Tuckerman_2010} that stems from the Hamiltonian in Eq.~\eqref{eq:Hamiltonian} is\cite{Silveira_2017}
-\begin{align*}
+The Liouville operator that stems from the Hamiltonian in Eq.~\eqref{eq:Hamiltonian} is\cite{Silveira_2017}
+\begin{equation}
 \label{eq:Lioville operator}
-\Liu{\tiny NVE} &= \tr{\vt p} {\mt M}^{-1} \diff{}{\vt r} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) \diff{}{\vt q} \\
-&+ \tr{\vt F} \diff{}{\vt p} + \left[ \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt \pi) + 2 \tr{\vt \tau} \tr{\mt C}(\vt q) \right] \diff{}{\vt \pi},
-\end{align*}
-where $\vt F$ and $\vt \tau$ are, respectively, the resultant force and resultant torque exerted on the body (or on $N$ bodies), both represented in the space-fixed frame of reference, whereas $\vt \omega$ can be obtained by
-\begin{equation*}
-\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}.
-\end{equation*}
+\begin{split}
+\Liu{\tiny NVE} &= \tr{\vt p} {\mt M}^{-1} \diff{}{\vt r} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) \diff{}{\vt q} + \tr{\vt F} \diff{}{\vt p} \\
+&+ \left[ \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt \pi) + 2 \tr{\vt \tau} \tr{\mt C}(\vt q) \right] \diff{}{\vt \pi}.
+\end{split}
+\end{equation}
 
-The time evolution of any phase-space vector $\vt x$ is governed by $\tr{\dot{\vt x}} = \Liu{\tiny NVE} \tr{\vt x}$ \cite{Tuckerman_2010}. Therefore, the equations of motion that describe the rigid-body motion are \cite{Silveira_2017}
-\begin{subequations}
-	\label{eq:EDO_system}
-	\begin{align}
-	&\dot{\vt r} =
-	%+\diff{\Ham{}}{\vt p} =
-	{\mt M}^{-1} {\vt p}, \\
-	&\dot{\vt p} =
-	%-\diff{\Ham{}}{\vt r} = 
-	{\vt F}, \\
-	&\dot{\vt q} =
-	%+\diff{\Ham{}}{\vt \pi} =
-	\frac{1}{2} \mt B(\vt q) \vt \omega, \text{ and} \label{eq:EDO_q} \\
-	&\dot{\vt \pi} =
-	%-\diff{\Ham{}}{\vt q} =
-	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau, \label{eq:EDO_pi}
-	\end{align}
-\end{subequations}
-
-The solution for a system like $\tr{\dot{\vt x}} = \Liu{\tiny NVE} \tr{\vt x}$ with initial condition $\vt x(0) = \vt x_0$ can be formally expressed as $\tr{\vt x}(t) = e^{t \Liu{\tiny NVE}} \tr{\vt x}_0$. Although the exact effect of the exponential operator %$e^{t \Liu{\tiny NVE}}$
+Because the time evolution of any phase-space vector $\vt x$ is governed by $\tr{\dot{\vt x}} = \Liu{\tiny NVE} \tr{\vt x}$ \cite{Tuckerman_2010}, the equations of motion that describe the rigid-body motion are those in Eq.~\eqref{eq:ODE system for NVE}. The solution for a system like $\tr{\dot{\vt x}} = \Liu{\tiny NVE} \tr{\vt x}$ with initial condition $\vt x(0) = \vt x_0$ can be formally expressed as $\tr{\vt x}(t) = e^{t \Liu{\tiny NVE}} \tr{\vt x}_0$. Although the exact effect of the exponential operator %$e^{t \Liu{\tiny NVE}}$
 cannot be determined for an arbitrary potential $U(\vt r, \vt q)$, a symplectic numerical solution can be achieved by a Verlet-type integration. For two non-commutative Liouville operators $\Liu A$ and $\Liu B$ and a real constant $\timestep$, the symmetric Baker-Campbell-Hausdorff (BCH) formula can be expressed as \cite{Hairer_2006}
-\begin{align}
+\begin{equation}
 \label{eq:symmetric BCH}
-&e^{\frac{\timestep}{2} \Liu B} e^{\timestep \Liu A} e^{\frac{\timestep}{2} \Liu B} = \nonumber \\
+\begin{split}
+&e^{\frac{\timestep}{2} \Liu B} e^{\timestep \Liu A} e^{\frac{\timestep}{2} \Liu B} = \\
 &= e^{\timestep (\Liu A + \Liu B) + \frac{\timestep^3}{24} \left[2 \Liu A + \Liu B,[\Liu A,\Liu B]\right] + \mathcal{O}(\timestep^5)},
-\end{align}
-where $[X,Y]$ is the commutator of operators $X$ and $Y$, defined as $[X,Y] = XY - YX$. The remaining terms of the infinite series involve ever-deepening, nested commutators \cite{Hairer_2006}. With $\Liu{\tiny NVE} = \Liu{A} + \Liu{B}$ and a small $\timestep$ value, we can approximate the BCH equation as
-\begin{equation*}
-e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Liu{A}} e^{\frac{\timestep}{2} \Liu{B}} + \mathcal{O}(\timestep^3),
-\end{equation*}
-which is known as the Trotter-Suzuki splitting formula \cite{Trotter_1959, Suzuki_1976}. In the rigid-body case, by making
+\end{split}
+\end{equation}
+where $[X,Y]$ is the commutator of operators $X$ and $Y$, defined as $[X,Y] = XY - YX$. The remaining terms of the infinite series involve ever-deepening, nested commutators \cite{Hairer_2006}. With $\Liu{\tiny NVE} = \Liu{A} + \Liu{B}$ and a small value for $\timestep$, we can approximate the BCH equation by the Trotter-Suzuki splitting formula, Eq.~\eqref{eq:splitting NVE}. In the rigid-body case, by making
 \begin{subequations}
-\label{eq:Liouvile operators K and U}
-\begin{equation}
-\label{eq:Lioville operator K}
-\Liu{A} = \tr{\vt p} {\mt M}^{-1} \diff{}{\vt r} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) \diff{}{\vt q} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt \pi) \diff{}{\vt \pi}
-\end{equation}
-and
-\begin{equation}
-\label{eq:Lioville operator U}
-\Liu{B} = \tr{\vt F} \diff{}{\vt p} + 2 \tr{\vt \tau} \tr{\mt C}(\vt q) \diff{}{\vt \pi},
-\end{equation}
+	\label{eq:Liouvile operators K and U}
+	\begin{equation*}
+	\label{eq:Lioville operator K}
+	\Liu{A} = \tr{\vt p} {\mt M}^{-1} \diff{}{\vt r} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) \diff{}{\vt q} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt \pi) \diff{}{\vt \pi}
+	\end{equation*}
+	and
+	\begin{equation*}
+	\label{eq:Lioville operator U}
+	\Liu{B} = \tr{\vt F} \diff{}{\vt p} + 2 \tr{\vt \tau} \tr{\mt C}(\vt q) \diff{}{\vt \pi},
+	\end{equation*}
 \end{subequations}
-it becomes possible to determine exactly the individual actions of operators $e^{\timestep \Liu{A}}$ and $e^{\frac{\timestep}{2} \Liu{B}}$, with $\timestep$ being a small time step $\Delta t$. The latter operator promotes a kick in the linear and quaternion momenta given by ${\vt p} \leftarrow {\vt p} + \frac{\timestep}{2} {\vt F}$ and ${\vt \pi} \leftarrow {\vt \pi} + \timestep {\mt C}({\vt q}) {\vt \tau}$. The former, in turn, performs a simultaneous force-free translation and torque-free rotation during the length of a time step.
-%
-%
-%first one is the solution of
-%\begin{subequations}
-%	\label{eq:EDO translation and rotation}
-%	\begin{align}
-%	&\dot{\vt r} =
-%	%+\diff{\Ham{}}{\vt p} =
-%	{\mt M}^{-1} {\vt p}, \\
-%	&\dot{\vt q} =
-%	%+\diff{\Ham{}}{\vt \pi} =
-%	\frac{1}{2} \mt B(\vt q) \vt \omega, \text{ and} \label{eq:EDO_q} \\
-%	&\dot{\vt \pi} =
-%	%-\diff{\Ham{}}{\vt q} =
-%	\frac{1}{2} \mt B(\vt \pi) \vt \omega, \label{eq:EDO_pi}
-%	\end{align}
-%\end{subequations}
-%
-% and $N_s$ is the number of steps. We emphasize that each exponential operator above will act on (that is, have as initial condition) the result of the operator at its right-hand side.
-%
-%
-%
-%for this system of equations e rigid body motion which preserves the symplectic structure of Eq.~\eqref{eq:EDO_system}. For a sum of two operators $i\!L_A$ and $i\!L_B$, such formula isThe can be used to devise 
-%The full integrator is second-order in $\timestep$ because the leading-order term of the error at every step is proportional to $\timestep^3$ and, in addition, $N_s = t/\timestep$.\cite{Tuckerman_2010} The splitting of the Liouville operator of Eq.~\eqref{eq:full_operator} we employ in this paper is
-%\begin{equation}
-%\label{eq:trotter_exact_rotation}
-%e^{\timestep i\!L} = e^{\frac{\timestep}{2} i\!L_b} e^{\timestep i\!L_{t+r}} e^{\frac{\timestep}{2} i\!L_b} + \mathcal{O}(\timestep^3).
-%\end{equation}
-%
-%This is the Velocity Verlet algorithm\cite{Tuckerman_2010} with center-of-mass translations and rigid-body rotations taking place simultaneously. Update of forces and torques is required only after the step of translation \& rotation has been completed. Because the solution of torque-free rotation involves a single step in the numerical solver, the scheme represented by Eq.~\ref{eq:trotter_exact_rotation} will be referred to as the unsplit rotation integrator. We remark that van Zon and co-workers\cite{vanZon2007PRE, vanZon2008} have already employed this algorithm using the formulation proposed in Ref.~\citenum{vanZon2007}. Other splitting schemes with higher-order approximations have also been used for rigid bodies.\cite{Omelyan2007, Omelyan2008, vanZon2008} However, they result in methods that are more complex and often require expensive force-gradient calculations. Moreover, it is unclear how their benefits would extend to non-Hamiltonian numerical integrators, such as those often employed for molecular dynamics in ensembles other than the microcanonical one.
-%
-%
-%
-%
-%
-%
-%
-%The approximate solution for rotation is derived by opening the products $\mt B \vt \omega$ and $\mt \Omega \vt \omega$ from each entry of $\vt \omega$: 
-%\begin{equation}
-%\label{eq:omega_entry}
-%\omega_k = \frac{\tr{\vt \pi} \hat{\mt B}_k \vt q}{2 I_k},
-%\end{equation}
-%where $\hat{\mt B}_k$ is one of the following permutation matrices:
-%\[
-%\hat{\mt B}_1 = \begin{smallarray}{cccc}
-% 0 & \text{-}1 &  0 &  0 \\
-% 1 &  0 &  0 &  0 \\
-% 0 &  0 &  0 &  1 \\
-% 0 &  0 & \text{-}1 &  0 \\
-%\end{smallarray} \quad
-%\hat{\mt B}_2 = \begin{smallarray}{cccc}
-% 0 &  0 & \text{-}1 &  0 \\
-% 0 &  0 &  0 & \text{-}1 \\
-% 1 &  0 &  0 &  0 \\
-% 0 &  1 &  0 &  0 \\
-%\end{smallarray} \quad
-%\hat{\mt B}_3 = \begin{smallarray}{cccc}
-% 0 &  0 &  0 & \text{-}1 \\
-% 0 &  0 &  1 &  0 \\
-% 0 & \text{-}1 &  0 &  0 \\
-% 1 &  0 &  0 &  0 \\
-%\end{smallarray}
-%\]
-%The new form of the equations of motion in Eqs.~\eqref{eq:EDO_q} and \eqref{eq:EDO_pi} are then:
-%\begin{subequations}
-%\label{eq:EDO_system_alternative}
-%\begin{align}
-%&\dot{\vt q}_i = \frac{1}{2} \left( \sum_{k=1}^3 \omega_{ik} \hat{\mt B}_k \right) \vt q_i \label{eq:edo_q} \\
-%&\dot{\vt \pi}_i = \frac{1}{2} \left( \sum_{k=1}^3 \omega_{ik} \hat{\mt B}_k \right) \vt \pi_i + 2 \mt C_i \vt \tau_i \label{eq:edo_pi}
-%\end{align}
-%\end{subequations}
-%
-%In this context, the Hamiltonian of Eq.\eqref{eq:H_NVE} can be rewritten as
-%\begin{equation}
-%\label{eq:H_split_omega}
-%\mathcal{H} =  U(\vt r, \vt q) +  \sum_{i=1}^N \left( \frac{\tr{\vt p_i} \vt p_i}{2m_i} + \frac{1}{2} \sum_{k=1}^3 I_{ik} \omega_{ik}^2\right),
-%\end{equation}
-%from which we recognize partial Hamiltonians, each of one generates equations of motion with known analytical solutions. In particular, we have $\mathcal{H}_b = U(\vt r, \vt q)$, $\mathcal{H}_{t} = \frac{1}{2m}\tr{\vt p} \vt p$, and $\mathcal{H}_k = (1/2) I_k \omega_k^2$. Of corse, $\mathcal{H} = \mathcal{H}_b + \mathcal{H}_t + \sum_{k=1}^3 \mathcal{H}_k$. The NVE dynamics of this system is governed by a Liouville operator given by\cite{Silveira_2017}
-%\begin{equation}
-%\label{eq:full_operator}
-%i\!L_\text{NVE} = i\!L_t + i\!L_b + \sum_{k=1}^3 i\!L_k,
-%\end{equation}
-%where the individual operators are defined as follows:
-%\[
-%\begin{split}
-%&boost:\\
-%&i\!L_b = \sum_{i=1}^N \left( \tr{\vt F}_i \diff{}{\vt p_i} + 2 \tr{\vt \tau}_i \tr{\mt C}_i \diff{}{\vt \pi_i} \right) \\
-%&translation: \\
-%& i\!L_t = \sum_{i=1}^N \frac{\tr{\vt p}_i}{m_i}\diff{}{\vt r_i} \\
-%&rotation \; about \; a \; principal \; axis:\\
-%& i\!L_k = \frac{1}{2} \sum_{i=1}^N {\omega_i}_k \left( \tr{\vt q}_i\tr{\hat{\mt B}_k} \diff{}{\vt q_i} + \tr{\vt \pi_i}\tr{\hat{\mt B}_k} \diff{}{\vt \pi_i} \right)
-%\end{split}
-%\]
-%The individual operators can be evaluated analytically according to
-%\[
-%\begin{split}
-%&boost:\\
-%&{\vt p} = {\vt p}_0 + {\vt F}_0 t \\
-%&{\vt \pi} = {\vt \pi}_0 +  2 {\mt C}_0 {\vt \tau}_0 t\\
-%&translation:\\
-%&{\vt r} = {\vt r}_0 + (t/m) {\vt p}_0\\
-%&rotation \; about \; a \; principal \; axis:\\
-%&{\vt q}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt q_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt q_0 \\
-%&{\vt \pi}(t) = \cos\left(\frac{\omega_k t}{2}\right) \vt \pi_0 + \sin\left(\frac{\omega_k t}{2}\right) \hat{\mt B}_k \vt \pi_0
-%\end{split}
-%\]
-%Following Miller \textit{et al}.,\cite{Miller_2002} each complete rotation is factorized as
-%\begin{align*}
-%\label{eq:splitting_rot}
-%e^{\timestep i\!L_r} =  e^{\frac{\timestep}{2} i\!L_3} e^{\frac{\timestep}{2} i\!L_2} e^{\timestep i\!L_1} e^{\frac{\timestep}{2} i\!L_2} e^{\frac{\timestep}{2} i\!L_3},
-%\end{align*}
-%where ${\timestep}$ is the time step size. The splitting of the Liouville operator of Eq.~\eqref{eq:full_operator} we employ in this paper is
-%\begin{equation}
-%\label{eq:trotter_splitting_NVE}
-%e^{\timestep i\!L_\text{NVE}} = e^{\frac{\timestep}{2} i\!L_b} e^{\timestep i\!L_r} e^{\timestep i\!L_t} e^{\frac{\timestep}{2} i\!L_b}.
-%\end{equation}
+it becomes possible to determine exactly the individual actions of operators $e^{\timestep \Liu{A}}$ and $e^{\frac{\timestep}{2} \Liu{B}}$ because they yield two separate, analytically solvable systems of equations. The one that originates from $e^{\timestep \Liu{A}}$ is made up of equations $\dot{\vt r} = {\mt M}^{-1} {\vt p}$, $\dot{\vt p} = {\vt 0}$, $\dot{\vt q} = \frac{1}{2} \mt B(\vt q) \vt \omega$, and $\dot{\vt \pi} = \frac{1}{2} \mt B(\vt \pi) \vt \omega$, while the one that stems from $e^{\frac{\timestep}{2} \Liu{B}}$ is composed of $\dot{\vt r} = {\vt 0}$, $\dot{\vt p} = {\vt F}$, $\dot{\vt q} = {\vt 0}$, and $\dot{\vt \pi} = 2 \mt C(\vt q) \vt \tau$. Their solutions provides us with the propagator actions described in Sec.~\ref{sec:methodology}.
+
+\subsection{Nos\'e-Hoover Chain Applied to Rigid Bodies}
+\label{sec:canonical}
+
+Knowledge about the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010b} In this context, invaluable tools have been devised for the development and analysis of simulation methods based on the concept of extended phase space. Sergi and Ferrario\cite{Sergi_2001} describe a simple way of systematically generating conservative trajectories in an arbitrary phase space. If vector $\vt x$ represents a point in phase space, $H(\vt x)$ is a scalar field, and $\boldsymbol{\mathcal B}(\vt x)$ is a matrix-valued function, then the equation of motion
+\begin{equation}
+\label{eq:eq_of_motion}
+\dot{\vt x} = \boldsymbol{\mathcal B}\diff{H}{\vt x}
+\end{equation}
+will generate a flow that conserves the value of $H$, provided that $\boldsymbol{\mathcal B}$ is skew-symmetric (that is, $\tr{ \boldsymbol{ \mathcal B }} = -\boldsymbol{ \mathcal B }$). A generalized Liouville operator can then be defined as\cite{Sergi_2004}
+\begin{equation*}
+{\mathcal L} = \tr{\dot{\vt x}}\diff{}{\vt x} = \tr{\left(\diff{H}{\vt x}\right)} \tr{\boldsymbol{\mathcal B}} \diff{}{\vt x}.
+\end{equation*}
+
+The system might exhibit a non-vanishing phase-space compressibility $\kappa(\vt x) = \sum_j \partial \dot{x}_j/\partial x_j$ if any variable in $\vt x$ affects its own time-derivative. According to Tuckerman and coworkers,\cite{Tuckerman_1999, Tuckerman_2001} although the phase-space volume element $d\vt x$ is no longer conserved, there exits an invariant measure $e^{-w(\vt x)}d\vt x$, where $w(\vt x)$ is the indefinite time integral of $\kappa(\vt x)$. Using the generalized Liouville operator, such relation between $\kappa$ and $w$ can be written as
+\begin{equation}
+\label{eq:relation_kappa_w}
+\kappa = \dot w = {\mathcal L} w.
+\end{equation}
+
+We employ the technique of Sergi and Ferrario\cite{Sergi_2001} to couple a single Nos\'e-Hoover chain\cite{Martyna_1992} (NHC) composed of $M$ thermostats to a system of $N$ rigid bodies. This is simpler than the approach of Kamberaj \textit{et al}.,\cite{Kamberaj_2005} who employed two thermostat chains independently coupled to the translational and rotational degrees of freedom. To this end, we consider extra coordinates $\eta_j$ and their conjugate momenta $p_{\eta_j}$, for $j$ ranging from $1$ to $M$. The conserved ``extended Hamiltonian'' in this case is given by Eq.~\eqref{eq:nvt extended energy}. The equations of motion regarding generalized coordinates are identical to those of a Hamiltonian system, i.e. $\dot{\vt r}_i = {\partial H}/{\partial \vt p_i}$ and $\dot{\vt q}_i = {\partial H}/{\partial \vt \pi_i}$ for every particle $i$ and $\dot{\eta}_j = {\partial H}/{\partial {p_\eta}_j}$ for every thermostat $j$. However, the equations of motion for generalized momenta contain non-Hamiltonian terms. For instance, the first thermostat of the chain acts on the translational and rotational momenta of each particle $i$ as
+\begin{equation*}
+\begin{split}
+\dot{\vt p}_i &= -\diff{H}{\vt r_i} - {\vt p}_i \diff{H}{p_{\eta_1}} \quad \text{and} \\
+\dot{\vt \pi}_i &= -\diff{H}{\vt q_i} - {\vt \pi}_i \diff{H}{p_{\eta_1}}.
+\end{split}
+\end{equation*}
+
+In the right-hand side of each equation above, the first term fulfills the skew-symmetry condition with respect to the corresponding coordinate while the second term enacts the coupling with the mentioned thermostat. In turn, the equation of motion for $p_{\eta_1}$ must contain terms to ensure skew-symmetry with respect to the equations already shown, along with a term regarding the action of a second thermostat. The result is
+\begin{equation*}
+{\dot p}_{\eta_1} = \sum_{i=1}^N \left( \tr{\vt p_i} \diff{H}{\vt p_i} + \tr{\vt \pi_i} \diff{H}{\vt \pi_i}\right) - \diff{H}{\eta_1} - p_{\eta_1} \diff{H}{p_{\eta_2}}.
+\end{equation*}
+
+Each additional thermostat will then act on the preceding one, and be acted upon by the succeeding one. Therefore, for $j$ from $2$ to $M-1$, the equations of motion are
+\begin{equation*}
+{\dot p}_{\eta_j} = -\diff{H}{\eta_j} + p_{\eta_{j-1}} \diff{H}{p_{\eta_{j-1}}} - p_{\eta_j} \diff{H}{p_{\eta_{j+1}}}.
+\end{equation*}
+
+Given that the last thermostat will just act on the previous one, its equation of motion can be obtained by simply replacing $j = M$ and removing the last term in the equation above. As a result, the equations of motion for a system of rigid bodies coupled to a single Nos\'e-Hoover chain are those in Eq.~\eqref{eq:ODE system for NVT}. Note that the $3N$ momentum components in Eq.~\eqref{eq:nhc_p}, the $4N$ components in Eq.~\eqref{eq:nhc_pi}, and the thermostat momenta in Eq.~\eqref{eq:nhc_p_eta} affect their own time-derivatives. Thus, the thermostatted system has a phase-space compressibility $\kappa = -7N \alpha_1 - \sum_j \alpha_{j+1}$. Resorting to Eq.~\eqref{eq:nhc_eta} and the fact that $\alpha_{M+1} = 0$, the function $w(\vt x)$ that determines the invariant phase-space measure is given by
+\begin{equation}
+\label{eq:nhc_measure}
+w = -7N \eta_1 - \sum_{j=2}^M \eta_j.
+\end{equation}
+
+Finally, analysis of the probability distribution generated by the canonical equations of motion can be carried out via the generalized phase-space analysis of Tuckerman \textit{et al}.\cite{Tuckerman_2001} For this, conservation laws must be identified and driven variables must be eliminated. For a system without external forces, the extended energy $H$ and the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i = \vt K$ are integrals of motion, while the center-of-mass position can be considered as a driven variable.\cite{Tuckerman_2001} Moreover, $2N$ equations must be eliminated from the system due to the constraints involving $\vt q_i$ and $\vt \pi_i$ for all $i$. In the general case, by taking all these facts into account and applying the analysis of Ref.~\citenum{Tuckerman_2001}, we can deduce that the metric determinant factor of the effective phase space is $\sqrt{g} = e^{(6N-2) \eta_1 + \sum_{j=2}^M \eta_j}$ and that the correct canonical distribution is attained if one makes $L = 6N$. In the particular (and rather common) situation in which one sets $\vt P = \vt 0$ at the beginning of a simulation, one must make $L = 6N - 3$ because all three elements of $\vt P$ will be conserved.\cite{Martyna_1994}
+
+\subsection{Reversible, Measure-Preserving Integration of the Canonical Equations of Motion}
+\label{sec:numerical_solvers}
+
+As in the Hamiltonian case, the evolution of a phase-space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t {\mathcal L}}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999, Tuckerman_2001} Thus, we can employ the Trotter-Suzuki splitting to devise a time-reversible algorithm for integrating the equations of motion. In the microcanonical case, each separate term of the Liouville operator is Hamiltonian and, therefore, each factor of the splitting is a symplectic propagator. As a result, the whole propagator is symplectic and thus preserves the phase-space volume element. It is widely recognized that this property is important for numerical stability.\cite{Skeel_1997} In the case of non-Hamiltonian systems, Ezra\cite{Ezra_2006} introduced a systematic method for deriving accurate integrators which are not only time-reversible, but also preserve the phase-space measure associated with the original equations of motion. In short, a factorization scheme will preserve a given measure $e^{-w(\vt x)}d\vt x$ if each individual propagator preserves the same measure. As the author has shown,\cite{Ezra_2006} for a particular splitting ${\mathcal L} = \sum_k {\mathcal L}^{(k)}$, measure preservation will take place if $\sum_j \tfrac{\partial}{\partial x_j} [e^{-w(\vt x)}\dot{x}_j^{(k)}] = 0$ for all $k$. Here, $\dot{\vt x}^{(k)}$ refers to the system of equations obtained from the individual operator $i\!L^{(k)}$, which might display its own compressibility $\kappa^{(k)} = \sum_j \partial \dot{x}_j^{(k)}/\partial x_j$. By means of the product rule, it is straightforward to devise an equivalent but more meaningful criterion, which is
+\begin{equation}
+\label{eq:split_kappa_w}
+\kappa^{(k)} = {\mathcal L}^{(k)} w.
+\end{equation}
+
+Therefore, if the function $w(\vt x)$ that derives from Eq.~\eqref{eq:relation_kappa_w} also satisfies Eq.~\eqref{eq:split_kappa_w} for all $k$, then the corresponding factorization will preserve the measure $e^{-w(\vt x)}d\vt x$. We are now in a position to prove that the integration procedure described in Sec.~\ref{sec:methodology} is measure-preserving. As mentioned in that section, the generalized Liouville operator can be written as ${\mathcal L} = \Liu{\tiny NVE} + {\mathcal L}_\text{\tiny NHC}$, where $\Liu{\tiny NVE}$ is the same operator given by Eq.~\eqref{eq:Lioville operator} and
+\begin{equation}
+\label{eq:iL_NHC}
+\begin{split}
+{\mathcal L}_\text{\tiny NHC} = &-\alpha_1 \left( \tr{\vt p} \diff{}{\vt p} + \tr{\vt \pi} \diff{}{\vt \pi}\right) + \sum_{j=1}^{M} \alpha_j \diff{}{\eta_j} \\
+&+ \sum_{j=1}^{M} (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}}.
+\end{split}
+\end{equation}
+
+Then, by retaining the NVE factorization presented in Eq.~\eqref{eq:splitting NVE}, we write the full exponential operator for each time step as in Eq.~\eqref{eq:splitting NVT}. The Hamiltonian propagators introduced in Sec.~\ref{eq:hamiltonian dynamics} already satisfy the criterion in Eq.~\eqref{eq:split_kappa_w} with the function $w$ expressed in Eq.~\eqref{eq:nhc_measure} (they are all incompressible and keep $w$ unchanged). The NHC propagator is further split into factors that also satisfy Eq.~\eqref{eq:split_kappa_w}, which are given by
+\begin{equation*}
+\begin{split}
+&{\mathcal L}_0 = -\alpha_1 \left( \tr{\vt p} \diff{}{\vt p} + \tr{\vt \pi} \diff{}{\vt \pi}\right) + \alpha_1 \diff{}{\eta_1}, \\
+&{\mathcal L}_j = (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} + \alpha_{j+1} \diff{}{\eta_{j+1}}, \label{eq:iL_NHC_j} \\
+&{\mathcal L}_M = G_M \diff{}{p_{\eta_M}},
+\end{split}
+\end{equation*}
+with $j$ varying from $1$ to $M-1$. The action of the propagator $e^{t {\mathcal L}_0}$ is the solution of the equations $\dot{\vt p} = -\alpha_1 \vt p$ and $\dot{\vt \pi} = -\alpha_1 \vt \pi$ and $\dot{\eta}_1 = \alpha_1$, with all other variables remaining constant at their initial values. This results in the scaling operations described in Sec.~\ref{sec:methodology}. In turn, the propagator $e^{t {\mathcal L}_j}$ behaves according to the equations $\dot{p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j}$ and $\dot{\eta}_{j+1} = \alpha_{j+1}$, with all variables other than $p_{\eta_j}$ and $\eta_{j+1}$ kept unchanged. Finally, the propagator $e^{t {\mathcal L}_M}$ involves a unique meaningful differential equation $\dot{p}_{\eta_M} = G_M$.
+
+We remark that the integration scheme proposed by Kamberaj \text{et al}.\cite{Kamberaj_2005} does not fulfill this criterion. 
+
+We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However, as will be shown in the numerical results of Sec.~\ref{sec:numerical_results}, 
 
 \subsection{Backward Error Analysis}
 \label{sec:backward error analysis}
@@ -473,10 +393,10 @@ Let us now represent the operators $\Liu A$ and $\Liu B$ using Poisson brackets 
 This means that the commutator $[\Liu A,\Liu B]$ is, in fact, a new Liouville operator $\Liu C$ whose associated Hamiltonian is $\Ham C = {\Liu A}{\Ham B}$. By applying this procedure recursively, we can rewrite the right-hand side of Eq.~\eqref{eq:symmetric BCH} as $e^{\timestep \Liu S}$, where $\Liu S$ is the Liouville operator whose associated Hamiltonian is
 \begin{equation*}
 \label{eq:general shadow hamiltonian}
-\shadow{\Ham{}} = \Ham A + \Ham B + \frac{h^2}{24} (2 \Liu A + \Liu B){\Liu A}{\Ham B} + \mathcal{O}(h^4).
+\modified{\Ham{}} = \Ham A + \Ham B + \frac{h^2}{24} (2 \Liu A + \Liu B){\Liu A}{\Ham B} + \mathcal{O}(h^4).
 \end{equation*}
 
-Therefore, a splitting method meant to approximately reproduce the dynamics of a system with Hamiltonian $\Ham{} = \Ham A + \Ham B$ will, in fact, reproduce exactly (putting round-off issues aside) the dynamics of another system with Hamiltonian $\shadow{\Ham{}}$ as above. In the literature, $\shadow{\Ham{}}$ is usually referred to as a shadow Hamiltonian.
+Therefore, a splitting method meant to approximately reproduce the dynamics of a system with Hamiltonian $\Ham{} = \Ham A + \Ham B$ will, in fact, reproduce exactly (putting round-off issues aside) the dynamics of another system with Hamiltonian $\modified{\Ham{}}$ as above. In the literature, $\modified{\Ham{}}$ is usually referred to as a shadow Hamiltonian.
 
 The first new result we present here is an analytical form for the shadow Hamiltonian concerning a system of rigid bodies whose dynamics is integrated via the unsplit rotation method of Ref.~\citenum{Silveira_2017}. A detailed derivation is provided in Appendix~\ref{sec:rigid body shadow hamiltonian} and we summarize the final results as follows. First of all, we rewrite the total kinetic energy of the original system, Eq.~\eqref{eq:kinetic energy}, as a quadratic form
 \begin{equation*}
@@ -490,196 +410,149 @@ where $\mt \Omega$ is a symmetric, block-diagonal matrix of size $7N \times 7N$ 
 \end{array}\right].
 \end{equation*}
 
-With $\nabla^2 U$ being the Hessian matrix of the potential energy with respect to the entries of $\vt r$ and $\vt q$, we define a shadow kinetic energy $\shadow K$ as
+With $\nabla^2 U$ being the Hessian matrix of the potential energy with respect to the entries of $\vt r$ and $\vt q$, we define a shadow kinetic energy $\modified K$ as
 \begin{equation*}
-\shadow K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \shadow{\mathbf \Omega}(\vt r, \vt q) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
+\modified K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \modified{\mathbf \Omega}(\vt r, \vt q) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation*}
 where
 \begin{equation*}
-\shadow{\mathbf \Omega} = {\mt \Omega} + \frac{\timestep^2}{6} {\mt \Omega} (\nabla^2 U) \tr{\mt \Omega}.
+\modified{\mathbf \Omega} = {\mt \Omega} + \frac{\timestep^2}{6} {\mt \Omega} (\nabla^2 U) \tr{\mt \Omega}.
 \end{equation*}
 
-Although $\shadow{\mathbf \Omega}$ is still symmetric, it is no longer a block-diagonal matrix like $\mt \Omega$, due to the inter-body interactions accounted for in $U(\vt r, \vt q)$ and to the dependency of forces and torques on both positions and orientations. As a result, the shadow kinetic energy cannot, in principle, be split into independent translational and rotational contributions.
+Although $\modified{\mathbf \Omega}$ is still symmetric, it is no longer a block-diagonal matrix like $\mt \Omega$, due to the inter-body interactions accounted for in $U(\vt r, \vt q)$ and to the dependency of forces and torques on both positions and orientations. As a result, the shadow kinetic energy cannot, in principle, be split into independent translational and rotational contributions.
 
-In addition to $\shadow K$, we also define a shadow potential energy $\shadow U$ as
+In addition to $\modified K$, we also define a shadow potential energy $\modified U$ as
 \begin{equation*}
-\shadow U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau} \tr{\mt A} {\mt I}^{-1} {\mt A} {\vt \tau} \right).
+\modified U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau} \tr{\mt A} {\mt I}^{-1} {\mt A} {\vt \tau} \right).
 \end{equation*}
 
 Finally, the shadow Hamiltonian for a systems of rigid body becomes
 \begin{equation}
-\shadow{\Ham{}} = \shadow K + \shadow U + \mathcal{O}(h^4).
+\modified{\Ham{}} = \modified K + \modified U + \mathcal{O}(h^4).
 \end{equation}
+
+In the development that follows, we consider a single rigid body and, in the end, we generalize the result for a system of rigid bodies. The Hamiltonian is:
+\begin{equation*}
+\Ham{}(\vt r, \vt p, \vt q, \vt \pi) = K(\vt p, \vt q, \vt \pi) + U(\vt r, \vt q),
+\end{equation*}
+where
+\begin{equation*}
+K = \frac{1}{2} \tr{\vt p}{\mt M}^{-1}{\vt p} + \frac{1}{8}\tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi,
+\end{equation*}
+with
+\begin{equation*}
+\mt B(\vt q) = \left[\begin{array}{rrrr}
+-q_2 & -q_3 & -q_4 \\
+q_1 & -q_4 &  q_3 \\
+q_4 &  q_1 & -q_2 \\
+-q_3 &  q_2 &  q_1
+\end{array}\right].
+\end{equation*}
+
+If a splitting is done so that $\Ham A = K(\vt p, \vt q, \vt \pi)$ and $\Ham B = U(\vt r, \vt q)$, then from Eq.~\eqref{eq:general Lioville operator} we have that $\Liu{A} = \tr{K_{\vt p}}\diff{}{\vt r} + \tr{K_{\vt \pi}}\diff{}{\vt q} - \tr{K_{\vt q}}\diff{}{\vt \pi}$ and $\Liu{B} = -\tr{U_{\vt r}}\diff{}{\vt p} - \tr{U_{\vt q}}\diff{}{\vt \pi}$. Therefore, $\Liu A \Ham B = \tr{K_{\vt p}} U_{\vt r} + \tr{K_{\vt \pi}} U_{\vt q}$. This makes
+\begin{align*}
+\Liu A \Liu A \Ham B &= \tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p}
++ 2 \tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p}
++ \tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} \\
+&+ \tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}
+- \tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q},
+\end{align*}
+where the fact that $\tr{U_{\vt q \vt r}} = U_{\vt r \vt q}$ has been exploited. As reported in Ref.~\citenum{Silveira_2017}, the identity $\tr{\mt B}(\vt q) {\vt \pi} = -\tr{\mt B}(\vt \pi) {\vt q}$ is useful for performing differentiations. The first-order derivatives of $K$ with respect to $\vt p$, $\vt q$, and $\vt \pi$ are, respectively,
+\begin{align*}
+&K_{\vt p} = {\mt M}^{-1} {\vt p}, \\
+&K_{\vt q} = -\frac{1}{2} {\mt B}(\vt \pi) {\vt \omega}, \; \text{and} \\
+&K_{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\vt \omega},
+\end{align*}
+where $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi = -\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt \pi) \vt q$ is the vector of angular velocities.\cite{Silveira_2017} Hence,
+\begin{gather*}
+\tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p} = \tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p}, \\
+\tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p} = \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}, \\
+\tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} = \frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega.
+\end{gather*}
+
+As $\diff{\tr{\vt \omega}}{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1}$, the second-order derivative of $K$ with respect to $\vt \pi$ turns out to be
+\begin{equation*}
+K_{\vt \pi \vt \pi} = \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q).
+\end{equation*}
+
+Pre-multiplication by $\tr{K_{\vt q}}$ will introduce a product $\tr{\mt B}(\vt \pi) {\mt B}(\vt q)$, which has been shown in Ref.~\citenum{Silveira_2017} to be equal to ${\mt S}\left( \tr{\mt B}(\vt \pi) {\vt q} \right) = -2 {\mt S}({\mt I} {\vt \omega})$, where the operator ${\mt S}(\cdot)$ builds a skew-symmetric matrix from the entries of a vector. In addition, post-multiplication by $U_{\vt q}$ will introduce a product $\tr{\mt B}(\vt q) U_{\vt q}$, which is equal to $-2 {\vt \tau}^b$, where ${\vt \tau}^b$ is the body-fixed frame representation of the torque. Then, the fact that ${\mt S}(\vt x) {\vt y} = -{\mt S}(\vt y) {\vt x}$ leads to
+\begin{equation*}
+\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = \frac{1}{2} \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega}.
+\end{equation*}
+
+Another helpful identity taken from Appendix B of Ref.~\citenum{Silveira_2017} is ${\mt B}(\vt q){\vt \omega} = ( \sum_{k=1}^3 \omega_k \hat{\mt B}_k ) \vt q$, where each $\hat{\mt B}_k$ is a skew-symmetric permutation matrix (i.e. $\tr{\hat{\mt B}}_k = -\hat{\mt B}_k$). This allows us to obtain
+\begin{align*}
+K_{\vt \pi \vt q} &= \frac{1}{2} (\diff{\tr{\vt \omega}}{\vt q}) \tr{\mt B}(\vt q) + \frac{1}{2} \sum_{k=1}^3 \omega_k \tr{\hat{\mt B}}_k = \\
+&= -\frac{1}{4} {\mt B}(\vt \pi) {\mt I}^{-1} \tr{\mt B}(\vt q) - \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k.
+\end{align*}
+
+Pre-multiplication by $\tr{K_{\vt \pi}}$ and post-multiplying $U_{\vt q}$, followed by some algebraic transformations, ultimately lead to
+\begin{equation*}
+\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q} = -\frac{1}{2} \tr{\vt \omega} \tr{\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega} + \frac{1}{2} \tr{\vt \omega} {\mt S}({\vt \tau}^b){\vt \omega}.
+\end{equation*}
+
+The second term in the right-hand side of the equation above is identically null whenever (a quadratic form whose matrix is skew-symmetric), which makes $\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = -\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}$. Finally,
+\begin{align*}
+\Liu A \Liu A \Ham B = &\tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p} + \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}
++ \\
+&\frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega - \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}_b) {\mt I} {\vt \omega}.
+\end{align*}
+
+The last term above need to be double checked.
+
+For the second part:
+\begin{align*}
+\Liu B \Liu A \Ham B &= -\tr{U_{\vt r}} \tr{K_{\vt p \vt p}} U_{\vt r} - \tr{U_{\vt q}} \tr{K_{\vt \pi \vt \pi}} U_{\vt q} = \\
+&= -\tr{\vt F} {\mt M}^{-1} {\vt F} - \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b.
+\end{align*}
+
+Overall:
+\begin{equation*}
+\Ham S = \frac{1}{2} \tr{\left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \tilde{\mt \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right] + \tilde{U} + \mathcal{O}({\timestep}^4),
+\end{equation*}
+where
+\begin{equation*}
+\tilde{U} = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right)
+\end{equation*}
+and
+\begin{equation*}
+\tilde{\mt \Omega} = {\mt \Omega} + \frac{\timestep^2}{6} \left( {\mt \Omega} {\mt U}_{\vt x \vt x} \tr{\mt \Omega} + {\mt \Gamma} \right)
+\end{equation*}
+with
+\begin{equation*}
+\mt \Omega = \left[\begin{array}{cc}
+{\mt M}^{-1} & \mt 0 \\
+\mt 0 & \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q)
+\end{array}\right],
+\end{equation*}
+\begin{equation*}
+\mt \Gamma = \left[\begin{array}{cc}
+\mt 0 & \mt 0 \\
+\mt 0 & \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} {\mt S}({\mt I}^{-1} {\vt \tau}_b) \tr{\mt B}(\vt q)
+\end{array}\right],
+\end{equation*}
+and
+\begin{equation*}
+{\mt U}_{\vt x \vt x} = \left[\begin{array}{cc}
+U_{\vt r \vt r} & U_{\vt r \vt q} \\
+U_{\vt q \vt r} & U_{\vt q \vt q}
+\end{array}\right].
+\end{equation*}
 
 \subsection{Generalized Equipartition}
 
-The important thing is that $\shadow{\mathbf \Omega}$ depends exclusively on the positions and orientations, which makes $\left[\begin{array}{c} \diff{\shadow K}{\vt p} \\ \diff{\shadow K}{\vt \pi} \end{array}\right] = \shadow{\mathbf \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]$. In this way, the equipartition theorem (valid at least in this direction? something to do with integrating through momenta at least internally to the integral in coordinates?) states that
+The important thing is that $\modified{\mathbf \Omega}$ depends exclusively on the positions and orientations, which makes $\left[\begin{array}{c} \diff{\modified K}{\vt p} \\ \diff{\modified K}{\vt \pi} \end{array}\right] = \modified{\mathbf \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]$. In this way, the equipartition theorem (valid at least in this direction? something to do with integrating through momenta at least internally to the integral in coordinates?) states that
 \begin{equation*}
 3N k_B T = \left\langle \tr{\vt p} \diff{\tilde K}{\vt p} \right\rangle = 2\langle \tilde K \rangle
 \end{equation*}
-
-
-
-
-\subsection{Canonical Ensemble}
-\label{sec:canonical}
-
-Knowledge about the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010b} In this context, invaluable tools have been devised for the development and analysis of simulation methods based on the concept of extended phase space. Sergi and Ferrario\cite{Sergi_2001} describe a simple way of systematically generating conservative trajectories in an arbitrary phase space. If vector $\vt x$ represents a phase-space point, $H(\vt x)$ is a scalar field, and $\boldsymbol{\mathcal B}(\vt x)$ is a matrix-valued function, then the equation of motion
-\begin{equation} \label{eq:eq_of_motion}
-\dot{\vt x} = \boldsymbol{\mathcal B}\diff{H}{\vt x}
-\end{equation}
-will generate a flow that conserves the value of $H$, provided that $\boldsymbol{\mathcal B}$ is skew-symmetric (that is, $\tr{ \boldsymbol{ \mathcal B }} = -\boldsymbol{ \mathcal B }$). A generalized Liouville operator can then be defined as\cite{Sergi_2004}
-\[
-i\!L = \tr{\dot{\vt x}}\diff{}{\vt x} = \tr{\left(\diff{H}{\vt x}\right)} \tr{\boldsymbol{\mathcal B}} \diff{}{\vt x}.
-\]
-
-The system might exhibit a non-vanishing phase-space compressibility $\kappa(\vt x) = \sum_j \partial \dot{x}_j/\partial x_j$ if any variable in $\vt x$ affects its own time-derivative. According to Tuckerman and coworkers,\cite{Tuckerman_1999, Tuckerman_2001} although the phase-space volume element $d\vt x$ is no longer conserved, there exits an invariant measure $e^{-w(\vt x)}d\vt x$, where $w(\vt x)$ is the indefinite time integral of $\kappa(\vt x)$. Using the generalized Liouville operator, such relation between $\kappa$ and $w$ can be written as
-\begin{equation}
-\label{eq:relation_kappa_w}
-\kappa = \dot w = i\!L w.
-\end{equation}
-
-We employ the technique of Sergi and Ferrario\cite{Sergi_2001} to couple a single Nos\'e-Hoover chain\cite{Martyna_1992} (NHC) composed of $M$ thermostats to a system of $N$ rigid bodies. This is simpler than the approach of Kamberaj \textit{et al}.,\cite{Kamberaj_2005} who employed two thermostat chains independently coupled to the translational and rotational degrees of freedom. To this end, we consider extra coordinates $\eta_j$ and their conjugate momenta $p_{\eta_j}$, for $j$ ranging from $1$ to $M$. The conserved ``extended Hamiltonian'' in this case is
-\begin{equation}
-\label{eq:H_nvt}
-H = \mathcal{H}(\vt r,\vt p,\vt q,\vt \pi) + \sum_{j=1}^{M}\frac{p_{\eta_j}^2}{2Q_j} + L k_b T\eta_1 + k_b T\sum_{j=2}^M \eta_j,
-\end{equation}
-where $\mathcal H$ is the same as in Eq.~\eqref{eq:H_NVE}, $k_b T$ is the Boltzmann constant multiplied by the system temperature, $L$ is a constant to be determined, and each $Q_j$ is an inertial parameter of thermostat $j$. As recommended in Ref.~\citenum{Martyna_1992}, one can make $Q_1 = L k_b T t_d^2$ and $Q_j = k_b T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the system. The equations of motion regarding generalized coordinates are identical to those of a Hamiltonian system, i.e. $\dot{\vt r}_i = {\partial H}/{\partial \vt p_i}$ and $\dot{\vt q}_i = {\partial H}/{\partial \vt \pi_i}$ for every particle $i$ and $\dot{\eta}_j = {\partial H}/{\partial {p_\eta}_j}$ for every thermostat $j$. However, the equations of motion for generalized momenta contain non-Hamiltonian terms. For instance, the first thermostat of the chain acts on the translational and rotational momenta of each particle $i$ as
-\[
-\begin{split}
-\dot{\vt p}_i &= -\diff{H}{\vt r_i} - {\vt p}_i \diff{H}{p_{\eta_1}} \quad \text{and} \\
-\dot{\vt \pi}_i &= -\diff{H}{\vt q_i} - {\vt \pi}_i \diff{H}{p_{\eta_1}}.
-\end{split}
-\]
-
-In the right-hand side of each equation above, the first term fulfills the skew-symmetry condition with respect to the corresponding coordinate while the second term enacts the coupling with the mentioned thermostat. In turn, the equation of motion for $p_{\eta_1}$ must contain terms to ensure skew-symmetry with respect to the equations already shown, along with a term regarding the action of a second thermostat. The result is
-\[
-{\dot p}_{\eta_1} = \sum_{i=1}^N \left( \tr{\vt p_i} \diff{H}{\vt p_i} + \tr{\vt \pi_i} \diff{H}{\vt \pi_i}\right) - \diff{H}{\eta_1} - p_{\eta_1} \diff{H}{p_{\eta_2}}.
-\]
-
-Each additional thermostat will then act on the preceding one, and be acted upon by the succeeding one. Therefore, for $j$ from $2$ to $M-1$, the equations of motion are
-\[
-{\dot p}_{\eta_j} = -\diff{H}{\eta_j} + p_{\eta_{j-1}} \diff{H}{p_{\eta_{j-1}}} - p_{\eta_j} \diff{H}{p_{\eta_{j+1}}}.
-\]
-
-Given that the last thermostat will just act on the previous one, its equation of motion can be obtained by simply replacing $j = M$ and removing the last term in the equation above. Therefore, the equations of motion for a system of rigid bodies coupled to a single Nos\'e-Hoover chain become
-\begin{subequations}
-\label{eq:nhc_system}
-\begin{align}
-&\dot{\vt r}_i = \frac{{\vt p}_i}{m_i} \\ 
-&\dot{\vt p}_i = {\vt F}_i - \alpha_1 \vt p_i \label{eq:nhc_p} \\
-&\dot{\vt q}_i = \frac{1}{2} \mt B_i \vt \omega_i \label{eq:nhc_q} \\
-&\dot{\vt \pi}_i = \frac{1}{2} \mt \Omega_i \vt \omega_i + 2 \mt C_i \vt \tau_i - \alpha_1 \vt \pi_i \label{eq:nhc_pi} \\
-&\dot{\eta}_j = \alpha_j \label{eq:nhc_eta} \\
-&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j}  \label{eq:nhc_p_eta}
-\end{align}
-\end{subequations}
-
-In the equations above, ${\vt \omega}_i$ $=$ $\frac{1}{2} {\mt I}_i^{-1} \tr{\mt B}_i {\vt \pi}_i$, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $j \leq M$ and $\alpha_{M+1} = 0$, while
-\begin{align*}
-&G_1 = \sum_{i=1}^N \left( \frac{\tr{\vt p}_i{\vt p}_i}{m_i} + \tr{\vt \omega}_i \mt I_i \vt \omega_i \right) - L k_b T \quad \text{and}\\
-&G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_b T \qquad \text{for} \; j > 1.
-\end{align*}
-
-Note that the $3N$ momentum components in Eq.~\eqref{eq:nhc_p}, the $4N$ components in Eq.~\eqref{eq:nhc_pi}, and the thermostat momenta in Eq.~\eqref{eq:nhc_p_eta} affect their own time-derivatives. Thus, the thermostatted system has a phase-space compressibility $\kappa = -7N \alpha_1 - \sum_j \alpha_{j+1}$. Resorting to Eq.~\eqref{eq:nhc_eta} and the fact that $\alpha_{M+1} = 0$, the function $w(\vt x)$ that determines the invariant phase-space measure is given by
-\begin{equation}
-\label{eq:nhc_measure}
-w = -7N \eta_1 - \sum_{j=2}^M \eta_j.
-\end{equation}
-
-Finally, analysis of the probability distribution generated by the canonical equations of motion can be carried out via the generalized phase-space analysis of Tuckerman \textit{et al}.\cite{Tuckerman_2001} For this, conservation laws must be identified and driven variables must be eliminated. For a system without external forces, the extended energy $H$ and the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i = \vt K$ are integrals of motion, while the center-of-mass position can be considered as a driven variable.\cite{Tuckerman_2001} Moreover, $2N$ equations must be eliminated from the system due to the constraints involving $\vt q_i$ and $\vt \pi_i$ for all $i$. In the general case, by taking all these facts into account and applying the analysis of Ref.~\citenum{Tuckerman_2001}, we can deduce that the metric determinant factor of the effective phase space is $\sqrt{g} = e^{(6N-2) \eta_1 + \sum_{j=2}^M \eta_j}$ and that the correct canonical distribution is attained if one makes $L = 6N$. In the particular (and rather common) situation in which one sets $\vt P = \vt 0$ at the beginning of a simulation, one must make $L = 6N - 3$ because all three elements of $\vt P$ will be conserved.\cite{Martyna_1994}
-
-\subsection{Reversible, Measure-Preserving Integration of the Canonical Equations of Motion}
-\label{sec:numerical_solvers}
-As in the Hamiltonian case, the evolution of a phase-space function $f(\vt r, \vt p, \vt q, \vt \pi, \vt \eta,{\vt p}_\eta)$ is given by the relation $f(t) = e^{t i\!L}f_0$, but now in the context of the generalized Liouville theorem.\cite{Tuckerman_1999, Tuckerman_2001} Thus, we can employ the Trotter-Suzuki splitting to devise a time-reversible algorithm for integrating the equations of motion. In the microcanonical case, each separate term of the Liouville operator is Hamiltonian and, therefore, each factor of the splitting is a symplectic propagator. As a result, the whole propagator is symplectic and thus preserves the phase-space volume element. It is widely recognized that this property is important for numerical stability.\cite{Skeel_1997} In the case of non-Hamiltonian systems, Ezra\cite{Ezra_2006} introduced a systematic method for deriving accurate integrators which are not only time-reversible, but also preserve the phase-space measure associated with the original equations of motion. In short, a factorization scheme will preserve a given measure $e^{-w(\vt x)}d\vt x$ if each individual propagator preserves the same measure. As the author has shown,\cite{Ezra_2006} for a particular splitting $i\!L = \sum_k i\!L^{(k)}$, measure preservation will take place if $\sum_j \tfrac{\partial}{\partial x_j} [e^{-w(\vt x)}\dot{x}_j^{(k)}] = 0$ for all $k$. Here, $\dot{\vt x}^{(k)}$ refers to the system of equations obtained from the individual operator $i\!L^{(k)}$, which might display its own compressibility $\kappa^{(k)} = \sum_j \partial \dot{x}_j^{(k)}/\partial x_j$. By means of the product rule, it is straightforward to devise an equivalent but more meaningful criterion, which is
-\begin{equation}
-\label{eq:split_kappa_w}
-\kappa^{(k)} = i\!L^{(k)} w.
-\end{equation}
-
-Therefore, if the function $w(\vt x)$ that derives from Eq.~\eqref{eq:relation_kappa_w} also satisfies Eq.~\eqref{eq:split_kappa_w} for all $k$, then the corresponding factorization will preserve the measure $e^{-w(\vt x)}d\vt x$. Here, we propose and compare two distinct measure-preserving integrators for a rigid-body system coupled to a single thermostat chain. In the first one, the generalized Liouville operator is written as $i\!L = i\!L_\text{NVE} + i\!L_\text{NHC}$, where $i\!L_\text{NVE}$ is defined as in Eq.~\eqref{eq:full_operator} and, as it follows from Eq.~\eqref{eq:nhc_system},
-\begin{equation}
-\label{eq:iL_NHC}
-\begin{split}
-i\!L_\text{NHC} = &-\alpha_1 \sum_{i=1}^N \left( \tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \\
-&+ \sum_{j=1}^{M} \left[\alpha_j \diff{}{\eta_j} + (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}}\right].
-\end{split}
-\end{equation}
-
-Then, by retaining the NVE factorization presented in Eq.~\eqref{eq:trotter_splitting_NVE}, we write the full exponential operator for each time step as
-\begin{equation}
-\label{eq:trotter_splitting_NHC}
-e^{\timestep i\!L} = e^{\frac{\timestep}{2} i\!L_\text{NHC}} e^{\frac{\timestep}{2} i\!L_b} e^{\timestep i\!L_r} e^{\timestep i\!L_t}  e^{\frac{\timestep}{2} i\!L_b} e^{\frac{\timestep}{2} i\!L_\text{NHC}}.
-\end{equation}
-
-The boost, translation, and rotation propagators already satisfy the criterion in Eq.~\eqref{eq:split_kappa_w} with the function $w$ expressed in Eq.~\eqref{eq:nhc_measure} (they are all incompressible and keep $w$ unchanged). The NHC propagator is further split into factors that also satisfy Eq.~\eqref{eq:split_kappa_w}, whichnare given by
-
-\begin{subequations}
-\begin{align}
-i\!L_\text{NHC}^{(0)} &= -\alpha_1 \sum_{i=1}^N \left( \tr{\vt p}_i \diff{}{\vt p_i} + \tr{\vt \pi}_i \diff{}{\vt \pi_i}\right) + \alpha_1 \diff{}{\eta_1}, \\
-i\!L_\text{NHC}^{(j)} &= (G_j - \alpha_{j+1} p_{\eta_j}) \diff{}{p_{\eta_j}} + \alpha_{j+1} \diff{}{\eta_{j+1}}, \label{eq:iL_NHC_j} \\
-i\!L_\text{NHC}^{(M)} &= G_M \diff{}{p_{\eta_M}},
-\end{align}
-\end{subequations}
-with $j$ varying from $1$ to $M-1$ in Eq.~\eqref{eq:iL_NHC_j}. Then, each propagator $e^{\frac{\timestep}{2} i\!L_\text{NHC}}$ present in Eq.~\eqref{eq:iL_NHC} is factorized as
-\[
-e^{\frac{\timestep}{2} i\!L_\text{NHC}} = \Bigg[ \prod_{j=M}^1 e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg] e^{\frac{\timestep}{2} i\!L_\text{NHC}^{(0)} } \Bigg[ \prod_{j=1}^M e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg].
-\]
-
-The action of the propagator $e^{t i\!L_\text{NHC}^{(0)}}$ is the solution of the equations $\dot{\vt p}_i = -\alpha_1 \vt p_i$ and $\dot{\vt \pi}_i = -\alpha_1 \vt \pi_i$ for all $i \in [1,N]$ and $\dot{\eta}_1 = \alpha_1$, with all other variables remaining constant at their initial values. This system can be solved analytically, which results in
-\begin{align*}
-&\vt p_i(t) = \vt p_i^0 e^{-\alpha_1 t} \\
-&\vt \pi_i(t) = \vt \pi_i^0 e^{-\alpha_1 t} \\
-&\eta_1(t) = \eta_1^0 + \alpha_1 t
-\end{align*}
-
-In turn, the propagator $e^{t i\!L_\text{NHC}^{(j)}}$ defined in Eq.~\eqref{eq:iL_NHC_j} behaves according to the equations $\dot{p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j}$ and $\dot{\eta}_{j+1} = \alpha_{j+1}$, with all variables other than $p_{\eta_j}$ and $\eta_{j+1}$ kept unchanged, whose analytical solution is
-\begin{align*}
-&p_{\eta_j}(t) = p_{\eta_j}^0 + \Big( G_j - \alpha_{j+1} p_{\eta_j}^0 \Big) \phi\left(\alpha_{j+1} t\right) t \\
-&\eta_{j+1}(t) = \eta_{j+1}^0 + \alpha_{j+1} t
-\end{align*}
-where $\phi(x) = (1-e^{-x})/x$. We might note that, in order to avoid numerical issues with $x \rightarrow 0$, we evaluate $\phi(x)$ as $\sum_{n=0}^3 {(-1)^n x^n}/{(n+1)!}$ whenever $|x| \leq 10^{-4}$. The solution above is equivalent to that found in Ref.~\citenum{Martyna_1996}.
-
-Finally, the propagator $e^{t i\!L_\text{NHC}^{(M)}}$ involves a unique differential equation $\dot{p}_{\eta_M} = G_M$, whose solution is
-\[
-p_{\eta_M}(t) = p_{\eta_M}^0 + G_M t.
-\]
-
-The second splitting scheme we propose here relies on the definition of the operator
-\begin{align*}
-i\!L_b^\ast &= \sum_{i=1}^N \left( \tr{\vt F}_i - \alpha_1 \tr{\vt p}_i \right) \diff{}{\vt p_i} \\
-&+ \sum_{i=1}^N \left(2 \tr{\vt \tau}_i \tr{\mt C}_i - \alpha_1 \tr{\vt \pi}_i \right) \diff{}{\vt \pi_i} + \alpha_1 \diff{}{\eta_1},
-\end{align*}
-with which analytical solutions can also be derived for the system of equations $\dot{\vt p}_i = {\vt F}_i - \alpha_1 \vt p_i$ and $\dot{\vt \pi}_i = 2 \mt C_i \vt \tau_i - \alpha_1 \vt \pi_i$ for all $i \in [1,N]$ if all other variables are constant. These equations are equivalent in form to the ones solved above, so we get
-\begin{align*}
-&{\vt p}_i(t) = {\vt p}_i^0 + \left({\vt F}_i - \alpha_1 {\vt p}_i^0 \right) \phi\left(\alpha_1 t \right) t \\
-&{\vt \pi}_i(t) = {\vt \pi}_i^0 + \left(2 {\mt C}_i{\vt \tau}_i - \alpha_1 {\vt \pi}_i^0 \right) \phi\left(\alpha_1 t \right) t \\
-&\eta_1(t) = \eta_1^0 + \alpha_1 t
-\end{align*}
-
-In the new propagator, $e^{\frac{\timestep}{2} i\!L_\text{NHC}^{(0)} }$ is removed:
-\[
-e^{\frac{\timestep}{2} i\!L_\text{NHC}^\ast} = \Bigg[ \prod_{j=M}^2 e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg] e^{\frac{\timestep}{2} i\!L_\text{NHC}^{(1)} } \Bigg[ \prod_{j=2}^M e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg].
-\]
-
-We remark that the integration scheme proposed by Kamberaj \text{et al}.\cite{Kamberaj_2005} does not fulfill this criterion. 
-Finally, the complete scheme is
-\begin{equation}
-\label{eq:modified_splitting}
-\begin{split}
-e^{\timestep i\!L} = e^{\frac{\timestep}{2} i\!L_\text{NHC}^\ast} e^{\frac{\timestep}{2} i\!L_b^\ast} e^{\timestep i\!L_r} e^{\timestep i\!L_t}  e^{\frac{\timestep}{2} i\!L_b^\ast} e^{\frac{\timestep}{2} i\!L_\text{NHC}^\ast}.
-\end{split}
-\end{equation}
-
-We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However, as will be shown in the numerical results of Sec.~\ref{sec:numerical_results}, 
 
 \subsection{Sampling Validation}
 \label{sec:samplingvalidation}
 
 In this subsection we briefly review a simple method that serves for checking the consistency between the sampled and theoretical energy distributions. The procedures, implemented by Shirts,\cite{Shirts_2013} rely on quantitative statistical analysis of fitting, and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too. First, recall that in the NVT ensemble the probability of observing an energy E is given by
-\[
+\begin{equation*}
 P(E/\beta) = Q(\beta)^{-1}\Omega(E)\exp\left(-\beta E\right),
-\]
+\end{equation*}
 where $ \Omega(E) $ is the density of states, which does not depend on $ \beta $, and $ Q(\beta) $  is the canonical partition function, linked to the Helmholtz Free Energy $ (A) $ by $A = -\beta^{-1}\ln(Q)$. 
 
 Taking the ratio of the probability distributions at different temperatures, the unknown density of states cancels out and we get
@@ -879,117 +752,6 @@ by contrast
 
 \appendix
 
-\section{Shadow Hamiltonian of Rigid Bodies}
-\label{sec:rigid body shadow hamiltonian}
-
-In the development that follows, we consider a single rigid body and, in the end, we generalize the result for a system of rigid bodies. The Hamiltonian is:
-\begin{equation*}
-\Ham{}(\vt r, \vt p, \vt q, \vt \pi) = K(\vt p, \vt q, \vt \pi) + U(\vt r, \vt q),
-\end{equation*}
-where
-\begin{equation*}
-K = \frac{1}{2} \tr{\vt p}{\mt M}^{-1}{\vt p} + \frac{1}{8}\tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi,
-\end{equation*}
-with
-\begin{equation*}
-\mt B(\vt q) = \left[\begin{array}{rrrr}
--q_2 & -q_3 & -q_4 \\
-q_1 & -q_4 &  q_3 \\
-q_4 &  q_1 & -q_2 \\
--q_3 &  q_2 &  q_1
-\end{array}\right].
-\end{equation*}
-
-If a splitting is done so that $\Ham A = K(\vt p, \vt q, \vt \pi)$ and $\Ham B = U(\vt r, \vt q)$, then from Eq.~\eqref{eq:general Lioville operator} we have that $\Liu{A} = \tr{K_{\vt p}}\diff{}{\vt r} + \tr{K_{\vt \pi}}\diff{}{\vt q} - \tr{K_{\vt q}}\diff{}{\vt \pi}$ and $\Liu{B} = -\tr{U_{\vt r}}\diff{}{\vt p} - \tr{U_{\vt q}}\diff{}{\vt \pi}$. Therefore, $\Liu A \Ham B = \tr{K_{\vt p}} U_{\vt r} + \tr{K_{\vt \pi}} U_{\vt q}$. This makes
-\begin{align*}
-\Liu A \Liu A \Ham B &= \tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p}
-+ 2 \tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p}
-+ \tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} \\
-&+ \tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}
-- \tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q},
-\end{align*}
-where the fact that $\tr{U_{\vt q \vt r}} = U_{\vt r \vt q}$ has been exploited. As reported in Ref.~\citenum{Silveira_2017}, the identity $\tr{\mt B}(\vt q) {\vt \pi} = -\tr{\mt B}(\vt \pi) {\vt q}$ is useful for performing differentiations. The first-order derivatives of $K$ with respect to $\vt p$, $\vt q$, and $\vt \pi$ are, respectively,
-\begin{align*}
-&K_{\vt p} = {\mt M}^{-1} {\vt p}, \\
-&K_{\vt q} = -\frac{1}{2} {\mt B}(\vt \pi) {\vt \omega}, \; \text{and} \\
-&K_{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\vt \omega},
-\end{align*}
-where $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) \vt \pi = -\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt \pi) \vt q$ is the vector of angular velocities.\cite{Silveira_2017} Hence,
-\begin{gather*}
-\tr{K_{\vt p}} U_{\vt r \vt r} K_{\vt p} = \tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p}, \\
-\tr{K_{\vt \pi}} U_{\vt r \vt q} K_{\vt p} = \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}, \\
-\tr{K_{\vt \pi}} U_{\vt q \vt q} K_{\vt \pi} = \frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega.
-\end{gather*}
-
-As $\diff{\tr{\vt \omega}}{\vt \pi} = \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1}$, the second-order derivative of $K$ with respect to $\vt \pi$ turns out to be
-\begin{equation*}
-K_{\vt \pi \vt \pi} = \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q).
-\end{equation*}
-
-Pre-multiplication by $\tr{K_{\vt q}}$ will introduce a product $\tr{\mt B}(\vt \pi) {\mt B}(\vt q)$, which has been shown in Ref.~\citenum{Silveira_2017} to be equal to ${\mt S}\left( \tr{\mt B}(\vt \pi) {\vt q} \right) = -2 {\mt S}({\mt I} {\vt \omega})$, where the operator ${\mt S}(\cdot)$ builds a skew-symmetric matrix from the entries of a vector. In addition, post-multiplication by $U_{\vt q}$ will introduce a product $\tr{\mt B}(\vt q) U_{\vt q}$, which is equal to $-2 {\vt \tau}^b$, where ${\vt \tau}^b$ is the body-fixed frame representation of the torque. Then, the fact that ${\mt S}(\vt x) {\vt y} = -{\mt S}(\vt y) {\vt x}$ leads to
-\begin{equation*}
-\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = \frac{1}{2} \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega}.
-\end{equation*}
-
-Another helpful identity taken from Appendix B of Ref.~\citenum{Silveira_2017} is ${\mt B}(\vt q){\vt \omega} = ( \sum_{k=1}^3 \omega_k \hat{\mt B}_k ) \vt q$, where each $\hat{\mt B}_k$ is a skew-symmetric permutation matrix (i.e. $\tr{\hat{\mt B}}_k = -\hat{\mt B}_k$). This allows us to obtain
-\begin{align*}
-K_{\vt \pi \vt q} &= \frac{1}{2} (\diff{\tr{\vt \omega}}{\vt q}) \tr{\mt B}(\vt q) + \frac{1}{2} \sum_{k=1}^3 \omega_k \tr{\hat{\mt B}}_k = \\
-&= -\frac{1}{4} {\mt B}(\vt \pi) {\mt I}^{-1} \tr{\mt B}(\vt q) - \frac{1}{2} \sum_{k=1}^3 \omega_k \hat{\mt B}_k.
-\end{align*}
-
-Pre-multiplication by $\tr{K_{\vt \pi}}$ and post-multiplying $U_{\vt q}$, followed by some algebraic transformations, ultimately lead to
-\begin{equation*}
-\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q} = -\frac{1}{2} \tr{\vt \omega} \tr{\mt S}({\mt I}^{-1} {\vt \tau}^b) {\mt I} {\vt \omega} + \frac{1}{2} \tr{\vt \omega} {\mt S}({\vt \tau}^b){\vt \omega}.
-\end{equation*}
-
-The second term in the right-hand side of the equation above is identically null whenever (a quadratic form whose matrix is skew-symmetric), which makes $\tr{K_{\vt q}} K_{\vt \pi \vt \pi} U_{\vt q} = -\tr{K_{\vt \pi}} K_{\vt \pi \vt q} U_{\vt q}$. Finally,
-\begin{align*}
-\Liu A \Liu A \Ham B = &\tr{\vt p} {\mt M}^{-1} U_{\vt r \vt r} {\mt M}^{-1} {\vt p} + \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt r \vt q} {\mt M}^{-1} {\vt p}
-+ \\
-&\frac{1}{4} \tr{\vt \omega} \tr{\mt B}(\vt q) U_{\vt q \vt q} {\mt B}(\vt q) \vt \omega - \tr{\vt \omega} {\mt S}({\mt I}^{-1} {\vt \tau}_b) {\mt I} {\vt \omega}.
-\end{align*}
-
-The last term above need to be double checked.
-
-For the second part:
-\begin{align*}
-\Liu B \Liu A \Ham B &= -\tr{U_{\vt r}} \tr{K_{\vt p \vt p}} U_{\vt r} - \tr{U_{\vt q}} \tr{K_{\vt \pi \vt \pi}} U_{\vt q} = \\
-&= -\tr{\vt F} {\mt M}^{-1} {\vt F} - \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b.
-\end{align*}
-
-Overall:
-\begin{equation*}
-\Ham S = \frac{1}{2} \tr{\left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \tilde{\mt \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right] + \tilde{U} + \mathcal{O}({\timestep}^4),
-\end{equation*}
-where
-\begin{equation*}
-\tilde{U} = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right)
-\end{equation*}
-and
-\begin{equation*}
-\tilde{\mt \Omega} = {\mt \Omega} + \frac{\timestep^2}{6} \left( {\mt \Omega} {\mt U}_{\vt x \vt x} \tr{\mt \Omega} + {\mt \Gamma} \right)
-\end{equation*}
-with
-\begin{equation*}
-\mt \Omega = \left[\begin{array}{cc}
-{\mt M}^{-1} & \mt 0 \\
-\mt 0 & \frac{1}{2} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q)
-\end{array}\right],
-\end{equation*}
-\begin{equation*}
-\mt \Gamma = \left[\begin{array}{cc}
-\mt 0 & \mt 0 \\
-\mt 0 & \frac{1}{4} {\mt B}(\vt q) {\mt I}^{-1} {\mt S}({\mt I}^{-1} {\vt \tau}_b) \tr{\mt B}(\vt q)
-\end{array}\right],
-\end{equation*}
-and
-\begin{equation*}
-{\mt U}_{\vt x \vt x} = \left[\begin{array}{cc}
-U_{\vt r \vt r} & U_{\vt r \vt q} \\
-U_{\vt q \vt r} & U_{\vt q \vt q}
-\end{array}\right].
-\end{equation*}
-
 \bibliography{rigid_bodies}
 %\begin{table*}
 %	\caption{Results with Exact Solution for Free Rotations}
@@ -1026,7 +788,7 @@ U_{\vt q \vt r} & U_{\vt q \vt q}
 %		\label{table:denvt}
 %		\begin{ruledtabular}
 %			\begin{tabular}{ccccc}
-%				& \multicolumn{2}{c}{Eq.~\ref{eq:trotter_splitting_NHC}} & \multicolumn{2}{c}{Eq.~%\ref{eq:modified_splitting}} \\
+%				& \multicolumn{2}{c}{Eq.~\eqref{eq:trotter_splitting_NHC}} & \multicolumn{2}{c}{Eq.~%\eqref{eq:modified_splitting}} \\
 %				\cline{2-5}
 %				$\timestep$/fs & $D\!E$ & $T$/K & $D\!E$ & $T$/K \\
 %				\hline
@@ -1043,9 +805,9 @@ U_{\vt q \vt r} & U_{\vt q \vt q}
 %\end{table}
 
 %The Nos\'e-Hoover chain propagator is further split by making $i\!L_\text{NHC} = \sum_{j=0}^M i\!L_%\text{NHC}^{(j)}$ and, afterwards,
-%\[
+%\begin{equation*}
 %e^{\frac{\timestep}{2} i\!L_\text{NHC}} = \Pi_{j=1}^n \Bigg[ \prod_{j=M}^1 e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg] e^{\frac{\timestep}{2} i\!L_\text{NHC}^{(0)} } \Bigg[ \prod_{j=1}^M e^{\frac{\timestep}{4} i\!L_\text{NHC}^{(j)} } \Bigg].
-%\]
+%\end{equation*}
 
 %In order to satisfy the criterion in Eq.~\eqref{eq:split_kappa_w} for all factors, given the function $w$ expressed in Eq.~\eqref{eq:nhc_measure}, we further split the NHC contribution as $i\!L_\text{NHC} = \sum_{j=0}^M i\!L_\text{NHC}^{(j)}$, where
 
@@ -1058,9 +820,9 @@ U_{\vt q \vt r} & U_{\vt q \vt q}
 %\end{subequations}
 
 %By evaluating these functions simultaneously for all $i$, we accomplish the effect of a propagator $e^{t i%\!L_b^\ast}$, where $i\!L_b^\ast$ is the Liouville operator given by
-%\[
+%\begin{equation*}
 %i\!L_b^\ast = \sum_{i=1}^N \left[ \left( \tr{\vt F}_i - \alpha_1 \tr{\vt p}_i \right) \diff{}{\vt p_i} + \left(2 \tr{\vt \tau}_i \tr{\mt C}_i - \alpha_1 \tr{\vt \pi}_i \right) \diff{}{\vt \pi_i} \right].
-%\]
+%\end{equation*}
 %We also define a modified Nos\'e-Hoover chain propagator $e^{i\!L^\ast_\text{NHC}}$, as follows:
 %\begin{equation}
 %\begin{split}
