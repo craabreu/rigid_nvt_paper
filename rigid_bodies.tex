@@ -85,8 +85,10 @@ In this paper, we derive time reversible and measure-preserving numerical integr
 
 The paper is organized as follows. In Sec.~\ref{sec:theory} we briefly review the equations of motion in the NVE ensemble, which are the basis for developing the corresponding dynamics in the NVT ensemble. In Sec.~\ref{sec:numerical_solvers} we devise the corresponding numerical integrators, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}. Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
 
-\section{Proposed Method}
+\section{Proposed Methodology}
 \label{sec:methodology}
+
+\subsection{NVE Dynamics: Notation and Symplectic Integration}
 
 In a previous paper \cite{Silveira_2017}, we took advantage of a particular factorization of the orientation matrix expressed in terms of quaternion components to 1) derive a new exact solution for torque-free rotations and use it as part of a symplectic numerical integrator for the motion of rigid bodies and 2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002} as a sequence of uniform rotations around the principal axes of a body, thus unveiling its equivalence to a method previously developed by Dullweber and co-workers \cite{Dullweber_1997}.
 
@@ -121,7 +123,9 @@ with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$. In the
  q_4 &  q_1 & -q_2 \\
 -q_3 &  q_2 &  q_1
 \end{smallarray}
+%
 \; \text{and} \;
+%
 \mt C(\vt q) = \begin{smallarray}{rrrr}
 -q_2 & -q_3 & -q_4 \\
  q_1 &  q_4 & -q_3 \\
@@ -152,9 +156,18 @@ e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Li
 \end{equation}
 where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$. In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state immediately before the propagation occurs. The action of $e^{\timestep \Liu{A}}$ is a simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step.
 
-Description of analytical and NO\_SQUISH rotations...
+Brief description of analytical and NO-SQUISH rotations...
 
-Here we propose a new method for simulating a system of rigid bodies in the canonical ensemble. For this, we couple a single Nos\'{e}-Hoover thermostat chain \cite{Martyna_1992} to all translational and rotational degrees of freedom of the rigid-body system. This is simpler than the approach of Kamberaj \textit{et al}.,\cite{Kamberaj_2005} who employed separate thermostat chains to these two classes of movement. To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momentum $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$. The equations of motion, in this case, are
+\subsection{NVT Dynamics with a Single Thermostat Chain}
+
+Here we propose a new method for simulating a system of rigid bodies in the canonical ensemble. For this, we couple a single Nos\'{e}-Hoover thermostat chain \cite{Martyna_1992} to all translational and rotational degrees of freedom of the rigid-body system. This is simpler than the approach of Kamberaj \textit{et al}.,\cite{Kamberaj_2005} who employed separate thermostat chains to these two classes of movement. To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momentum $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$. The flow in the extended phase-space no longer conserves the Hamiltonian $\Ham{}$, but an ``extended energy'' given by \cite{Martyna_1992}
+\begin{equation}
+\label{eq:nvt extended energy}
+H = \Ham{} + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j,
+\end{equation}
+where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, $L$ is a constant to be determined, and each $Q_j$ is an inertial parameter. As recommended in Ref.~\citenum{Martyna_1992}, we can make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the thermostat chain.
+
+Knowledge on the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010_2} Invaluable tools have been devised for the development and analysis of extended phase space methods. By employing the method of Sergi and Ferrario \cite{Sergi_2001}, we obtain the equations of motion for the NVT dynamics with a single thermostat chain, which are
 \begin{subequations}
 	\label{eq:ODE system for NVT}
 	\begin{align}
@@ -169,7 +182,7 @@ Here we propose a new method for simulating a system of rigid bodies in the cano
 %
 \label{eq:nhc_q}
 	&\dot{\vt q} =
-	\frac{1}{2} \mt B(\vt q) \vt \omega, \text{ and} \\
+	\frac{1}{2} \mt B(\vt q) \vt \omega, \\
 %
 \label{eq:nhc_pi}
 	&\dot{\vt \pi} =
@@ -179,25 +192,24 @@ Here we propose a new method for simulating a system of rigid bodies in the cano
 	&\dot{\eta}_j = \alpha_j, \text{ and} \\
 %
 \label{eq:nhc_p_eta}
-	&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j} \qquad \text{for} \quad 1 \leq j \le M,
+	&{\dot p}_{\eta_j} = G_j - \alpha_{j+1} p_{\eta_j} \qquad \text{for} \quad 1 \leq j \le M.
 	\end{align}
 \end{subequations}
 
-In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and $\alpha_{M+1} = 0$, where $Q_j$ is an inertial parameter for the corresponding thermostat. Besides, $G_j$ is a generalized force acting on thermostat $j$, defined as
+In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and $\alpha_{M+1} = 0$. Besides, $G_j$ is a generalized force acting on thermostat $j$, defined as
 \begin{subequations}
 \begin{align}
 \label{eq:generalized force NVT}
 &G_1 = \tr{\vt p} \diff{K}{\vt p} + \tr{\vt \pi} \diff{K}{\vt \pi} - L k_\text{\tiny B} T \quad \text{and}\\
-&G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_\text{\tiny B} T  \qquad \text{for} \quad j > 1,
+&G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_\text{\tiny B} T  \qquad \text{for} \quad j > 1.
 \end{align}
 \end{subequations}
-where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, and $L = 6N-3$ if the vector-sum of all linear momenta is set to zero at the onset or $L = 6N$ otherwise.\cite{Martyna_1994} As recommended in Ref.~\citenum{Martyna_1992}, we make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the thermostat chain. The ``extended energy'' conserved by the non-Hamiltonian system in Eq.~\eqref{eq:ODE system for NVT} is \cite{Martyna_1992}
-\begin{equation}
-\label{eq:nvt extended energy}
-H = \Ham{} + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
-\end{equation}
 
-As in the previous case, it is possible to devise a splitting method to solve Eq.~\eqref{eq:ODE system for NVT} numerically \cite{Tuckerman_2010}. By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e. non-Hamiltonian) Liouville operator, the splitting goes as
+With $K$ defined as in Eq.~\eqref{eq:kinetic energy}, it turns out that $G_1 = 2K - L k_\text{\tiny B} T$. It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics, but are often computed for checking how well a numerical integrator conserves $H$. Analysis of the probability distribution generated by Eq.~\eqref{eq:ODE system for NVT} can be done through the generalized phase-space analysis of Tuckerman \textit{et al}.\cite{Tuckerman_2001} For this, conservation laws must be identified and driven variables eliminated. For a system without external forces, the extended energy $H$ and the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ are integrals of motion, while the center-of-mass position can be considered as a driven variable,\cite{Tuckerman_2001} such as the $\eta$ coordinates. Moreover, $2N$ equations must be eliminated due to the constraints involving $\vt q$ and $\vt \pi$. In the general case, by taking all these facts into account and applying the analysis of Ref.~\citenum{Tuckerman_2001}, we can deduce that the correct canonical distribution is attained if one makes $L = 6N$. In the particular situation in which one sets $\sum_{i=1}^N {\vt p}_i = \vt 0$ at the onset of a simulation, one must make $L = 6N - 3$ \cite{Martyna_1994}.
+
+\subsection{Measure-Preserving Integration for the NVT Dynamics}
+
+As in the Hamiltonian case, it is possible to devise a splitting scheme for solving Eq.~\eqref{eq:ODE system for NVT} numerically \cite{Tuckerman_2010}. Ezra \cite{Ezra_2006} introduced a systematic method for deriving accurate integrators which preserve the phase-space measure associated with the original equations of motion. In short, a splitting scheme will preserve a given measure if each individual propagator does it as well. By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e. non-Hamiltonian) Liouville operator, the splitting goes as
 \begin{equation}
 \label{eq:splitting NVT}
 e^{\timestep \mathcal{L}_\text{\tiny NVT}} = e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} e^{\timestep \Liu{\tiny NVE}} e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} + \mathcal{O}(\timestep^3),
@@ -213,11 +225,11 @@ In the scheme above, the first propagator to act is $e^{\frac{\timestep}{4n} \ma
 &\eta_{j+1} = \eta_{j+1}^\ast + \alpha_{j+1}^\ast \frac{\timestep}{4n}.
 \end{align*}
 
-After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$. Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
-%Note that momentum vectors $\vt p$ and $\vt \pi$ are scaled the same factor, which causes $\modified K$ to be scaled by the square of it, hence ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$. In Sec.~\ref{sec:backward error analysis} we demonstrate why such effect on $\modified K$ is observed even though we do not use Eq.~\eqref{eq:kinetic energy} to compute it.
-Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied again, but now with $j$ varying from $1$ up to $M$. It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics, but they are often computed just for checking how well the integrator conserves $H$.
+After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$. Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$. Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied again, but now with $j$ varying from $1$ up to $M$.
 
 For having a low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort, making it feasible to increase the time step $\timestep$ without degrading the accuracy of the NHC part. In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}. A high-order integration scheme\cite{Omelyan_2007, Van_zon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients. The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development. Here we choose to take a simpler path. Instead of trying to increase accuracy in the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we attempt to quantify the implied deviations, with which we can both tune the thermostatting procedure and properly weight the sampled configurations when computing ensemble averages.
+
+\subsection{Backward Error Analysis}
 
 In order to explain our proposal, we turn the attention again to the NVE case. A known property of splitting methods applied to Hamiltonian ODE systems is that they provide approximate solutions which are Hamiltonian as well. Hence, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian. In this way, while $\Ham{}$ exhibits a certain degree of oscillation along that trajectory, the value of $\Ham{S}$ is actually conserved (up to round-off errors). It is also known that $\Ham{S}$ depends on the time step size $\timestep$. As shown in Sec.~\ref{sec:backward error analysis}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be approximated by $\Ham{S} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are modified kinetic and potential energies. The latter is given by
 \begin{equation}
@@ -250,14 +262,16 @@ Analytical calculation of $\modified U$ via Eq.~\eqref{eq:modified potential ene
 
 For reasons that will become clear shortly, we employ an asymmetric, four-point stencil formula for estimating $\dot{\vt r}$ at a given instant $t$, which is
 \begin{equation*}
-\dot{\vt r}^{[3]} = \frac{{\vt r}_{t-2\timestep} - 6 {\vt r}_{t-\timestep} + 3 {\vt r}_t + 2 {\vt r}_{t+\timestep}}{6\timestep}.
+\dot{\vt r}^{[3]}_t = \frac{{\vt r}_{t-2\timestep} - 6 {\vt r}_{t-\timestep} + 3 {\vt r}_t + 2 {\vt r}_{t+\timestep}}{6\timestep}.
 \end{equation*}
 
 In the case of quaternions, as a simple polynomial interpolation is insufficient to ensure that $\tr{\vt q}_i \dot{\vt q}_i = 0$ at all times for each rigid body $i$, such as required for satisfying the unit-norm condition \cite{Silveira_2017}, we estimate the time-derivative $\dot{\vt q}$ by means of\cite{Schay_1995}
 \begin{equation*}
-\dot{\vt q}^{[3]} = {\mt \Pi}({\vt q}_t) \frac{{\vt q}_{t-2\timestep} - 6 {\vt q}_{t-\timestep} + 3 {\vt q}_t + 2 {\vt q}_{t+\timestep}}{6\timestep},
+\dot{\vt q}^{[3]}_t = {\mt \Pi}({\vt q}_t) \frac{{\vt q}_{t-2\timestep} - 6 {\vt q}_{t-\timestep} + 3 {\vt q}_t + 2 {\vt q}_{t+\timestep}}{6\timestep},
 \end{equation*}
-where ${\mt \Pi}$ is a matrix-valued function given by either product ${\mt B}\tr{\mt B}$ or ${\mt C}\tr{\mt C}$ \cite{Silveira_2017}. In practice, we evaluate the equation above individually for each body $i$ with ${\mt \Pi}({\vt q}_i) = {\mt 1} - {\vt q}_i \tr{\vt q}_i$, thus projecting the interpolation-based derivative quaternion into the hyperplane orthogonal to ${\vt q}_i$.
+where ${\mt \Pi}$ is a matrix-valued function given by either product ${\mt B}\tr{\mt B}$ or ${\mt C}\tr{\mt C}$ \cite{Silveira_2017}. In practice, we evaluate the equation above individually for each body $i$ with ${\mt \Pi}({\vt q}_i) = {\mt 1} - {\vt q}_i \tr{\vt q}_i$, where $\mt 1$ is the identity matrix, thus projecting the interpolation-based derivative quaternion into the hyperplane orthogonal to ${\vt q}_i$.
+
+\subsection{Adjustment of the NVT Dynamics}
 
 Bringing the attention back to the NVT case, our proposal consists in acknowledging that the middle propagator in Eq.~\eqref{eq:splitting NVT}, if split according to Eq.~\eqref{eq:splitting NVE}, produces a phase-space move that is more consistent with the modified Hamiltonian ODE system than with the original one. Thus, we should adjust the Nos\'e-Hoover chain so as to provide a distribution proportional to $e^{-\beta \modified{\Ham{}}}$ rather than $e^{-\beta \Ham{}}$, where $\beta = \frac{1}{k_\text{\tiny B} T}$. Fortunately, this entails solving Eq.~\eqref{eq:ODE system for NVT} almost exactly as described before. The only required modification is that $\modified K$ replaces $K$ in Eq.~\eqref{eq:generalized force NVT}, which defines the force $G_1$. By contrasting such definition with Eqs.~\eqref{eq:modified kinetic energy} and \eqref{eq:shadow ODE system}, we observe that such force becomes
 \begin{equation}
@@ -267,6 +281,8 @@ G_1 = 2 \modified K - L k_\text{\tiny B} T.
 One instant in which $\modified K$ must be evaluated is right after the action of propagator $e^{\timestep \Liu{\tiny NVE}}$. Notice that such action takes place only once per time step, intercalating with non-Hamiltonian propagations. Therefore, there is no record beforehand of a Hamiltonian trajectory from which we can estimate $\dot{\vt r}^{[n]}$ and $\dot{\vt q}^{[n]}$ with high accuracy. This could be solved by executing a number of virtual Verlet steps, both forward and backward in time, so as to generate a virtual Hamiltonian trajectory that coincides with the actual trajectory in the two phase-space points which are input and output of the central propagator in Eq.~\eqref{eq:splitting NVT}. Nonetheless, this might require additional force computations per actual time step, thus increasing the cost of the simulation. Fortunately, only positions and orientations are required for the numerical differentiation. This allows us to obtain a four-point stencil without any additional force evaluation, just by executing one incomplete virtual step for each direction in time. By incomplete we mean that the step is aborted once the positions and orientations have been updated. A drawback of this approach is that the resulting NVT integrator lacks time-reversal symmetry due to the employed differentiation formulas. As a matter of fact, long-term reversibility is not generally achievable with MD codes that rely on floating-point arithmetics. In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per actual time step.
 
 In addition, $\modified K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales the momentum vectors $\vt p$ and $\vt \pi$ by a common factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$. Because such propagator leaves the positions and quaternions intact and, as a consequence, the matrix $\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\modified K$ goes as simply as ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$.
+
+Speak about the Generalized Equipartition Theorem....
 
 Finally, reweighting:
 \begin{equation}
@@ -327,7 +343,7 @@ it becomes possible to determine exactly the individual actions of operators $e^
 \subsection{Nos\'e-Hoover Chain Applied to Rigid Bodies}
 \label{sec:canonical}
 
-Knowledge about the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010b} In this context, invaluable tools have been devised for the development and analysis of simulation methods based on the concept of extended phase space. Sergi and Ferrario\cite{Sergi_2001} describe a simple way of systematically generating conservative trajectories in an arbitrary phase space. If vector $\vt x$ represents a point in phase space, $H(\vt x)$ is a scalar field, and $\boldsymbol{\mathcal B}(\vt x)$ is a matrix-valued function, then the equation of motion
+Knowledge about the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010_2} In this context, invaluable tools have been devised for the development and analysis of simulation methods based on the concept of extended phase space. Sergi and Ferrario\cite{Sergi_2001} describe a simple way of systematically generating conservative trajectories in an arbitrary phase space. If vector $\vt x$ represents a point in phase space, $H(\vt x)$ is a scalar field, and $\boldsymbol{\mathcal B}(\vt x)$ is a matrix-valued function, then the equation of motion
 \begin{equation}
 \label{eq:eq_of_motion}
 \dot{\vt x} = \boldsymbol{\mathcal B}\diff{H}{\vt x}
