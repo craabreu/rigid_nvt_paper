@@ -1,13 +1,22 @@
-%\documentclass[journal=jctcce,manuscript=article]{achemso}
-\documentclass[journal=jctcce,manuscript=article,layout=twocolumn]{achemso}
+\documentclass[
+journal=jctcce,
+layout=twocolumn
+]{achemso}
 
-% NOTE: comment bellow before submitting
+\setkeys{acs}{
+	abbreviations = false,
+	articletitle  = false,
+	keywords      = false,
+	maxauthors    = 10,
+	super         = true
+}
+
+% Comment below before submitting
 \let\titlefont\undefined
-\makeatletter
-\let\l@addto@macro\relax
-\makeatother
 \usepackage[fontsize=11pt]{scrextend}
-% NOTE: comment above before submitting
+\usepackage[hidelinks,colorlinks,citecolor=blue]{hyperref}
+%\flushbottom
+% Comment above before submitting
 
 \usepackage{threeparttable}
 \usepackage{amsmath}
@@ -49,7 +58,7 @@
 \affiliation{Chemical Engineering Department, Escola de Qu\'imica, Universidade Federal do Rio de Janeiro, Rio de Janeiro, RJ 21941-909, Brazil}
 
 %\title{Revisiting the Nos\'{e}-Hoover chain thermostat for Rigid-Body Molecular Dynamics}
-\title{Nos\'e-Hoover Chains Improved by Backward Error Analysis: Application to Rigid-Body Molecular Dynamics}
+\title{Improvement of Deterministic NVT Molecular Dynamics via Backward Error Analysis}
 
 %\abbreviations{AAA, BBB, CCC}
 \keywords{aaa, bbb, ccc}
@@ -79,9 +88,9 @@ The paper is organized as follows. In Sec.~\ref{sec:theory} we briefly review th
 \section{Proposed Method}
 \label{sec:methodology}
 
-In a previous paper \cite{Silveira_2017}, we employed a particular factorization of the orientation matrix expressed in terms of quaternion components to 1) derive a new exact solution for torque-free rotations and use it as part of a symplectic numerical integrator for rigid bodies in the NVE ensemble and 2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002} as a sequence of uniform rotations around the principal axes of a body, thus unveiling the equivalence between this method and an older one by \citeauthor{Dullweber_1997} \cite{Dullweber_1997}
+In a previous paper \cite{Silveira_2017}, we took advantage of a particular factorization of the orientation matrix expressed in terms of quaternion components to 1) derive a new exact solution for torque-free rotations and use it as part of a symplectic numerical integrator for the motion of rigid bodies and 2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002} as a sequence of uniform rotations around the principal axes of a body, thus unveiling its equivalence to a method previously developed by Dullweber and co-workers \cite{Dullweber_1997}.
 
-The ordinary differential equation (ODE) system that describes a Hamiltonian rigid-body motion are \cite{Silveira_2017}
+The Hamiltonian system of ordinary differential equations (ODE) that describes a rigid-body motion are \cite{Silveira_2017}
 \begin{subequations}
 	\label{eq:ODE system for NVE}
 	\begin{align}
@@ -103,7 +112,7 @@ The ordinary differential equation (ODE) system that describes a Hamiltonian rig
 	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau, \label{eq:EDO_pi}
 	\end{align}
 \end{subequations}
-with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$. In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines the body's orientation, and $\vt \pi$ is the momentum conjugated to such quaternion. Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and resultant torque exerted on the body, both represented in the space-fixed frame of reference, while $\vt \omega$ is the three-dimensional angular velocity. Matrices $\mt M$ and $\mt I$ are diagonal ones, with the former containing the body's mass in all its diagonal entries and the latter containing the principal moments of inertia. Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
+with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$. In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the conjugated momentum of such quaternion. Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and resultant torque exerted on the body, both represented in the space-fixed frame of reference, while $\vt \omega$ is the three-dimensional angular velocity. Matrices $\mt M$ and $\mt I$ are diagonal ones. The former contains the body mass in all three diagonal entries while the latter contains the three principal moments of inertia. Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
 \begin{equation*}
 \label{eq:def_B_and_C}
 \mt B(\vt q) = \begin{smallarray}{rrrr}
@@ -121,27 +130,27 @@ with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$. In the
 \end{smallarray}.
 \end{equation*}
 
-The position of any constituent particle $j$ of a rigid body will vary with time according to $\vt R_j(t) = \vt r(t) + \tr{\mt A}(\vt q(t))\vt d_j$, where $\vt d_j$ is the (constant) position of particle $j$ in the principal-axis frame of reference and ${\mt A}(\vt q)$ is the orientation matrix of the body (that is, the rotation matrix connecting the principal-axis and space-fixed frames) expressed as a function of the quaternion components. The fact that such matrix admits the simple factorization ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$ played a central role in Ref.~\citenum{Silveira_2017}.
+The position of any constituent particle $j$ of a rigid body will vary with time according to $\vt R_j(t) = \vt r(t) + \tr{\mt A}(\vt q(t))\vt d_j$, where $\vt d_j$ is the (constant) position of particle $j$ in the body-fixed frame of reference and ${\mt A}(\vt q)$ is the orientation matrix of the body (that is, the rotation matrix connecting the body-fixed and space-fixed frames) expressed as a function of the quaternion components. The factorization mentioned above, which played a central role in Ref.~\citenum{Silveira_2017}, is as simple as ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$.
 
 The Hamiltonian conserved by Eq.~\eqref{eq:ODE system for NVE} is
 \begin{equation}
 \label{eq:Hamiltonian}
 \Ham{} = K(\vt p, \vt q, \vt \pi) + U(\vt r,\vt q),
 \end{equation}
-where $K$ and $U$ are the body's kinetic and potential energies, respectively. While $U(\vt r, \vt q)$ can have any functional form, the kinetic energy is given by
+where $K$ and $U$ are the kinetic and potential energies of the body, respectively. While $U(\vt r, \vt q)$ is an arbitrary function, the kinetic energy is given by
 \begin{equation}
 \label{eq:kinetic energy}
 K = \frac{1}{2} \tr{\vt p} {\mt M}^{-1} {\vt p} + \frac{1}{8} \tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}.
 \end{equation}
 
-An advantage of this notation is that Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the respective properties of all bodies piled together. The same occurs for diagonal matrices $\mt M$ and $\mt I$, whose sizes increase to $3N \times 3N$ in this case. In addition, $\mt B(\vt q)$ and $\mt C(\vt q)$ become block-diagonal matrices with $4N$ rows and $3N$ columns. Yet, the notation can be made even more general if $\vt r$, $\vt p$, and $\mt M$ are enlarged to accommodate a number of free atoms.
+An advantage of this notation is that Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together. The same occurs for diagonal matrices $\mt M$ and $\mt I$, whose sizes increase to $3N \times 3N$ in this case. In addition, $\mt B(\vt q)$ and $\mt C(\vt q)$ become block-diagonal matrices with $4N$ rows and $3N$ columns. Yet, the notation can be made even more general if $\vt r$, $\vt p$, and $\mt M$ are enlarged further to accommodate a number of freely moving atoms.
 
-A numerical solution of Eq.~\eqref{eq:ODE system for NVE} is usually represented by a stepwise application of the classical time-evolution propagator \cite{Tuckerman_2010} $e^{\timestep \Liu{\tiny NVE}}$ to the system's configuration, where $\timestep$ is the time step size and $\Liu{\tiny NVE}$ is the Liouville operator associated to $\Ham{}$. A symplectic, time-reversible integrator can be devised by splitting the exponential operator according to the Trotter-Suzuki formula \cite{Trotter_1959, Suzuki_1976}
+A numerical solution of Eq.~\eqref{eq:ODE system for NVE} is usually represented by a stepwise application of the classical time-evolution propagator \cite{Tuckerman_2010} $e^{\timestep \Liu{\tiny NVE}}$ to the system configuration, where $\timestep$ is the time step size and $\Liu{\tiny NVE}$ is the Liouville operator associated to $\Ham{}$. A symplectic, time-reversible integrator can be devised by splitting the exponential operator according to the Trotter-Suzuki formula \cite{Trotter_1959, Suzuki_1976}
 \begin{equation}
 \label{eq:splitting NVE}
 e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Liu{A}} e^{\frac{\timestep}{2} \Liu{B}} + \mathcal{O}(\timestep^3),
 \end{equation}
-where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$. In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, where the asterisk denotes the state of the system immediately before a propagation takes place. The action of $e^{\timestep \Liu{A}}$ is a uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) with simultaneous torque-free rotation during a full time step. 
+where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$. In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state immediately before the propagation occurs. The action of $e^{\timestep \Liu{A}}$ is a simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step.
 
 Description of analytical and NO\_SQUISH rotations...
 
@@ -174,7 +183,7 @@ Here we propose a new method for simulating a system of rigid bodies in the cano
 	\end{align}
 \end{subequations}
 
-In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and $\alpha_{M+1} = 0$, where each $Q_j$ is an inertial parameter of the corresponding thermostat. Besides, each $G_j$ is a generalized force acting on thermostat $j$, defined as
+In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and $\alpha_{M+1} = 0$, where $Q_j$ is an inertial parameter for the corresponding thermostat. Besides, $G_j$ is a generalized force acting on thermostat $j$, defined as
 \begin{subequations}
 \begin{align}
 \label{eq:generalized force NVT}
@@ -182,9 +191,7 @@ In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and
 &G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_\text{\tiny B} T  \qquad \text{for} \quad j > 1,
 \end{align}
 \end{subequations}
-where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, and $L = 6N-3$ if the vector-sum of all linear momenta is set as null, as usual (otherwise, $L = 6N$).\cite{Martyna_1994} As recommended in Ref.~\citenum{Martyna_1992}, one can make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the system.
-%Finally, $\modified K$ is the total kinetic energy of the system, whose computation (not using Eq.~\eqref{eq:kinetic energy}, hence the distinct symbol) is the central feature of the method we propose.
-The ``extended energy'' which is conserved by the non-Hamiltonian system in Eq.~\eqref{eq:ODE system for NVT} is \cite{Martyna_1992}
+where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, and $L = 6N-3$ if the vector-sum of all linear momenta is set to zero at the onset or $L = 6N$ otherwise.\cite{Martyna_1994} As recommended in Ref.~\citenum{Martyna_1992}, we make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the thermostat chain. The ``extended energy'' conserved by the non-Hamiltonian system in Eq.~\eqref{eq:ODE system for NVT} is \cite{Martyna_1992}
 \begin{equation}
 \label{eq:nvt extended energy}
 H = \Ham{} + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
@@ -200,53 +207,68 @@ where $\Liu{\tiny NVE}$ is the same operator of the previous case and $\mathcal{
 e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\limits_{j=M}^1 e^{\frac{\timestep}{4n} \mathcal{L}_j }\right) e^{\frac{\timestep}{2n} \mathcal{L}_0 } \left(  \textstyle\prod\limits_{j=1}^M e^{\frac{\timestep}{4n} \mathcal{L}_j }\right)  \right]^n.
 \end{equation*}
 
-In our scheme, the first propagator to act, $e^{\frac{\timestep}{4n} \mathcal{L}_M}$, promotes a kick in the momentum of thermostat $M$ expressed as $p_{\eta_M} = p_{\eta_M}^\ast + G_M^\ast \frac{\timestep}{4n}$. Then, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied sequentially with $j$ ranging from $M-1$ down to $1$. With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as
+In the scheme above, the first propagator to act is $e^{\frac{\timestep}{4n} \mathcal{L}_M}$, which promotes a kick in the momentum of thermostat $M$ expressed as $p_{\eta_M} = p_{\eta_M}^\ast + G_M^\ast \frac{\timestep}{4n}$. Then, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ act sequentially, with $j$ varying from $M-1$ down to $1$. With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as
 \begin{align*}
 &p_{\eta_j} = p_{\eta_j}^\ast + \Big( G_j^\ast - \alpha_{j+1}^\ast p_{\eta_j}^\ast \Big) \phi\left(\frac{\alpha_{j+1}^\ast \timestep}{4n}\right) \frac{\timestep}{4n} \; \text{and} \\
 &\eta_{j+1} = \eta_{j+1}^\ast + \alpha_{j+1}^\ast \frac{\timestep}{4n}.
 \end{align*}
 
-After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ enacts the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of the thermostat coordinate $\eta_1$. Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
+After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$. Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
 %Note that momentum vectors $\vt p$ and $\vt \pi$ are scaled the same factor, which causes $\modified K$ to be scaled by the square of it, hence ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$. In Sec.~\ref{sec:backward error analysis} we demonstrate why such effect on $\modified K$ is observed even though we do not use Eq.~\eqref{eq:kinetic energy} to compute it.
-Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_1}$ to $e^{\frac{\timestep}{4n} \mathcal{L}_M}$ are applied again, but now in the increasing order of their indices. It is worth noting that the $\eta$'s are driven variables with no influence on the dynamics, but they are often computed just for checking how well the integrator conserves $H$.
+Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied again, but now with $j$ varying from $1$ up to $M$. It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics, but they are often computed just for checking how well the integrator conserves $H$.
 
-The whole procedure described above is repeated $n$ times. Because of its low computational cost, the compensation required for increasing the time step $\timestep$ without degrading the accuracy of the NHC part (i.e. employing a larger $n$) causes a small impact in the overall integration effort. In contrast, evaluating the NVE part is expensive for involving force/torque computations and its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}. A high-order integration scheme\cite{Omelyan_2007, vanZon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients. The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development. Nevertheless, we choose to take a simpler path. Instead of attempting to improve the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we try to quantify the obtained deviations and then use them to tune the thermostatting procedure and properly weight the sampled configurations when canonical averages are computed.
+For having a low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort, making it feasible to increase the time step $\timestep$ without degrading the accuracy of the NHC part. In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}. A high-order integration scheme\cite{Omelyan_2007, Van_zon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients. The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development. Here we choose to take a simpler path. Instead of trying to increase accuracy in the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we attempt to quantify the implied deviations, with which we can both tune the thermostatting procedure and properly weight the sampled configurations when computing ensemble averages.
 
-A known property of splitting methods applied to Hamiltonian ODE systems is that they provide Hamiltonian approximate solutions. In other words, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian. Thus, whereas $\Ham{}$ exhibits a certain degree of oscillation along that trajectory, the value of $\Ham{S}$ is actually conserved (up to round-off errors). It is also known that $\Ham{S}$ depends on the time step size $\timestep$ and that, for a time-reversible splitting such as Eq.~\eqref{eq:splitting NVE}, one can write $\Ham{S} = \Ham{} + \mathcal{O}(\timestep^2)$. Estimating the trailing term is a task of backward error analysis.
-
-As shown in Sec.~\ref{sec:backward error analysis}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be better approximated by $\Ham{S} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are named modified kinetic and modified potential energies, respectively. The former can be expressed as
+In order to explain our proposal, we turn the attention again to the NVE case. A known property of splitting methods applied to Hamiltonian ODE systems is that they provide approximate solutions which are Hamiltonian as well. Hence, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian. In this way, while $\Ham{}$ exhibits a certain degree of oscillation along that trajectory, the value of $\Ham{S}$ is actually conserved (up to round-off errors). It is also known that $\Ham{S}$ depends on the time step size $\timestep$. As shown in Sec.~\ref{sec:backward error analysis}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be approximated by $\Ham{S} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are modified kinetic and potential energies. The latter is given by
 \begin{equation}
-\label{eq:shadow kinetic energy}
+\label{eq:modified potential energy}
+\modified U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right),
+\end{equation}
+where ${\vt \tau}_b = {\mt A}(\vt q) {\vt \tau}$ is the body-fixed representation of the resultant torque vector. Note that $\modified U$, such as $U$, is independent of $\vt p$ and $\vt \pi$. In turn, the modified kinetic energy can be expressed as
+\begin{equation}
+\label{eq:modified kinetic energy}
 \modified K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation}
-where $\modified{\mathbf \Omega}$ is a symmetric matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$. The modified potential, which is also independent of $\vt p$ and $\vt \pi$, is given by
-\begin{equation}
-\label{eq:shadow potential energy}
-\modified U = U - \frac{\timestep^2}{24} \left[ \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right],
-\end{equation}
-where ${\vt \tau}_b = {\mt A}(\vt q) {\vt \tau}$ is the body-fixed representation of the torques. Therefore, the outcome of solving Eq.~\eqref{eq:ODE system for NVE} using a Trotter-Suzuki splitting will be close to the exact solution of Eq.~\eqref{eq:ODE system for NVE}, but it will be even closer to the solution of
+where $\modified{\mathbf \Omega}$ is a symmetric matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$. Therefore, a Trotter-Suzuki trajectory, which is intended to approach the exact solution of Eq.~\eqref{eq:ODE system for NVE}, will approach even more closely the solution of a modified ODE system given by
+\begin{equation*}
+\dot{\vt r} = \diff{\modified K}{\vt p}, \;
+\dot{\vt q} = \diff{\modified K}{\vt \pi}, \;
+\dot{\vt p} = -\diff{\modified{\Ham{}}}{\vt r}, \; \text{and} \;
+\dot{\vt \pi} = -\diff{\modified{\Ham{}}}{\vt q},
+\end{equation*}
+where $\modified{\Ham{}} = \modified K + \modified U$ is a modified Hamiltonian. The first two of these equations can be combined together so that we can use Eq.~\eqref{eq:modified kinetic energy} to obtain
 \begin{equation}
 \label{eq:shadow ODE system}
-\left[\begin{array}{c} \dot{\vt r} \\ \dot{\vt q} \end{array}\right] =
-\left[\begin{array}{c} \diff{\modified K}{\vt p} \\ \diff{\modified K}{\vt \pi} \end{array}\right] =
-\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
+\left[\begin{array}{c} \dot{\vt r} \\ \dot{\vt q} \end{array}\right] = \modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right].
 \end{equation}
-together with $\dot{\vt p} = -\diff{\modified{\Ham{}}}{\vt r}$ and $\dot{\vt \pi} = -\diff{\modified{\Ham{}}}{\vt q}$, where $\modified{\Ham{}} = \modified K + \modified U$. Our proposal consists in acknowledging this fact and then tuning the Nos\'e-Hoover chain to provide a canonical distribution consistent with $\modified{\Ham{}}$ (instead of $\Ham{}$) at temperature $T$. Fortunately, this entails solving Eq.~\eqref{eq:ODE system for NVT} almost exactly as described before. The only requirement is to replace $K$ by $\modified K$ in the definition of the generalized force in thermostat $1$, given by Eq.~\eqref{eq:generalized force NVT}. By contrasting this one with Eqs.~\eqref{eq:shadow kinetic energy} and \eqref{eq:shadow ODE system}, we observe that such force becomes
+
+Analytical calculation of $\modified U$ via Eq.~\eqref{eq:modified potential energy} is straightforward. In contrast, although it is possible to compute $\modified K$ by direct evaluation of Eq.~\eqref{eq:modified kinetic energy}, this is a complex and expensive task. Fortunately, we can estimate it rather easily though a method devised by \citeauthor{Eastwood_2010} \cite{Eastwood_2010}, which consists in using numerical differentiation to estimate the time-derivatives $\dot{\vt r}$ and $\dot{\vt q}$ directly from the obtained Trotter-Suzuki trajectory. Considering $n$-th order estimators $\dot{\vt r}^{[n]}$ and $\dot{\vt q}^{[n]}$, we substitute Eq.~\eqref{eq:shadow ODE system} into Eq.~\eqref{eq:modified kinetic energy} to find out that
+\begin{equation}
+\label{eq:modified kinetic energy estimator}
+\modified K = \frac{1}{2} \left( \tr{\vt p} \dot{\vt r}^{[n]} + \tr{\vt \pi} \dot{\vt q}^{[n]} \right) + \mathcal{O}(h^n).
+\end{equation}
+
+For reasons that will become clear shortly, we employ an asymmetric, four-point stencil formula for estimating $\dot{\vt r}$ at a given instant $t$, which is
+\begin{equation*}
+\dot{\vt r}^{[3]} = \frac{{\vt r}_{t-2\timestep} - 6 {\vt r}_{t-\timestep} + 3 {\vt r}_t + 2 {\vt r}_{t+\timestep}}{6\timestep}.
+\end{equation*}
+
+In the case of quaternions, as a simple polynomial interpolation is insufficient to ensure that $\tr{\vt q}_i \dot{\vt q}_i = 0$ at all times for each rigid body $i$, such as required for satisfying the unit-norm condition \cite{Silveira_2017}, we estimate the time-derivative $\dot{\vt q}$ by means of\cite{Schay_1995}
+\begin{equation*}
+\dot{\vt q}^{[3]} = {\mt \Pi}({\vt q}_t) \frac{{\vt q}_{t-2\timestep} - 6 {\vt q}_{t-\timestep} + 3 {\vt q}_t + 2 {\vt q}_{t+\timestep}}{6\timestep},
+\end{equation*}
+where ${\mt \Pi}$ is a matrix-valued function given by either product ${\mt B}\tr{\mt B}$ or ${\mt C}\tr{\mt C}$ \cite{Silveira_2017}. In practice, we evaluate the equation above individually for each body $i$ with ${\mt \Pi}({\vt q}_i) = {\mt 1} - {\vt q}_i \tr{\vt q}_i$, thus projecting the interpolation-based derivative quaternion into the hyperplane orthogonal to ${\vt q}_i$.
+
+Bringing the attention back to the NVT case, our proposal consists in acknowledging that the middle propagator in Eq.~\eqref{eq:splitting NVT}, if split according to Eq.~\eqref{eq:splitting NVE}, produces a phase-space move that is more consistent with the modified Hamiltonian ODE system than with the original one. Thus, we should adjust the Nos\'e-Hoover chain so as to provide a distribution proportional to $e^{-\beta \modified{\Ham{}}}$ rather than $e^{-\beta \Ham{}}$, where $\beta = \frac{1}{k_\text{\tiny B} T}$. Fortunately, this entails solving Eq.~\eqref{eq:ODE system for NVT} almost exactly as described before. The only required modification is that $\modified K$ replaces $K$ in Eq.~\eqref{eq:generalized force NVT}, which defines the force $G_1$. By contrasting such definition with Eqs.~\eqref{eq:modified kinetic energy} and \eqref{eq:shadow ODE system}, we observe that such force becomes
 \begin{equation}
 G_1 = 2 \modified K - L k_\text{\tiny B} T.
 \end{equation}
 
-It is possible to evaluate Eq.~\eqref{eq:shadow kinetic energy} directly for computing $\modified K$, but this is quite complex and expensive. Instead, one can do it very easily by means of a method devised by \citeauthor{Eastwood_2010} \cite{Eastwood_2010}, which consists in using numerical differentiation to estimate the derivatives in the left-hand side of Eq.~\eqref{eq:shadow ODE system}. By denoting the obtained estimators as $\dot{\vt r}_\text{\tiny NVE}$ and $\dot{\vt q}_\text{\tiny NVE}$, and substituting Eq.~\eqref{eq:shadow ODE system} into Eq.~\eqref{eq:shadow kinetic energy}, we find out that
-\begin{equation}
-\modified K = \frac{1}{2} \left( \tr{\vt p} \dot{\vt r}_\text{\tiny NVE} + \tr{\vt \pi} \dot{\vt q}_\text{\tiny NVE} \right).
-\end{equation}
+One instant in which $\modified K$ must be evaluated is right after the action of propagator $e^{\timestep \Liu{\tiny NVE}}$. Notice that such action takes place only once per time step, intercalating with non-Hamiltonian propagations. Therefore, there is no record beforehand of a Hamiltonian trajectory from which we can estimate $\dot{\vt r}^{[n]}$ and $\dot{\vt q}^{[n]}$ with high accuracy. This could be solved by executing a number of virtual Verlet steps, both forward and backward in time, so as to generate a virtual Hamiltonian trajectory that coincides with the actual trajectory in the two phase-space points which are input and output of the central propagator in Eq.~\eqref{eq:splitting NVT}. Nonetheless, this might require additional force computations per actual time step, thus increasing the cost of the simulation. Fortunately, only positions and orientations are required for the numerical differentiation. This allows us to obtain a four-point stencil without any additional force evaluation, just by executing one incomplete virtual step for each direction in time. By incomplete we mean that the step is aborted once the positions and orientations have been updated. A drawback of this approach is that the resulting NVT integrator lacks time-reversal symmetry due to the employed differentiation formulas. As a matter of fact, long-term reversibility is not generally achievable with MD codes that rely on floating-point arithmetics. In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per actual time step.
 
-- Pratical estimation of numerical derivatives: virtual steps and interpolation
+In addition, $\modified K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales the momentum vectors $\vt p$ and $\vt \pi$ by a common factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$. Because such propagator leaves the positions and quaternions intact and, as a consequence, the matrix $\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\modified K$ goes as simply as ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$.
 
-
-- Scaling of $\modified K$ during the NHC integration.
-
-Reweighting:
+Finally, reweighting:
 \begin{equation}
 \label{eq:reweighting}
 \langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
@@ -410,7 +432,7 @@ where $\mt \Omega$ is a symmetric, block-diagonal matrix of size $7N \times 7N$ 
 \end{array}\right].
 \end{equation*}
 
-With $\nabla^2 U$ being the Hessian matrix of the potential energy with respect to the entries of $\vt r$ and $\vt q$, we define a shadow kinetic energy $\modified K$ as
+With $\nabla^2 U$ being the Hessian matrix of the potential energy with respect to the entries of $\vt r$ and $\vt q$, we define a modified kinetic energy $\modified K$ as
 \begin{equation*}
 \modified K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \modified{\mathbf \Omega}(\vt r, \vt q) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation*}
@@ -419,9 +441,9 @@ where
 \modified{\mathbf \Omega} = {\mt \Omega} + \frac{\timestep^2}{6} {\mt \Omega} (\nabla^2 U) \tr{\mt \Omega}.
 \end{equation*}
 
-Although $\modified{\mathbf \Omega}$ is still symmetric, it is no longer a block-diagonal matrix like $\mt \Omega$, due to the inter-body interactions accounted for in $U(\vt r, \vt q)$ and to the dependency of forces and torques on both positions and orientations. As a result, the shadow kinetic energy cannot, in principle, be split into independent translational and rotational contributions.
+Although $\modified{\mathbf \Omega}$ is still symmetric, it is no longer a block-diagonal matrix like $\mt \Omega$, due to the inter-body interactions accounted for in $U(\vt r, \vt q)$ and to the dependency of forces and torques on both positions and orientations. As a result, the modified kinetic energy cannot, in principle, be split into independent translational and rotational contributions.
 
-In addition to $\modified K$, we also define a shadow potential energy $\modified U$ as
+In addition to $\modified K$, we also define a modified potential energy $\modified U$ as
 \begin{equation*}
 \modified U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau} \tr{\mt A} {\mt I}^{-1} {\mt A} {\vt \tau} \right).
 \end{equation*}
