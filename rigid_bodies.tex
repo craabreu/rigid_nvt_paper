@@ -96,21 +96,23 @@ Simultaneosuly coupling the translational and rotational degrees of freedom to a
 The analysis of the integrators includes comparisons with results from the method introduced by Kamberaj~\textit{et al.},\cite{Kamberaj_2005} as well as with the Hybrid Monte Carlo (HMC) method,\cite{Duane_1987} which is exact in the sense that truncation errors do not affect its accuracy.
 We also include results from simulations using the conventional SHAKE\cite{Ryckaert_1977} procedure, also coupled to a unique Nos\'{e}-Hoover chain.
 
+backward error analysis
+
 The paper is organized as follows.
 In Sec.~\ref{sec:theory} we briefly review the equations of motion in the NVE ensemble, which are the basis for developing the corresponding dynamics in the NVT ensemble.
 In Sec.~\ref{sec:numerical_solvers} we devise the corresponding numerical integrators, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}.
 Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
 
-\section{Proposed Methodology}
+\section{Methodology}
 \label{sec:methodology}
 
 \subsection{NVE Dynamics: Notation and Symplectic Integration}
 
 In a previous paper \cite{Silveira_2017}, we took advantage of a particular factorization of the orientation matrix expressed in terms of quaternion components to
 1) derive a new exact solution for torque-free rotations and use it as part of a symplectic numerical integrator for the motion of rigid bodies and
-2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002} as a sequence of uniform rotations around the principal axes of a body, thus unveiling its equivalence to a method previously developed by Dullweber and co-workers \cite{Dullweber_1997}.
+2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002}, thus unveiling its equivalence to a method previously developed by Dullweber and co-workers \cite{Dullweber_1997}.
 
-The Hamiltonian system of ordinary differential equations (ODE) that describes a rigid-body motion are \cite{Silveira_2017}
+The Hamiltonian system of ordinary differential equations (ODE) that describes a rigid-body motion is given by \cite{Silveira_2017}
 \begin{subequations}
 	\label{eq:ODE system for NVE}
 	\begin{align}
@@ -134,7 +136,7 @@ The Hamiltonian system of ordinary differential equations (ODE) that describes a
 \end{subequations}
 with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$.
 In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the conjugated momentum of such quaternion.
-Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and resultant torque exerted on the body, both represented in the space-fixed frame of reference, while $\vt \omega$ is the three-dimensional angular velocity.
+Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference, while $\vt \omega$ is the three-dimensional angular velocity in the body-fixed frame.
 Matrices $\mt M$ and $\mt I$ are diagonal ones.
 The former contains the body mass in all three diagonal entries while the latter contains the three principal moments of inertia.
 Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
@@ -157,8 +159,8 @@ Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
 \end{smallarray}.
 \end{equation*}
 
-The position of any constituent particle $j$ of a rigid body will vary with time according to $\vt R_j(t) = \vt r(t) + \tr{\mt A}(\vt q(t))\vt d_j$, where $\vt d_j$ is the (constant) position of particle $j$ in the body-fixed frame of reference and ${\mt A}(\vt q)$ is the orientation matrix of the body (that is, the rotation matrix connecting the body-fixed and space-fixed frames) expressed as a function of the quaternion components.
-The factorization mentioned above, which played a central role in Ref.~\citenum{Silveira_2017}, is as simple as ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$.
+%The position of any constituent particle $j$ of a rigid body will vary with time according to $\vt R_j(t) = \vt r(t) + \tr{\mt A}(\vt q(t))\vt d_j$, where $\vt d_j$ is the (constant) position of particle $j$ in the body-fixed frame of reference and ${\mt A}(\vt q)$ is the orientation matrix of the body (that is, the rotation matrix connecting the body-fixed and space-fixed frames) expressed as a function of the quaternion components.
+The factorization mentioned above, which played a central role in Ref.~\citenum{Silveira_2017}, is as simple as ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$, with ${\mt A}(\vt q)$ being the orientation matrix of the body (that is, the rotation matrix connecting the body-fixed and space-fixed frames).
 
 The Hamiltonian conserved by Eq.~\eqref{eq:ODE system for NVE} is
 \begin{equation}
@@ -171,13 +173,21 @@ While $U(\vt r, \vt q)$ is an arbitrary function, the kinetic energy is given by
 \label{eq:kinetic energy}
 K = \frac{1}{2} \tr{\vt p} {\mt M}^{-1} {\vt p} + \frac{1}{8} \tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}.
 \end{equation}
-
-An advantage of this notation is that Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together.
+%An advantage of this notation is that
+Of course, Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together.
 The same occurs for diagonal matrices $\mt M$ and $\mt I$, whose sizes increase to $3N \times 3N$ in this case.
 In addition, $\mt B(\vt q)$ and $\mt C(\vt q)$ become block-diagonal matrices with $4N$ rows and $3N$ columns.
 Yet, the notation can be made even more general if $\vt r$, $\vt p$, and $\mt M$ are enlarged further to accommodate a number of freely moving atoms.
 
-A numerical solution of Eq.~\eqref{eq:ODE system for NVE} is usually represented by a stepwise application of the classical time-evolution propagator \cite{Tuckerman_2010} $e^{\timestep \Liu{\tiny NVE}}$ to the system configuration, where $\timestep$ is the time step size and $\Liu{\tiny NVE}$ is the Liouville operator associated to $\Ham{}$.
+A numerical solution of Eq.~\eqref{eq:ODE system for NVE} is usually represented by a stepwise application of the classical time-evolution propagator \cite{Tuckerman_2010} $e^{\timestep \Liu{\tiny NVE}}$ to the system configuration, where $\timestep$ is the time step size and $\Liu{\tiny NVE}$ is the Liouville operator associated to $\Ham{}$, which is
+\begin{equation}
+\label{eq:Lioville operator}
+\begin{split}
+\Liu{\tiny NVE} &= \tr{\vt p} {\mt M}^{-1} \diff{}{\vt r} + \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt q) \diff{}{\vt q} + \tr{\vt F} \diff{}{\vt p} \\
+&+ \left[ \frac{1}{2} \tr{\vt \omega} \tr{\mt B}(\vt \pi) + 2 \tr{\vt \tau} \tr{\mt C}(\vt q) \right] \diff{}{\vt \pi}.
+\end{split}
+\end{equation}
+
 A symplectic, time-reversible integrator can be devised by splitting the exponential operator according to the Trotter-Suzuki formula \cite{Trotter_1959, Suzuki_1976}
 \begin{equation}
 \label{eq:splitting NVE}
@@ -185,9 +195,11 @@ e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Li
 \end{equation}
 where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$.
 In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state immediately before the propagation occurs.
-The action of $e^{\timestep \Liu{A}}$ is a simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step.
-
-Brief description of analytical and NO-SQUISH rotations...
+The action of $e^{\timestep \Liu{A}}$ is the simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step. For this rotational part of the integration, in Ref.~\cite{Silveira_2017} we derived a general solution in a form that facilitates computer implementation and allows, differently to existing schemes \cite{Kosenko_1998,vanZon2007,Celledoni_2008}, a unified treatment for both asymmetric ($I_1$ $>$ $I_2$ $>$ $I_3$) and symmetric tops (either $I_1$ = $I_2$ or $I_2$ = $I_3$).
+While the approximate solutions, such as the NO-SQUISH \cite{Miller_2002} method, only involve sine and cosine terms, the exact solution comprise ``less common'' functions, such as the Jacobi elliptic functions and Carlson integrals.
+This contributes to the fact that the approximate solution is more commonly used \cite{vanZon2007}. 
+For mathematical details, the reader is referred to our previos work \cite{Silveira_2017}, where we have verified that in liquid-phase simulations there is no significan gain in accuracy by using the exact solution in substitution to the NO-SQUISH as part of a symplectic integration scheme.
+However, in the NO-SQUISH method an overall rotation is given by a sequence of uniform rotations around the principal axes of a body, which results in a factorization of the rotational operator given by $ e^{\frac{h}{2} i\!L_3} e^{\frac{h}{2} i\!L_2} e^{h i\!L_1} e^{\frac{h}{2} i\!L_2} e^{\frac{h}{2} i\!L_3}$, with each factor representing a rotation around a given axe. The analytical solution, on the other hand, entails a single operator, thus making the application of backward error analysis considerably simpler.
 
 \subsection{NVT Dynamics with a Single Thermostat Chain}
 
@@ -270,7 +282,7 @@ e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\l
 
 In the scheme above, the first propagator to act is $e^{\frac{\timestep}{4n} \mathcal{L}_M}$, which promotes a kick in the momentum of thermostat $M$ expressed as $p_{\eta_M} = p_{\eta_M}^\ast + G_M^\ast \frac{\timestep}{4n}$.
 Then, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ act sequentially, with $j$ varying from $M-1$ down to $1$.
-With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as
+With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as \cite{Martyna_1996}
 \begin{align*}
 &p_{\eta_j} = p_{\eta_j}^\ast + \Big( G_j^\ast - \alpha_{j+1}^\ast p_{\eta_j}^\ast \Big) \phi\left(\frac{\alpha_{j+1}^\ast \timestep}{4n}\right) \frac{\timestep}{4n} \; \text{and} \\
 &\eta_{j+1} = \eta_{j+1}^\ast + \alpha_{j+1}^\ast \frac{\timestep}{4n}.
@@ -279,6 +291,7 @@ With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as
 After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$.
 Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
 Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied once again, but now with index $j$ ascending from $1$ to $M$.
+In the following, the NVT integrator introduced in the present section will be denoted by MKKT as its development was inspired by Ref.~\cite{Martyna_1996}.
 
 For having a low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort, making it feasible to increase the time step $\timestep$ without degrading the accuracy of the NHC part.
 In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
@@ -744,38 +757,7 @@ In this way, the equipartition theorem (valid at least in this direction? someth
 3N k_B T = \left\langle \tr{\vt p} \diff{\tilde K}{\vt p} \right\rangle = 2\langle \tilde K \rangle
 \end{equation*}
 
-\subsection{Sampling Validation}
-\label{sec:samplingvalidation}
-
-In this subsection we briefly review a simple method that serves for checking the consistency between the sampled and theoretical energy distributions.
-The procedures, implemented by Shirts,\cite{Shirts_2013} rely on quantitative statistical analysis of fitting, and it is possible to perform linear and nonlinear fitting or a maximum likelihood approach too.
-First, recall that in the NVT ensemble the probability of observing an energy E is given by
-\begin{equation*}
-P(E/\beta) = Q(\beta)^{-1}\Omega(E)\exp\left(-\beta E\right),
-\end{equation*}
-where $ \Omega(E) $ is the density of states, which does not depend on $ \beta $, and $ Q(\beta) $  is the canonical partition function, linked to the Helmholtz Free Energy $ (A) $ by $A = -\beta^{-1}\ln(Q)$.
-
-
-Taking the ratio of the probability distributions at different temperatures, the unknown density of states cancels out and we get
-\begin{equation}
-\frac{P(E/\beta_2)}{P(E/\beta_1)} = \exp\left[(\beta_2 A_2 - \beta_1 A_1) - (\beta_2 - \beta_1)E\right].
-\end{equation}
-Taking the logarithm of the equation above, we obtain
-\begin{equation}
-\label{eq:ln_probability_ratio}
-\ln\frac{P(E/\beta_2)}{P(E/\beta_1)} = \left(\beta_2 A_2 - \beta_1 A_1\right) - \left(\beta_2 - \beta_1\right)E,
-\end{equation}
-which is the basis for the statistical analysis carried out in the ensemble validation that determines how many standard deviations the calculated slope is from the specified one,  $ \beta_2 - \beta_1 $.
-Note that it is independent of the unknown free energies.
-For a guidance on how to choose the temperature gap the reader is referred to the aforementioned paper.
-
-Furthermore,  it is possible to examine the consistency between the sampled kinetic energy $K$ and the corresponding Maxwell-Boltzmann distribution, which is given by the following expression:
-\begin{equation}
-\label{eq:mb}
-P(K) = \frac{\beta}{\sqrt{N_{dof}\pi}} \exp\left[-\frac{\left(\beta K - \frac{N_{dof}}{2}\right)^2}{N_{dof}} \right],
-\end{equation}
-where $N_{dof}$ is the number of degrees of freedom.
-Eq.~\eqref{eq:mb} is a normal distribution, with average  $ \langle K \rangle = N_{dof}/2\beta $ and variance $\sigma^2 = N_{dof}/2\beta^2$.
+Sampling validation: Shirts \cite{Shirts_2013}
 
 \section{Results}
 \label{sec:numerical_results}
