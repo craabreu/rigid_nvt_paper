@@ -1,0 +1,99 @@
+\documentclass[
+journal=jctcce,
+manuscript=suppinfo]{achemso}
+
+\setkeys{acs}{
+	abbreviations = false,
+	articletitle  = false,
+	keywords      = false,
+	maxauthors    = 10,
+	super         = true
+}
+
+% Comment below before submitting
+\let\titlefont\undefined
+\usepackage[fontsize=11pt]{scrextend}
+\usepackage[hidelinks,colorlinks,citecolor=blue]{hyperref}
+%\flushbottom
+% Comment above before submitting
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[table]{xcolor}
+\definecolor{lightgray}{gray}{0.9}
+\usepackage{tikz}
+\usetikzlibrary{decorations.text}
+\newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}   % matrix symbol
+\newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}   % vector symbol
+\newcommand{\tr}[1]{#1^\text{t}}                % transposition
+\newcommand{\diff}[2]{\frac{\partial #1}{\partial #2}} % derivative
+%\newcommand{\diff}[2]{\nabla_{#2}#1}            % derivative
+\newcommand{\sdiff}[2]{\nabla^2_{#2}#1}         % 2nd derivative
+\newcommand{\Ham}[1]{{\mathcal H}_\text{#1}}    % Hamiltonian
+\newcommand{\Liu}[1]{i\!L_\text{#1}}            % Liouville
+\newcommand{\timestep}{h}
+\newcommand{\modified}[1]{\widetilde{#1}}
+
+\usepackage{array}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+\usepackage{booktabs}    
+\usepackage[exponent-product=\times]{siunitx}
+
+\newenvironment{smallarray}[1]                          % small arrays
+{\null\,\vcenter\bgroup\scriptsize
+	\renewcommand{\arraystretch}{1.5}
+	\arraycolsep=.13885em
+	\hbox\bgroup$\left[\array{@{}#1@{}}}
+{\endarray\right]$\egroup\egroup\,\null}
+\listfiles
+
+\author{Ana J.
+Silveira}
+\email{asilveira@plapiqui.edu.ar}
+\affiliation{Planta Piloto de Ingenier\'ia Qu\'imica, PLAPIQUI, Universidad Nacional del Sur, Camino La Carrindanga Km 7-CC: 717, Bah\'ia Blanca, Argentina}
+
+\author{Charlles R.
+A.
+Abreu}
+\email{abreu@eq.ufrj.br}
+\affiliation{Chemical Engineering Department, Escola de Qu\'imica, Universidade Federal do Rio de Janeiro, Rio de Janeiro, RJ 21941-909, Brazil}
+
+%\title{Revisiting the Nos\'{e}-Hoover chain thermostat for Rigid-Body Molecular Dynamics}
+\title{Improvement of Deterministic NVT Molecular Dynamics via Backward Error Analysis}
+
+%\abbreviations{AAA, BBB, CCC}
+\keywords{aaa, bbb, ccc}
+
+
+\begin{document}
+\begin{suppinfo}
+
+\begin{table}
+	\caption{Effect of the time-step size on .... of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing the unsplit solution for free rotations, given by the numerical schemes.}
+    \label{table:stability_martyna}
+    \begin{tabular}{SS[table-number-alignment = center,table-figures-exponent = 1]S[table-number-alignment = center,table-figures-exponent = 1]}
+     & \multicolumn{2}{c}{Martyna \textit{et al.} \cite{Martyna_1996}}  \\
+     \cmidrule[0.5mm](lr){2-3} 
+     $\timestep$ $\text{(fs)}$  & $\modified{H}$  & $\modified{\Ham{}}$     \\
+	1 &  -1.6e-2  & 4.5e-3\\
+	2 & 9.5e-2 & 1.4e-1\\
+	3 & 2.8e-1 & 5.6e-2\\
+	4 & 1.1e0 & 5.6e-2\\
+	5 & 3.3e0 & -3.7e-2\\
+    6 & 6.1e1 & 6.9e-2 \\
+	7 & 9.8e2 & -3.6e-3 \\
+	8 & 1.1e4 & 1.8e-2 \\
+	9 & 7.5e4 & 3.8e-3 \\
+	10 & 3.3e5 & 1.9e-2  \\
+	\end{tabular}
+\end{table}
+
+
+\end{suppinfo}
+
+\bibliography{rigid_bodies}
+\end{document}
