@@ -74,6 +74,30 @@ Abreu}
 
 \begin{table}
 	\caption{Effect of the time-step size on .... of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing the unsplit solution for free rotations, given by the numerical schemes.}
+    \label{table:stability}
+        \sisetup{table-number-alignment = center}
+    \begin{tabular}{SS[table-figures-decimal=1,table-figures-exponent = 1]S[table-figures-exponent = 1,table-figures-decimal=1]S[table-figures-exponent = 1,table-figures-decimal=1]}
+     & \multicolumn{3}{c}{Drift rate [(kcal/mol)/ns]}  \\
+     & \multicolumn{2}{c}{``This work''}  & \multicolumn{1}{c}{NVE} \\
+     \cmidrule[0.5mm](lr){2-3} \cmidrule[0.5mm](lr){3-4} 
+     $\timestep$ $\text{(fs)}$  & $\modified{H}$  & $\modified{\Ham{}}$  & $\modified{\Ham{}}$   \\
+	1 &  4.6e-4  & 8.5e-2 & -1.e-3 \\
+	2 & -8.2e-3 & -4.3e-2 & 9.3e-3 \\
+	3 & -3.2e-2 & 7.3e-2 & -5.0e-3 \\
+	4 & 8.1e-3 & -1.1e-1 & 8.5e-2 \\
+	5 & 1.3e0 & -2.2e-2 & 1.1e0 \\
+    6 & 4.4e1 & -3.4e-3 & 6.0e1 \\
+	7 & 8.8e2 & 2.2e-2 & \text{-} \\
+	8 & 9.8e3 & 7.6e-2 & \text{-} \\
+	9 & 7.1e4 & -2.5e-2 & \text{-} \\
+	10 & 3.2e5 & -3.2e-2 & \text{-} \\
+	\end{tabular}
+\end{table}
+
+
+
+\begin{table}
+	\caption{Effect of the time-step size on .... of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing the unsplit solution for free rotations, given by the numerical schemes.}
     \label{table:stability_martyna}
     \begin{tabular}{SS[table-number-alignment = center,table-figures-exponent = 1]S[table-number-alignment = center,table-figures-exponent = 1]}
      & \multicolumn{2}{c}{Martyna \textit{et al.} \cite{Martyna_1996}}  \\
