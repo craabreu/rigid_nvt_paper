@@ -107,7 +107,7 @@ As will be shown later, this is only possible for splitting schemes in which the
 This new method is particularly appealing for rigid-body MD, primarily because in terms of numerical stability one is able to employ considerable time-step sizes for Verlet-type numerical schemes. However, the discretization errors begin to manifest much earlier.
 The case of rigid water exemplifies this behavior and serves for an excellent case test for our method. 
 In fact, we have been able to eliminate the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming the method introduced by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, as well as our implementation for rigid bodies of the numerical scheme developed by Martyna \citeauthor{Martyna_1996} \cite{Martyna_1996}.
-It should be emphasize that this novel technique is not limited to rigid bodies, neither to the NHC method.
+It should be emphasize that this novel technique is not limited to rigid bodies, neither to the NHC method. \citeauthor{Bussi_2007} \cite{Bussi_2007}
 The only requirement is that 
 
 The paper proceeds as follows.
@@ -214,26 +214,22 @@ This may explain why that the approximate solution is more commonly used \cite{v
 This pictures completely changes in the context of backward error analysis: in the approximate methods, an overall rotation is given by a sequence of uniform rotations around the principal axes of a body, which results in a factorization of the rotational operator given by $ e^{\frac{h}{2} i\!L_3} e^{\frac{h}{2} i\!L_2} e^{h i\!L_1} e^{\frac{h}{2} i\!L_2} e^{\frac{h}{2} i\!L_3}$, with each factor representing a rotation around a given axes.
 The analytical solution, on the other hand, entails a single operator, thus making the application of backward error analysis considerably simpler.
 
-\subsection{NVT Dynamics with a Single Thermostat Chain}
+\subsection{NVT Dynamics with a Single Thermostat Chain: Notation and Measure-Preserving Integration}
 
-Here we propose a new method for simulating a system of rigid bodies in the canonical ensemble.
-For this, we couple a single Nos\'{e}-Hoover thermostat chain \cite{Martyna_1992} to all translational and rotational degrees of freedom of the rigid-body system.
-This is simpler than the approach of Kamberaj \textit{et al}.,\cite{Kamberaj_2005} who employed separate thermostat chains to these two classes of movement.
-To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momentum $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$.
+In this work, we couple a single Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992} to both the translational and rotational degrees of freedom of the rigid-body system.
+To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momenta $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$.
 The flow in the extended phase-space no longer conserves the Hamiltonian $\Ham{}$, but an ``extended energy'' given by \cite{Martyna_1992}
 \begin{equation}
 \label{eq:nvt extended energy}
 H = K + U + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j,
 \end{equation}
-where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the system temperature, $L$ is a constant to be determined, and each $Q_j$ is an inertial parameter.
+where $k_\text{\tiny B}$ is the Boltzmann constant, $T$ is the target temperature, $L$ is a constant to be determined, and each $Q_j$ is an inertial parameter.
 As recommended in Ref.~\citenum{Martyna_1992}, we can make $Q_1 = L k_\text{\tiny B} T t_d^2$ and $Q_j = k_\text{\tiny B} T t_d^2$ for $j \geq 2$, where $t_d$ is a characteristic time scale of the thermostat chain.
 
-Knowledge on the dynamics and statistical mechanics of non-Hamiltonian systems has advanced considerably in recent years.\cite{Tuckerman_1999, Tuckerman_2001, Sergi_2001, Sergi_2003, Ezra_2004, Sergi_2004, Ezra_2006, Sergi_2010_2} Invaluable tools have been devised for the development and analysis of extended phase space methods.
 By employing the method of Sergi and Ferrario \cite{Sergi_2001}, we obtain the equations of motion for the NVT dynamics with a single thermostat chain, which are
 \begin{subequations}
 	\label{eq:ODE system for NVT}
 	\begin{align}
-%
 \label{eq:nhc_r}
 	&\dot{\vt r} =
 	{\mt M}^{-1} {\vt p}, \\
@@ -266,29 +262,16 @@ In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and
 &G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_\text{\tiny B} T  \qquad \text{for} \quad j > 1.
 \end{align}
 \end{subequations}
-
 With $K$ defined as in Eq.~\eqref{eq:kinetic energy}, it turns out that $G_1 = 2K - L k_\text{\tiny B} T$.
-It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics, but are often computed for checking how well a numerical integrator conserves $H$.
-Analysis of the probability distribution generated by Eq.~\eqref{eq:ODE system for NVT} can be done through the generalized phase-space analysis of Tuckerman \textit{et al}.\cite{Tuckerman_2001} For this, conservation laws must be identified and driven variables eliminated.
+
 If there are no external forces, the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ and the extended energy $H$ are integrals of motion, while the system's center-of-mass position can be considered as a driven variable,\cite{Tuckerman_2001} such as the $\eta$ coordinates.
 Moreover, $2N$ equations must be eliminated due to the constraints involving $\vt q$ and $\vt \pi$.
 In the general case, by taking all these facts into account and applying the analysis of Ref.~\citenum{Tuckerman_2001}, we can deduce that the correct canonical distribution is attained if one makes $L = 6N$.
 In the particular situation in which one sets $\sum_{i=1}^N {\vt p}_i = \vt 0$ at the onset of a simulation, one must make $L = 6N - 3$ \cite{Martyna_1994}.
 
-\subsection{Measure-Preserving Integration for the NVT Dynamics}
-\label{sec:mttk}
-
-Altough it is not possible to devise symplectic integrators, one can rigurously obtain measure-preserving numerical solvers.\cite{Sergi_2001, Ezra_2004, Ezra_2006}
-
-As in the Hamiltonian case, it is possible to devise a splitting scheme for solving Eq.~\eqref{eq:ODE system for NVT} numerically \cite{Tuckerman_2010}. For that, we employed the systematic method introduced by Ezra \cite{Ezra_2006} for deriving accurate integrators which preserve the phase-space measure associated with the original equations of motion, which is 
-In short, a splitting scheme will preserve a given measure if each individual propagator does it as well. 
-It can be shown that the function $w(\vt x)$ that determines the invariant phase-space measure is given by
-\begin{equation}
-\label{eq:nhc_measure}
-w = -7N \eta_1 - \sum_{j=2}^M \eta_j.
-\end{equation}
-
-will preserve a given measure $e^{-w(\vt x)}d\vt x$ 
+Altough it is not possible to devise symplectic integrators for Eq.~\eqref{eq:ODE system for NVT}, one can rigurously obtain measure-preserving numerical solvers \cite{Sergi_2001, Ezra_2004, Ezra_2006}.
+It can be shown that the function $w(\vt x)$ that determines the invariant phase-space measure $e^{-w(\vt x)}d\vt x$ of Eq.~\ref{eq:ODE system for NVT} is given by $w = -7N \eta_1 - \sum_{j=2}^M \eta_j$.
+It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics so, in this case, the measure-preserving condition for every individual operator can actually be relaxed. The $\eta$ coordinates are often computed for checking how well a numerical integrator conserves $H$.
 
 By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e.
 non-Hamiltonian) Liouville operator, the splitting goes as
@@ -297,8 +280,7 @@ non-Hamiltonian) Liouville operator, the splitting goes as
 e^{\timestep \mathcal{L}_\text{\tiny NVT}} = e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} e^{\timestep \Liu{\tiny NVE}} e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} + \mathcal{O}(\timestep^3),
 \end{equation}
 where $\Liu{\tiny NVE}$ is the same operator of the previous case and $\mathcal{L}_\text{\tiny NHC}$ aggregates all new terms introduced by the Nos\'e-Hoover chain.
-Of course, the NVE part can be integrated exactly as described before.
-The NHC part, in turn, can be split even further as
+The NHC part can be split even further as
 \begin{equation*}
 e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\limits_{j=M}^1 e^{\frac{\timestep}{4n} \mathcal{L}_j }\right) e^{\frac{\timestep}{2n} \mathcal{L}_0 } \left(  \textstyle\prod\limits_{j=1}^M e^{\frac{\timestep}{4n} \mathcal{L}_j }\right)  \right]^n.
 \end{equation*}
@@ -314,7 +296,7 @@ With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as \ci
 After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$.
 Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
 Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied once again, but now with index $j$ ascending from $1$ to $M$.
-In the following, the NVT integrator introduced in the present section will be denoted as MTTK as its development was inspired by Ref.~\cite{Martyna_1996}.
+This numerical scheme is simply a measure-preserving version of the NVT integrator introduced by \citeauthor{Martyna_1996} \cite{Martyna_1996}.
 
 For having a low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort, making it feasible to increase the time step $\timestep$ without degrading the accuracy of the NHC part.
 In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
@@ -328,22 +310,19 @@ Instead of trying to increase accuracy in the evaluation of $e^{\timestep \Liu{\
 
 In order to explain our proposal, we turn the attention again to the NVE case.
 A known property of splitting methods applied to Hamiltonian ODE systems is that they provide approximate solutions which are Hamiltonian as well.
-Hence, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian \cite{Hairer_2006}.
-In this way, while $\Ham{}$ exhibits a certain degree of oscillation along that trajectory, the value of $\Ham{S}$ is actually conserved (up to round-off errors). 
-It is also known that $\Ham{S}$ explicitly depends on the time-step size $\timestep$.
+Hence, a trajectory generated to be roughly consistent with the specified function $\Ham{}$ will be exactly consistent with a nearby (albeit unknown) function $\Ham{S}$, referred to as a shadow Hamiltonian \cite{Hairer_2006}, which explicitly depends on the time-step size $\timestep$.
 
-The first new result we present in this paper is an analytical form for the shadow Hamiltonian concerning a system of rigid bodies whose dynamics is integrated via the unsplit rotation method of Ref.~ \citenum{Silveira_2017}.
+The first new result we present in this paper is an analytical form of an approximation to the shadow Hamiltonian, referred here as \textit{refine}d Hamiltonian, concerning a system of rigid bodies whose dynamics is integrated via the unsplit rotation method of Ref.~ \citenum{Silveira_2017}.
 A detailed derivation is provided in Appendix~\ref{sec:rigid body shadow hamiltonian} and here we summarize the final expressions.
 
-As shown in Appendix~\ref{sec:rigid body shadow hamiltonian}, the shadow Hamiltonian for a Verlet-type method applied to a system of rigid bodies can be approximated by $\Ham{S} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are modified kinetic and potential energies.
+As demonstrated in Appendix~\ref{sec:rigid body shadow hamiltonian}, the \textit{refined} Hamiltonian for a Verlet-type method applied to a system of rigid bodies is given by $\modified{\Ham{}} = \modified K + \modified U + \mathcal{O}(h^4)$, where $\modified K$ and $\modified U$ are \textit{refined} kinetic and potential energies.
 The latter is given by
 \begin{equation}
 \label{eq:modified potential energy}
-\modified U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau}_b {\mt I}^{-1} {\vt \tau}_b \right),
+\modified U = U - \frac{\timestep^2}{24} \left( \tr{\vt F} {\mt M}^{-1} {\vt F} + \tr{\vt \tau} \tr{\mt A} {\mt I}^{-1} {\mt A} {\vt \tau} \right).
 \end{equation}
-where ${\vt \tau}_b = {\mt A}(\vt q) {\vt \tau}$ is the body-fixed representation of the resultant torque vector.
 Note that $\modified U$, such as $U$, is independent of $\vt p$ and $\vt \pi$.
-In turn, the modified kinetic energy can be expressed as
+In turn, the \textit{refined} kinetic energy can be expressed as
 \begin{equation}
 \label{eq:modified kinetic energy}
 \modified K = \frac{1}{2} \tr{ \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
@@ -409,6 +388,11 @@ By contrasting such definition with Eqs.~\eqref{eq:modified kinetic energy} and 
 \label{eq:thermostat_force}
 G_1 = 2 \modified K - L k_\text{\tiny B} T.
 \end{equation}
+Also, the ``extended energy'' preserved by this approach is now given by
+\begin{equation}
+\label{eq:this extended energy}
+\widetilde{H} = \modified K + \modified U + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
+\end{equation}
 
 One instant in which $\modified K$ must be evaluated is right after the action of propagator $e^{\timestep \Liu{\tiny NVE}}$.
 Notice that such action takes place only once per time step, intercalating with non-Hamiltonian propagations.
@@ -416,12 +400,10 @@ Therefore, there is no record beforehand of a Hamiltonian trajectory from which 
 This could be solved by executing a number of virtual Verlet steps, both forward and backward in time, so as to generate a virtual Hamiltonian trajectory that coincides with the actual trajectory in the two phase-space points which are input and output of the central propagator in Eq.~\eqref{eq:splitting NVT}.
 Nonetheless, this might require additional force computations per actual time step, thus increasing the cost of the simulation.
 Fortunately, only positions and orientations are required for the numerical differentiation.
-This allows us to obtain a four-point stencil without any additional force evaluation, just by executing one incomplete virtual step for each direction in time.
+This allows us to obtain a four-point stencil without any additional force evaluation, just by executing one incomplete virtual step for each direction in time, as schematically illustrated in Fig.~\ref{fig:virtual}.
 By incomplete we mean that the step is aborted once the positions and orientations have been updated.
 \begin{figure}
 \begin{tikzpicture}
-%\draw[dash pattern=on 2pt off 3pt on 4pt off 4pt](3,.2) -- (3,1.5);
-%\draw[dash pattern=on 2pt off 3pt on 4pt off 4pt](5.5,.2) -- (5.5,1.5);
 \draw[->, dashed]   (0,0.0) -- (7,0.0) node[right]{$r(t)$};
 \node(0) at (0,0)[shape=circle,draw,double,scale=0.5]        {};
 \node(1) at (2.2,0)[fill=black,shape=circle,draw,scale=0.5]        {};
@@ -441,43 +423,15 @@ By incomplete we mean that the step is aborted once the positions and orientatio
 \caption{Schematic representation}
 \label{fig:virtual}
 \end{figure}
-%\begin{figure}
-%\begin{tikzpicture}
-%\draw[dash pattern=on 2pt off 3pt on 4pt off 4pt](2,.2) -- (2,1.5);
-%\draw[dash pattern=on 2pt off 3pt on 4pt off 4pt](5.5,.2) -- (5.5,1.5);
-%\node(0) at (0,0)[shape=circle,draw, minimum width=1cm, minimum height=1cm]        {$r_{t-h}$};
-%\node(1) at (2.5,0)[shape=circle,draw,double,minimum width=1cm, minimum height=1cm]        {$r_t$};
-%\node(2) at (5,0)[shape=circle,draw,double,minimum width=1cm, minimum height=1cm]        {$r_{t+h}$};
-%\node(3) at (7.5,0)[shape=circle,draw,minimum width=1cm, minimum height=1cm] {$r_{t+ 2h}$};
-%\node(4) at (3.75,1)[] {$e^{\timestep \Liu{\tiny NVE}}$};
-%\path [dashed,->]
-%  (1)      edge                 node [above]  {virtual}     (0)
-%  (2)      edge                 node [above] {virtual}     (3);
-%\path [->,thick] 
-%  (1)      edge                 node [above]  {}            (2);
-%\end{tikzpicture}
-%\caption{Schematic representation}
-%\label{fig:virtual}
-%\end{figure}
-
-A drawback of this approach is that the resulting NVT integrator lacks time-reversal symmetry due to the employed differentiation formulas.
-As a matter of fact, long-term reversibility is not generally achievable with MD codes that rely on floating-point arithmetics.
-In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per actual time step.
 
 In addition, $\modified K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales the momentum vectors $\vt p$ and $\vt \pi$ by a common factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
 Because such propagator leaves the positions and quaternions intact and, as a consequence, the matrix $\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\modified K$ goes as simply as ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$.
 
-$\widetilde{H}$, but an ``extended energy'' given by \cite{Martyna_1992}
-\begin{equation}
-\label{eq:this extended energy}
-\widetilde{H} = \modified K + \modified U + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j,
-\end{equation}
-
-Tolman's generalized equipartition theorem \cite{Uline_2008}
+Please note that in Eq.~\ref{eq:generalized force NVT} we have employed Tolman's generalized equipartition theorem \cite{Uline_2008}, which states that
 \begin{equation*}
-\left\langle \tr{\vt p} \diff{\modified{\Ham{}}}{\vt p} + \tr{\vt \pi} \diff{\modified{\Ham{}}}{\vt \pi} \right\rangle = (6N - 3) k_\text{\tiny B} T
+\left\langle \tr{\vt p} \diff{\modified{\Ham{}}}{\vt p} + \tr{\vt \pi} \diff{\modified{\Ham{}}}{\vt \pi} \right\rangle = (6N - 3) k_\text{\tiny B} T.
 \end{equation*}
-
+This definition, with the \textit{refined} kinetic energy between brackets, provides a generalization for $h > 0$ of the simulated temperature \cite{Eastwood_2010}.
 
 Finally, reweighting:
 \begin{equation}
@@ -485,24 +439,9 @@ Finally, reweighting:
 \langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
 \end{equation}
 
-\section{Theoretical Background}
-
-
-We remark that the integration scheme proposed by Kamberaj \text{et al}.\cite{Kamberaj_2005} does not fulfill this criterion. 
-
-We end this section by noting that the term that premultiplies the extended phase-space volume in the invariant-measure above is a function of $\vt \eta$. Given that the time evolution of the physical variables and the thermostat momenta does not depend on $\vt \eta$, we might conclude that, in this case, the measure-preserving condition for every individual operator can actually be relaxed. However, as will be shown in the numerical results of Sec.~\ref{sec:numerical_results}, 
-
-
-\subsection{Generalized Equipartition}
-
-The important thing is that $\modified{\mathbf \Omega}$ depends exclusively on the positions and orientations, which makes $\left[\begin{array}{c} \diff{\modified K}{\vt p} \\ \diff{\modified K}{\vt \pi} \end{array}\right] = \modified{\mathbf \Omega} \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]$.
-In this way, the equipartition theorem (valid at least in this direction? something to do with integrating through momenta at least internally to the integral in coordinates?) states that
-\begin{equation}
-\label{eq:equipartition}
-3N k_B T = \left\langle \tr{\vt p} \diff{\tilde K}{\vt p} \right\rangle = 2\langle \tilde K \rangle
-\end{equation}
-
-Sampling validation: Shirts \cite{Shirts_2013}
+A drawback of our approach is that the resulting NVT integrator lacks time-reversal symmetry due to the employed differentiation formulas.
+As a matter of fact, long-term reversibility is not generally achievable with MD codes that rely on floating-point arithmetics.
+In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per actual time step.
 
 \section{Application to Water and Discussion}
 \label{sec:numerical_results}
@@ -601,7 +540,7 @@ This is true also for the results corresponding to the use of the NO-SQUISH meth
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the exact solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement.
 
-We have also (check ensemble results)\ref{table:check_ens}
+We have also (check ensemble results)\ref{table:check_ens} Sampling validation: Shirts \cite{Shirts_2013}
 
 With the aim of highlighting the importance of reweighting to recover averages of the physical system, in Table~\ref{table:reweight} we present the calculated temperature and potential energy for each $\timestep$ before and after applying Eq.~\ref{eq:reweighting} for time-step sizes smaller 7 fs, as we saw in Fig. that for ths case, the temperature does not reproduce the specified temperature.
 The ``refined'' temperature $\modified{T}$ was calculated by means of the generalized equipartition theorem, given by Eq.~\ref{eq:equipartition}.
