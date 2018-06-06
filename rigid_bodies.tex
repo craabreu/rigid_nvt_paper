@@ -31,7 +31,6 @@ layout=twocolumn
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}   % vector symbol
 \newcommand{\tr}[1]{#1^\text{t}}                % transposition
 \newcommand{\diff}[2]{\frac{\partial #1}{\partial #2}} % derivative
-%\newcommand{\diff}[2]{\nabla_{#2}#1}            % derivative
 \newcommand{\sdiff}[2]{\nabla^2_{#2}#1}         % 2nd derivative
 \newcommand{\Ham}[1]{{\mathcal H}_\text{#1}}    % Hamiltonian
 \newcommand{\Liu}[1]{i\!L_\text{#1}}            % Liouville
@@ -64,10 +63,8 @@ Abreu}
 \email{abreu@eq.ufrj.br}
 \affiliation{Chemical Engineering Department, Escola de Qu\'imica, Universidade Federal do Rio de Janeiro, Rio de Janeiro, RJ 21941-909, Brazil}
 
-%\title{Revisiting the Nos\'{e}-Hoover chain thermostat for Rigid-Body Molecular Dynamics}
 \title{Improvement of Deterministic NVT Molecular Dynamics via Backward Error Analysis}
 
-%\abbreviations{AAA, BBB, CCC}
 \keywords{aaa, bbb, ccc}
 
 \begin{document}
@@ -87,34 +84,35 @@ Naively, one would expect those approximations to only produce quantitative devi
 However, what can be hidden in the deviations are actually systematic errors, which may introduce non-physical behavior.
 For instance, it has already been shown that the unavoidable errors in the discretization of the equations of motion disrupt the equipartition of kinetic energy \cite{Eastwood_2010}.
 The same artifact occurs on the partition of kinetic energy between translational and rotational degrees of freedom in rigid-body Molecular Dynamics (MD) \cite{Davidchack_2009,Silveira_2017}.
-This finding brings into question the NVT integrator developed by Kamberaj and co-workers\cite{Kamberaj_2005} that, assuming equipartition, couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom. In addition, this method fails to reproduce the specified temperature for time-step sizes usually employed in MD.
+This finding brings into question the NVT integrator developed by Kamberaj and co-workers\cite{Kamberaj_2005} which, assuming equipartition, couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom. In addition, as will be shown later, this method fails to reproduce the specified temperature for time-step sizes usually employed in MD.
 
-The relevance of rigid-body MD stems from the fact that not only some molecules are modelled as rigid bodies, like the ubiquitous case of water \cite{Jorgensen_1983}, but also it can be employed as a coarse-graining strategy for systems that might be designed as collection of interconected rigid bodies, such as proteins and nanoparticules \cite{Knorowski_2012, Patra_2013}.
+The relevance of rigid-body MD stems from the fact that not only some molecules are usually modelled as rigid bodies, like the ubiquitous case of water \cite{Jorgensen_1983}, but also it can be employed as a coarse-graining strategy for systems that might be designed as collection of interconected rigid bodies, such as proteins and nanoparticules \cite{Knorowski_2012, Patra_2013}.
 As a matter of fact, the approach of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, which is implemented, for instance, in the software packages HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995}, has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, as well as membranes\cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles\cite{Yan_2008} and nanoparticles \cite{Patra_2014}.
 
 The Nos\'{e}-Hoover chain (NHC) thermostat \cite{Martyna_1992}, routinely used in MD, is based on the extended phase-space approach, in which auxiliary degrees of freedom act regulating the kinetic energy of the physical variables so as to be consistent with the Maxwell-Boltzmann distribution at a given target temperature.
-To do so the NHC thermostat requires an expression relating the temperature, a macroscopic parameter, with the kinetic energy, which is a property of each microstate.
+This requires an expression relating the temperature, a macroscopic parameter, with the kinetic energy, which is a property of each microstate.
 Usually, in MD the equipartition theorem plays this role. 
 However, as already mentioned, this theorem is disrupted in numerical schemes with non-negligible discretization errors.
 This is because numerical trajectories actually sample from the so-called \textit{shadow} Hamiltonian, which cannot be merely separated into momentum and position dependent parts.
-Instead, what is usually identified as the \textit{shadow} kinetic energy contains quadratic terms in particle momenta, but also depends on particle positions\cite{Eastwood_2010}.
-It seems reasonable to argue that the thermostat should control this kinetic energy, instead of the physical one.
-However, the theory underlying the concept of shadow Hamiltonians correspond to backward error analysis, which is only applicable to symplectic integrators.
+Instead, what is usually identified as the \textit{shadow} kinetic energy contains quadratic terms in particle momenta accompanied by particle positions dependency \cite{Eastwood_2010}.
+It seems then reasonable to argue that the thermostat should control this kinetic energy, instead of the physical one.
+However, the theory underlying the concept of shadow Hamiltonian correspond to backward error analysis, which is only applicable to symplectic integrators.
 This is not the case of NHC numerical schemes, given that the auxiliary variables introduce non-Hamiltonian components to the equations of motion.
 In this paper we introduce a procedure that partially overcomes this limitation by performing the backward error analysis on the NVE part of the numerical integrator with minimal computational overheads. 
-The resulting NHC scheme, which simultaneously couples the translational and rotational degrees of freedom to a unique Nos\'{e}-Hoover chain thermostat, is formulated as a function on an approximation to the \textit{shadow} kinetic energy.
-As will be shown later, this is only possible for splitting schemes in which the NVE Liouville operator is placed in the middle between the thermostat propagators. 
-This new method is particularly appealing for rigid-body MD, primarily because in terms of numerical stability one is able to employ considerable time-step sizes for Verlet-type numerical schemes. However, the discretization errors begin to manifest much earlier.
-The case of rigid water exemplifies this behavior and serves for an excellent case test for our method. 
-In fact, we have been able to eliminate the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming the method introduced by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, as well as our implementation for rigid bodies of the numerical scheme developed by Martyna \citeauthor{Martyna_1996} \cite{Martyna_1996}.
-It should be emphasize that this novel technique is not limited to rigid bodies, neither to the NHC method. \citeauthor{Bussi_2007} \cite{Bussi_2007}
-The only requirement is that 
+The resulting NHC scheme, which simultaneously couples the translational and rotational degrees of freedom to a unique Nos\'{e}-Hoover chain thermostat, controls the fluctuations of an approximation to the \textit{shadow} kinetic energy.
 
-The paper proceeds as follows.
-In Sec.~\ref{sec:nve} we briefly review the equations of motion in the NVE ensemble, which are the basis for developing the corresponding dynamics in the NVT ensemble.
-In Sec.~\ref{sec:refined_method} we devise the corresponding numerical integrators, whose performance and correctness we assess in Sec.~\ref{sec:numerical_results}.
-Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}.
-%The starting point is  microcanonical (NVE) ensemble \citep{Silveira_2017} which employs the unit quaternion representation for the rotational degrees of freedom. 
+Our new method is particularly appealing for rigid-body MD, primarily because discretization errors begin to manifest much earlier than any numerical stability caused by the time-step size. 
+The case of rigid water exemplifies this behavior and serves for an excellent test case for our proposal. 
+In fact, we are able to eliminate the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming the method introduced by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, as well as our implementation for rigid bodies of the numerical scheme developed by \citeauthor{Martyna_1996} \cite{Martyna_1996}.
+
+It should be emphasize that our novel technique is not limited to rigid bodies, neither to the NHC method. 
+The only requirement is imposed on the splitting scheme, which must have the NVE Liouville operator in the middle between the thermostat propagators.
+ 
+This paper proceeds as follows.
+In Secs.~\ref{sec:nve}-\ref{sec:nvt} we review the rigid-body dynamics in the NVE and NVT ensembles.
+This is followed by our results on backward error analysis, which we employ in Sec.~\ref{sec:refined_method} to derive our new NVT scheme, whose performance we assess in Sec.~\ref{sec:numerical_results}.
+Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}. Appendix \ref{sec:rigid body shadow hamiltonian} contains a detailed derivation of the approximation to the shadow Hamiltonian.
+
 \section{Methodology}
 \label{sec:methodology}
 
@@ -146,9 +144,8 @@ The Hamiltonian system of ordinary differential equations (ODE) that describes t
 	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau, \label{eq:EDO_pi}
 	\end{align}
 \end{subequations}
-with $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$.
 In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the conjugate momenta of the quaternion.
-Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference, while $\vt \omega$ is the three-dimensional angular velocity in the body-fixed frame.
+Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference; and $\vt \omega$ $=$ $\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$ is the three-dimensional angular velocity in the body-fixed frame.
 Matrices $\mt M$ and $\mt I$ are diagonal.
 The former contains the body mass in all three diagonal entries while the latter contains the three principal moments of inertia.
 Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
@@ -184,7 +181,7 @@ While $U(\vt r, \vt q)$ is an arbitrary function, the kinetic energy is given by
 \label{eq:kinetic energy}
 K = \frac{1}{2} \tr{\vt p} {\mt M}^{-1} {\vt p} + \frac{1}{8} \tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}.
 \end{equation}
-%An advantage of this notation is that
+
 Of course, Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together.
 The same occurs for diagonal matrices $\mt M$ and $\mt I$, whose sizes increase to $3N \times 3N$ in this case.
 In addition, $\mt B(\vt q)$ and $\mt C(\vt q)$ become block-diagonal matrices with $4N$ rows and $3N$ columns.
@@ -206,16 +203,16 @@ e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Li
 \end{equation}
 where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$.
 In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state immediately before the propagation occurs.
-The action of $e^{\timestep \Liu{A}}$ is the simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step. In Ref.~\citenum{Silveira_2017} we derived a general solution of torque-free rotation in a form that facilitates computer implementation allowing, differently to existing schemes \cite{Kosenko_1998,vanZon2007,Celledoni_2008}, a unified treatment for both asymmetric ($I_1$ $>$ $I_2$ $>$ $I_3$) and symmetric tops (either $I_1$ = $I_2$ or $I_2$ = $I_3$).
+The action of $e^{\timestep \Liu{A}}$ is the simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step. In Ref.~\citenum{Silveira_2017} we derived an exact solution of torque-free rotation in a form that facilitates the computer implementation allowing, differently to existing schemes \cite{Kosenko_1998,vanZon2007,Celledoni_2008}, a unified treatment for both asymmetric ($I_1$ $>$ $I_2$ $>$ $I_3$) and symmetric tops (either $I_1$ = $I_2$ or $I_2$ = $I_3$).
 For mathematical details, the reader is referred to our previos work \cite{Silveira_2017}.
 The exact solution comprise ``less familiar'' mathematical functions, such as the Jacobi elliptic functions and Carlson integrals.
-On the other hand, the approximate solutions, such as the NO-SQUISH method  \cite{Miller_2002}, have proven to be very accurate in liquid-phase simulations \cite{Silveira_2017} and its formulation only involve sine and cosine terms.
+On the other hand, the approximate solutions, such as the NO-SQUISH method  \cite{Miller_2002}, have proven to be very accurate in liquid-phase simulations \cite{Silveira_2017} and its formulation only involves sine and cosine terms.
 This may explain why that the approximate solution is more commonly used \cite{vanZon2007}.
 This pictures completely changes in the context of backward error analysis: in the approximate methods, an overall rotation is given by a sequence of uniform rotations around the principal axes of a body, which results in a factorization of the rotational operator given by $ e^{\frac{h}{2} i\!L_3} e^{\frac{h}{2} i\!L_2} e^{h i\!L_1} e^{\frac{h}{2} i\!L_2} e^{\frac{h}{2} i\!L_3}$, with each factor representing a rotation around a given axes.
 The analytical solution, on the other hand, entails a single operator, thus making the application of backward error analysis considerably simpler.
 
 \subsection{NVT Dynamics with a Single Thermostat Chain: Notation and Measure-Preserving Integration}
-
+\label{sec:nvt}
 In this work, we couple a single Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992} to both the translational and rotational degrees of freedom of the rigid-body system.
 To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momenta $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$.
 The flow in the extended phase-space no longer conserves the Hamiltonian $\Ham{}$, but an ``extended energy'' given by \cite{Martyna_1992}
@@ -270,8 +267,8 @@ In the general case, by taking all these facts into account and applying the ana
 In the particular situation in which one sets $\sum_{i=1}^N {\vt p}_i = \vt 0$ at the onset of a simulation, one must make $L = 6N - 3$ \cite{Martyna_1994}.
 
 Altough it is not possible to devise symplectic integrators for Eq.~\eqref{eq:ODE system for NVT}, one can rigurously obtain measure-preserving numerical solvers \cite{Sergi_2001, Ezra_2004, Ezra_2006}.
-It can be shown that the function $w(\vt x)$ that determines the invariant phase-space measure $e^{-w(\vt x)}d\vt x$ of Eq.~\ref{eq:ODE system for NVT} is given by $w = -7N \eta_1 - \sum_{j=2}^M \eta_j$.
-It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics so, in this case, the measure-preserving condition for every individual operator can actually be relaxed. The $\eta$ coordinates are often computed for checking how well a numerical integrator conserves $H$.
+It can be shown that the function $w(\vt x)$ that determines the invariant phase-space measure $e^{-w(\vt x)}d\vt x$ for Eq.~\ref{eq:ODE system for NVT} is given by $w = -7N \eta_1 - \sum_{j=2}^M \eta_j$.
+It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics so, in this case, the measure-preserving condition for every individual operator could be relaxed.
 
 By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e.
 non-Hamiltonian) Liouville operator, the splitting goes as
@@ -280,11 +277,10 @@ non-Hamiltonian) Liouville operator, the splitting goes as
 e^{\timestep \mathcal{L}_\text{\tiny NVT}} = e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} e^{\timestep \Liu{\tiny NVE}} e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} + \mathcal{O}(\timestep^3),
 \end{equation}
 where $\Liu{\tiny NVE}$ is the same operator of the previous case and $\mathcal{L}_\text{\tiny NHC}$ aggregates all new terms introduced by the Nos\'e-Hoover chain.
-The NHC part can be split even further as
+The operator can be split even further as
 \begin{equation*}
 e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\limits_{j=M}^1 e^{\frac{\timestep}{4n} \mathcal{L}_j }\right) e^{\frac{\timestep}{2n} \mathcal{L}_0 } \left(  \textstyle\prod\limits_{j=1}^M e^{\frac{\timestep}{4n} \mathcal{L}_j }\right)  \right]^n.
 \end{equation*}
-
 In the scheme above, the first propagator to act is $e^{\frac{\timestep}{4n} \mathcal{L}_M}$, which promotes a kick in the momentum of thermostat $M$ expressed as $p_{\eta_M} = p_{\eta_M}^\ast + G_M^\ast \frac{\timestep}{4n}$.
 Then, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ act sequentially, with $j$ varying from $M-1$ down to $1$.
 With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as \cite{Martyna_1996}
@@ -427,13 +423,18 @@ By incomplete we mean that the step is aborted once the positions and orientatio
 In addition, $\modified K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales the momentum vectors $\vt p$ and $\vt \pi$ by a common factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
 Because such propagator leaves the positions and quaternions intact and, as a consequence, the matrix $\modified{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\modified K$ goes as simply as ${\modified K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\modified K}^\ast$.
 
-Please note that in Eq.~\ref{eq:generalized force NVT} we have employed Tolman's generalized equipartition theorem \cite{Uline_2008}, which states that
+Please note that Eq.~\ref{eq:generalized force NVT} is closely related to Tolman's generalized equipartition theorem \cite{Uline_2008}, which states that
 \begin{equation*}
 \left\langle \tr{\vt p} \diff{\modified{\Ham{}}}{\vt p} + \tr{\vt \pi} \diff{\modified{\Ham{}}}{\vt \pi} \right\rangle = (6N - 3) k_\text{\tiny B} T.
 \end{equation*}
-This definition, with the \textit{refined} kinetic energy between brackets, provides a generalization for $h > 0$ of the simulated temperature \cite{Eastwood_2010}.
+By substituting $\modified{\Ham{}}$ in this equation, we obtain that
+\begin{equation}
+2\left\langle \modified{K} \right\rangle = (6N - 3) k_\text{\tiny B} T.
+\end{equation}
+This result, with the \textit{refined} kinetic energy between brackets, provides a generalization for $h > 0$ of the simulated temperature \cite{Eastwood_2010}.
 
-Finally, reweighting:
+Finally, given that configurations $x_i$ are sampled from a distribution proportional to $\exp(-\beta \modified{\Ham{}})$, we need to reweight the computed observables $A(x_i)$ to recover the original distribution $\exp (-\beta \Ham{})$.
+This is done as follows:
 \begin{equation}
 \label{eq:reweighting}
 \langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\modified{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
