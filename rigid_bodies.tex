@@ -97,10 +97,11 @@ Here, we prove that their findings can be extended to the symplectic integration
 
 It seems then reasonable to argue that a NHC thermostat should regulate the shadow kinetic energy instead of the specified, ``physical'' one.
 However, the theory underlying the concept of shadow Hamiltonian is only applicable to symplectic integrators, whereas NHC thermostats introduce non-Hamiltonian components to the equations of motion.
-In this paper, we devise a new procedure that partially overcomes this limitation.
-It consists in using a splitting-based numerical integrator that entails a Hamiltonian component, and then carrying out backward error analysis on this NVE part only.
-This allows us to evaluate, with minimal computational overhead, a \textit{refined} kinetic energy for the due replacement in the thermostat equations.
-It is worth mentioning that all steps of this procedure are theoretically justified.
+In this paper, we devise a novel procedure that partially overcomes this limitation.
+It consists in using a splitting-based numerical integrator that entails a Hamiltonian component and carrying out backward error analysis on this NVE part only.
+This allows us to evaluate, with minimal computational overhead, a \textit{refined kinetic energy} for replacement in the thermostat equations.
+As we will demonstrate, this procedure succeeds in both predicting equipartition and reproducing a canonical ensemble consistent with the \textit{refined Hamiltonian}.
+Finally, reweighting is done so that ensemble averages are consistent with the specified one.
 
 Our new method is particularly appealing for rigid-body MD, primarily because discretization errors begin to manifest much earlier than any numerical stability caused by the time-step size. 
 
