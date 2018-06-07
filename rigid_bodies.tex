@@ -447,58 +447,41 @@ In any event, if short-term reversibility is a requirement, one can simply emplo
 \section{Application to Water and Discussion}
 \label{sec:numerical_results}
 
-In the following, we analyze the performance of the proposed NVT integrators introduced in Secs. \ref{sec:mttk}-\ref{sec:refined_method}, and  compare the results with those obtained employing the method of Kamberaj \textit{et al.} \cite{Kamberaj_2005}.  It should be noted that all the simulations were carried out considering $t_d = 100$ fs.
-The system under study corresponds to 903 TIP3P\cite{Jorgensen_1983} water molecules at a density of 970 kg/m$^3$.
-The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at  10 {\AA} and smoothed via a switching function over the range of 9.5 {\AA} to  10 {\AA}.\cite{Silveira_2017} 
-The damping of Coulombic interactions was done by a factor erfc($\alpha r$), with $\alpha$ = 0.29 {\AA}$^{-1}$.
+In the following, we analyze the performance of the NVT scheme proposed in  this paper and compare the results with those obtained employing the measure-preserving version of the integrator due to \citeauthor{Martyna_1996} \cite{Martyna_1996} as well as the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}
 
-Before showing our main results, it may be instructive first to give a picture of the problem in controlling the temperature when discretization errors are non-negligible. 
-The most direct way (the most senstive indicator of the presence of discretization errors) to determine the importance of these errors is by examining the departure of the ``modified Hamiltonian'' $\modified{\Ham{}}$ from the physical Hamiltonian $\Ham{}$\cite{Engle_2005}. 
-Fortunately, with the analytical form of $\modified{\Ham{}}$ derived in this paper we are able to perform such an analysis for the NVE integrator which is essential, as will be shown below, to understand the results of the NVT methods. 
-In Fig.~\ref{fig:nve} we depict the time evolution of both $\modified{\Ham{}}$ (dotted lines) and $\Ham{}$ (solid lines) for the water system undergoing NVE dynamics with different time-step sizes ($\timestep$).
-The numerical integrator correspond to Eq.~\ref{eq:splitting NVE} with the exact solution of free rotation. 
-As expected, $\modified{\Ham{}}$ is very well conserved and close to $\Ham{}$ for $\timestep$ fs, but fairly rapidly separates from $\Ham{}$ when increasing $\timestep$. 
-It should be remarked that $\modified{\Ham{}}$ corresponds to a simple approximation and, most important, it is computationally very cheap. As a result of employing such approximation, we have larger fluctuations in $\modified{\Ham{}}$ for $\timestep$ = 3 fs and $\timestep$ = 4 fs (add in conclusions that we should use high-order approximations).
+The system under study corresponds to 903 TIP3P\cite{Jorgensen_1983} water molecules at a density of 970 kg/m$^3$.
+The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at  10 {\AA} and smoothed via a switching function over the range of 9.5 {\AA} to  10 {\AA} as done in Ref.~\citenum{Silveira_2017}. 
+The damping of Coulombic interactions was done by a factor erfc($\alpha r$), with $\alpha$ = 0.29 {\AA}$^{-1}$.
+In addition, all the simulations were carried out considering $t_d = 100$ fs.
+
+Before presenting our main results, we first examine the departure of the \textit{refined} Hamiltonian from the specified one, as this is the most direct way to determine the importance of the discretization erros \cite{Engle_2005}. This is essential for the discussion of the NVT case. 
+
+In Fig.~\ref{fig:nve} we show the time evolution of both $\modified{\Ham{}}$ (dotted lines) and $\Ham{}$ (solid lines) for the water system undergoing NVE dynamics with different time-step sizes ($\timestep$). For this, we used the numerical scheme of Eq.~\ref{eq:splitting NVE} with the unsplit solution of rotation. As expected, $\modified{\Ham{}}$ is very well conserved and close to $\Ham{}$ for $\timestep$ = 1 fs, but fairly rapidly separates from $\Ham{}$ when increasing $\timestep$. 
+It should be remarked that $\modified{\Ham{}}$ corresponds to a simple approximation and, most important, it is computationally very cheap. As a result of such approximation, we have larger fluctuations in $\modified{\Ham{}}$ for $\timestep$ = 3 fs and $\timestep$ = 4 fs (add in conclusions that we should use high-order approximations).
 
 \begin{figure}
 	\includegraphics{Figures/NVE.eps}
-	\caption{Total energy $\Ham{}$ (solid lines) and modified Hamiltonian $\modified{\Ham{}}$ (dotted lines) of 903 TIP3P\cite{Jorgensen_1983} water molecules obtained by NVE MD simulations for different time-step sizes $\timestep$. The numerical integrator correspond to Eq.~\ref{eq:splitting NVE} with the exact solution of free rotation.}
+	\caption{Total energy $\Ham{}$ (solid lines) and \textit{refined} Hamiltonian $\modified{\Ham{}}$ (dotted lines) for different time-step sizes ($\timestep$) obtained from NVE MD simulations of 903 TIP3P\cite{Jorgensen_1983} water molecules using the numerical scheme of Eq.~\ref{eq:splitting NVE} with the unsplit rotation method.}
 	\label{fig:nve}
 \end{figure}
 
-For our implementation for rigid bodies of the numerical scheme due to Martyna \textit{et al.} \cite{Martyna_1996} (Eq.~\ref{eq:splitting NVT}), in Fig.~\ref{fig:props_k_m} we depict the computed averages of temperature ($\langle T \rangle$) and potential energy per molecule ($\langle U \rangle$) as a function of the time-step size. 
-The specified temperature corresponds to T = 298 K.
-Fig.~\ref{fig:props_k_m} clearly shows that a suitable temperature control leads to a severely degraded accuracy in $\langle U \rangle$, which systematically increases with $\timestep$.
-As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of 2 fs.
-Thus, the results of Fig.~\ref{fig:props_k_m} can be interpreted as follows: if the kinetic energy is restricted to adopt a certain value, in accordance with the specified temperature, the unavoidable discretization errors will accumulate in the remaining degrees of freedom.
-These observations motivated the development of the scheme of Sec.~\ref{sec:refined_method}, whose promising results we show below.
+ \subsection*{Numerical Stability}
 
-\begin{figure}
-	\includegraphics{Figures/thermodynamic_properties_intro.eps}
-    \caption{Effect of the time-step size on the thermodynamic properties and of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing...}
-	\label{fig:props_k_m}
-\end{figure}
-
-\subsection*{Numerical Stability}
-
-The explicit inclusion of the ``refined'' Hamiltonian in a computationally cheap NVT integrator is achieved at the cost of losing the time-reversibility.
+The explicit inclusion of the \textit{refined} Hamiltonian in a computationally cheap NVT integrator is achieved at the cost of losing the time-reversibility.
 This poses the question whether the symmetry loss will influence the long-term stability.
-In this paper, we define the energy drift, denoted by $R$, as the the rate of change of energy with time, which corresponds to the angular coefficient obtained from linear regression fitting.
+
+Here we define the energy drift, denoted by $R$, as the the rate of change of energy with time, which corresponds to the angular coefficient obtained from linear regression fitting.
 Recall that the quantity expected to be conserved along the simulation is $\widetilde{H}$ (Eq.~\ref{eq:this extended energy}) for our method, which from now on will be referred as ``This work''.
 On the other hand, the symmetric scheme due to Martyna \textit{et al.} \cite{Martyna_1996} should preserve $H$ (Eq.~\ref{eq:nvt extended energy}).
 In Fig.~\ref{fig:energy_drift}, we present the computed $R$ as a function of the time-step size, and one can see that for these numerical schemes the energy starts to drift upwards from $h$ = 5 fs. 
-Also, the long-term stability is only modestly improved by our method so, evidently, the lack of symmetry has a negligible impact on $R$.
-Fig.~\ref{fig:energy_drift} also contains the drift in $\Ham{}$ computed for the NVE method\cite{Silveira_2017}, which results to be almost identical to our method.
-It is worth mentioning that the stability threshold for the NVE method corresponds to $h$ = 6 fs.
-The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material).
-We have computed $R$ also for $\Ham{}$, which is the contribution to the extended energy from the physical degrees of freedom, namely the NVE part of the integrator.
-In this case, $\Ham{}$ remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration, which is also true for the scheme of Martyna \textit{et al.} \cite{Martyna_1996} (see Table~\ref{table:stability} of Supp. Material).
+Also, the long-term stability is only modestly improved by our method. Evidently, the impact of the lack of symmetry on $R$, if any, is negligible.
+Fig.~\ref{fig:energy_drift} also contains the drift in $\modified{\Ham{}}$ for the NVE method \cite{Silveira_2017} (circles), which almost coincides with the results of our method. It is worth mentioning that the stability threshold for the NVE method corresponds to $h$ = 6 fs.
+The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material). As one can notice in Fig.~\ref{fig:energy_drift}, the drift in the \textit{refined} Hamiltonian part for our NVT method (squares) remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration.
 This has already been noticed by Davidchack\cite{Davidchack_2009}, and previously by Bond \textit{et al.} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical error''.
 
 \begin{figure}
 	\includegraphics{Figures/energy_drift.eps}
-    \caption{Effect of the time-step size of 903 TIP3P \cite{Jorgensen_1983} water molecules in NVT MD simulations. $R$ for $\widetilde{H}$ and $\Ham{}$, which is the contribution to the extended energy from the physical degrees of freedom. We included the results for the integrator due to Martyna \textit{et al.} \cite{Martyna_1996}
-}
+    \caption{Influence of the time-step size ($h$) on the long-time drift ($R$) in: the extended energy ($\modified{H}$, down triangles) and its \textit{refined} Hamiltonian ($\modified{\Ham{}}$, squares) part for our NVT method, as well as in the extended energy ($H$, up triangles) for the method due to \citeauthor{Martyna_1996} \cite{Martyna_1996} and in the \textit{refined} Hamiltonian ($\modified{\Ham{}}$, circles) for the numerical scheme of Eq.~\ref{eq:splitting NVE} with unsplit solution of rotation.}
 	\label{fig:energy_drift}
 \end{figure}
 
@@ -506,7 +489,7 @@ To end this section, we present in Fig.~\ref{fig:num_stab} the anomalous behavio
 Particularly, one can see from Fig.~\ref{fig:num_stab} (a) that for each time-step size the extended energy drifts upwards until reaching a point at which the integrator becomes stable.
 It should be remarked that these results were double-checked by using the LAMMPS software package \cite{Plimpton_1995}. 
 As already mentioned, the scheme due to Kamberaj \textit{et al.} \cite{Kamberaj_2005} couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom.
-Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2009} also implemented such a separate thermostatization and discovered the existence of energy flows from one thermostat to the other.
+Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2009} discovered the existence of energy flows from one thermostat to the other.
 To the best of our knowledge, the work of Davidchack \cite{Davidchack_2009} did not result in a revision in the literature of the method of Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
 As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat for different time-step sizes, that flux is also observed for the scheme due to Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
 In addition, the negative values of energy correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing from this thermostat to the one coupled to the rotational degrees of freedom.
@@ -514,9 +497,7 @@ Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state i
 
 \begin{figure}
 	\includegraphics{Figures/numerical_stability.eps}
-    \caption{Total extended energy of 903 TIP3P\cite{Jorgensen_1983} water molecules obtained by NVT MD simulations with different time
-step sizes, employing (a) the proposed method represented by Eq. ; (b) our implementation for rigid bodies of the integrator due to Martyna \textit{et al.} \cite{Martyna_1996} and (c) the NVT method introduced by Kamberaj \textit{et al.} \cite{Kamberaj_2005}.Energy of thermostats for 903 TIP3P\cite{Jorgensen_1983} water molecules obtained by NVT MD simulations with different time
-step sizes, employing the NVT method introduced by Kamberaj \textit{et al.} \cite{Kamberaj_2005}.}
+    \caption{Long-time drift in (a) the extended energy and (b) in each thermostat energy for the NVT method introduced by Kamberaj \textit{et al.} \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing to the thermostat coupled to the rotational degrees of freedom.}
 	\label{fig:num_stab}
 \end{figure}
 
@@ -540,6 +521,12 @@ From Fig.~\ref{fig:properties} it becomes clear that our method yields significa
 This is true also for the results corresponding to the use of the NO-SQUISH method\cite{Miller_2002} in the NVE part of the integrator.
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the exact solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement.
+
+The specified temperature corresponds to T = 298 K.
+Fig. clearly shows that a temperature control as described in Sec.~\ref{sec:nvt} leads to a severely degraded accuracy in $\langle U \rangle$, which systematically increases with $\timestep$.
+As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of 2 fs.
+Thus, the results of Fig.~\ref{fig:props_k_m} can be interpreted as follows: if the kinetic energy is restricted to adopt a certain value, in accordance with the specified temperature, the unavoidable discretization errors will accumulate in the remaining degrees of freedom.
+These observations motivated the development of the scheme of Sec.~\ref{sec:refined_method}, whose promising results we show below.
 
 We have also (check ensemble results)\ref{table:check_ens} Sampling validation: Shirts \cite{Shirts_2013}
 
@@ -596,25 +583,10 @@ Since we have a smaller number of translational degrees of freedom, the correspo
 	\label{fig:energy_partition}
 \end{figure*}
 
-%It is not the purpose of this work to propose an optimal factorization scheme for the NVT dynamics, but rather to prove that a unique thermostat chain is capable of maintaining the average temperature at its specified value while providing the proper sampling of the canonical ensemble.
-%First we present some results as first mented.
-%That is, the proposed methods coupling to a single thermostat, while in Kamberaj the translational and rotational degrees of freedom are separatedly coupled.
-%In Table~\ref{table:new_results}, it can be seen that the integrators proposed here, which are represented by the Eqs.~\eqref{eq:trotter_splitting_NHC} and ~\eqref{eq:modified_splitting}, systemcatically achive the specifed temperature, regardless of the time step size.
-%By contrast, the numerical solver introduced by Kamberaj and co-workers\cite{Kamberaj_2005} fails to yield the specified temperature for even the smaller time step size of 1 fs.
-%Resultados sobre o checkensemble: 
-
-%checkensemble:We report the results corresponding to that method, and since it is instructive to have a graphical insight, we also show some figures of the linear fitting.
 %Given that the potential and kinetic energies are separable, the analysis can be made separately as follows.This last approach does not involve any binning of the energies, hence no discretization error is present.
 %m-b distribution valid when equipartition of energy is satisfied.
 
-%Recalling that in the NVT dynamics the conserved quantity is the extended energy $H$ of Eq.~\eqref{eq:H_nvt}, in Table~\ref{table:new_results_2} we report the energy drift, denoted by $R$, as the the rate of change of $H$ (kcal/mol) with time (ns), which is the angular coefficient obtained from linear regression fitting  between those variables.
-%Except for the case of $\Delta$ = 1 fs, there is also a clear correspondece between an incresing $R$ with the failure in keeping the temperature at its specified value.
-
-%In Fig.~\ref{fig:checkensemble} we show the result from the linear regression analysis for the potential energies sampled using Eq.~\eqref{eq:trotter_splitting_NHC}.
-%In figure legends we show the averages temperatures simulated.
 %It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies.
-%Likewise, in Fig.~\ref{fig:mbdistribution} we observe a good correspondence between the kinetic energy distribution at $T= 304.99 K$ and the corresponding Maxwell-Boltzmann distribution We arrive at the same conclusions for the approach given by Eq.~\eqref{eq:modified_splitting}.
-
 %Finally, in Table~\ref{table:ensemblevalidation} we present the results of the maximum likelihood approach applied for both NVT integration schemes.
 %It can be seen that the deviations from the true slope, $\timestep$ = 8.970~K, are less than $1\sigma$.
 %This means that effectively, the sampled values do not deviate from the correct distribution to a statistically noticeable level.
@@ -771,10 +743,3 @@ As a result, the modified kinetic energy cannot, in principle, be split into ind
 
 \bibliography{rigid_bodies}
 \end{document}
-%A geometric integrator is a numerical method which preserves certain geometric structures of the exact flow of a differential equation.
-%the issues arising in the design and analysis of numerical methods for molecular dynamics
-%(symplecticness) of the phase flow. We will later show (in Chap. 3) that such symplectic methods preserve a perturbed energy-like invariant (to very high accuracy); the preservation of this modified energy then ensures that the original energy is nearly conserved
-%A benefit of respecting the symplectic structure lies in the prospect of using backward error analysis to analyze the behavior of the method
-%It seems intuitively correct to demand that a numerical method should mimic as much as possible the available structure of the dynamical system, when this is possible to do without incurring large computational overheads in the process. So much the better that discrete dynamical systems designed in this way appear to be related to modified continuous dynamics with appropriate properties. This observation is purely aesthetic.
-%These methods obtain their energy preservation properties indirectly: we design the methods to exactly conserve a certain geometric property
-%The purpose of this section is to demonstrate that, by using the principles of geometric integration and the backward error analysis, it is possible to compute effective estimates of the error in numerically computed averages, and even to correct those averages by a straightforward reweighting
