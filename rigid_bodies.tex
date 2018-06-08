@@ -145,7 +145,7 @@ The Hamiltonian system of ordinary differential equations (ODE) that describes t
 \end{subequations}
 
 In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the quaternion-conjugate momentum.
-Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference, and $\vt \omega$ $=$ $\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$ is the three-dimensional angular velocity in the body-fixed frame.
+Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference, and $\vt \omega = \frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$ is the three-dimensional angular velocity in the body-fixed frame.
 Matrices $\mt M$ and $\mt I$ are diagonal ones.
 The former contains the body mass in all three diagonal entries while the latter contains the three principal moments of inertia.
 Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
@@ -168,9 +168,7 @@ Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
 \end{smallarray}.
 \end{equation*}
 
-The factorization which played a central role in Ref.~\citenum{Silveira_2017} is ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$, where ${\mt A}(\vt q)$ is the rotation matrix that connects the body-fixed and space-fixed frames.
-
-The Hamiltonian conserved by Eq.~\eqref{eq:ODE system for NVE} is
+The factorization which played a central role in Ref.~\citenum{Silveira_2017} is ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$, where ${\mt A}(\vt q)$ is the rotation matrix that connects the body-fixed and space-fixed frames. Eq.~\eqref{eq:ODE system for NVE} preserves the constraints $\tr{\vt q}{\vt q} = 1$ and $\tr{\vt q}{\vt \pi} = 0$, as well as the value of a Hamiltonian
 \begin{equation}
 \label{eq:Hamiltonian}
 \Ham{} = K(\vt p, \vt q, \vt \pi) + U(\vt r,\vt q),
@@ -212,9 +210,10 @@ However, having an unplit solution for rotations at hand is crucial for the feas
 
 \subsection{NVT Dynamics with a Single Thermostat Chain: Notation and Measure-Preserving Integration}
 \label{sec:nvt}
+
 In this work, we couple a single Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992} to both the translational and rotational degrees of freedom of the rigid-body system.
-To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momenta $p_{\eta_j}$ for each thermostat $j$, with $1 \leq j \le M$.
-The flow in the extended phase-space no longer conserves the Hamiltonian $\Ham{}$, but an ``extended energy'' given by \cite{Martyna_1992}
+To this end, we consider an extra generalized coordinate $\eta_j$ and its conjugate momentum $p_{\eta_j}$ for each thermostat $j = 1, \cdots, M$.
+The flow in the extended phase-space no longer conserves the Hamiltonian $\Ham{}$, but an \textit{extended energy} given by \cite{Martyna_1992}
 \begin{equation}
 \label{eq:nvt extended energy}
 H = K + U + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j,
@@ -250,7 +249,7 @@ By employing the method of Sergi and Ferrario \cite{Sergi_2001}, we obtain the e
 	\end{align}
 \end{subequations}
 
-In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and $\alpha_{M+1} = 0$, while $G_j$ is a generalized force acting on thermostat $j$, defined as
+In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $j \le M$ and $\alpha_{M+1} = 0$, while $G_j$ is a generalized force acting on thermostat $j$, defined as
 \begin{subequations}
 \begin{align}
 \label{eq:generalized force NVT}
@@ -258,28 +257,29 @@ In these equations, $\alpha_j$ $=$ ${p_{\eta_j}}/{Q_j}$ for $1 \leq j \le M$ and
 &G_j = \frac{p_{\eta_{j-1}}^2}{Q_{j-1}} - k_\text{\tiny B} T  \qquad \text{for} \quad j > 1.
 \end{align}
 \end{subequations}
+
 With $K$ defined as in Eq.~\eqref{eq:kinetic energy}, it turns out that $G_1 = 2K - L k_\text{\tiny B} T$.
-
-If there are no external forces, the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ and the extended energy $H$ are integrals of motion, while the system's center-of-mass position can be considered as a driven variable,\cite{Tuckerman_2001} such as the $\eta$ coordinates.
+If there are no external forces, the vector quantity $e^{\eta_1}\sum_{i=1}^N {\vt p}_i$ and the extended energy $H$ are conserved, while the system's center-of-mass position and the $\eta$ coordinates can be considered as a driven variables \cite{Tuckerman_2001}.
 Moreover, $2N$ equations must be eliminated due to the constraints involving $\vt q$ and $\vt \pi$.
-In the general case, by taking all these facts into account and applying the analysis of Ref.~\citenum{Tuckerman_2001}, we can deduce that the correct canonical distribution is attained if one makes $L = 6N$.
-In the particular situation in which one sets $\sum_{i=1}^N {\vt p}_i = \vt 0$ at the onset of a simulation, one must make $L = 6N - 3$ \cite{Martyna_1994}.
+In the general case, by taking all these facts into account and applying the analysis of \citeauthor{Tuckerman_2001} \cite{Tuckerman_2001}, we can deduce that the correct canonical distribution is attained if we make $L = 6N$.
+In a particular situation in which we set $\sum_{i=1}^N {\vt p}_i = \vt 0$ at the onset of the simulation, we must make $L = 6N - 3$ \cite{Martyna_1994}.
 
-Altough it is not possible to devise symplectic integrators for Eq.~\eqref{eq:ODE system for NVT}, one can rigurously obtain measure-preserving numerical solvers \cite{Sergi_2001, Ezra_2004, Ezra_2006}.
-It can be shown that the function $w(\vt x)$ that determines the invariant phase-space measure $e^{-w(\vt x)}d\vt x$ for Eq.~\ref{eq:ODE system for NVT} is given by $w = -7N \eta_1 - \sum_{j=2}^M \eta_j$.
-It is worth noting that the $\eta$ coordinates are driven variables with no influence on the dynamics so, in this case, the measure-preserving condition for every individual operator could be relaxed.
+Eq.~\eqref{eq:ODE system for NVT} defines an invariant measure in the extended phase-space \cite{Tuckerman_1999}, and it is possible to devise numerical solvers that preserve such measure \cite{Sergi_2001, Ezra_2004, Ezra_2006}.
+We have done it by adapting the integrator introduced by \citeauthor{Martyna_1996} \cite{Martyna_1996} in light of a criterion explained by \citeauthor{Ezra_2006} \cite{Ezra_2006}.
+It is worth noting, however, that such adaptation required us to alter the integration of the $\eta$ coordinates only.
+Since these are driven variables, with no influence on the dynamics of the system, we can conclude that the practical importance of such alteration is small.
 
-By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e.
-non-Hamiltonian) Liouville operator, the splitting goes as
+By defining a propagator $e^{\timestep \mathcal{L}_\text{\tiny NVT}}$, where $\mathcal{L}_\text{\tiny NVT}$ is a generalized (i.e. non-Hamiltonian) Liouville operator, the splitting goes as
 \begin{equation}
 \label{eq:splitting NVT}
 e^{\timestep \mathcal{L}_\text{\tiny NVT}} = e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} e^{\timestep \Liu{\tiny NVE}} e^{\frac{\timestep}{2} \mathcal{L}_\text{\tiny NHC}} + \mathcal{O}(\timestep^3),
 \end{equation}
-where $\Liu{\tiny NVE}$ is the same operator of the previous case and $\mathcal{L}_\text{\tiny NHC}$ aggregates all new terms introduced by the Nos\'e-Hoover chain.
-The operator can be split even further as
+where $\Liu{\tiny NVE}$ is the same operator of Sec.~\ref{sec:nve} and $\mathcal{L}_\text{\tiny NHC}$ aggregates all new terms introduced by the Nos\'e-Hoover chain.
+This one can be split even further as
 \begin{equation*}
 e^{\frac{\timestep}{2} \mathcal{L}_\text{NHC}} = \left[ \left( \textstyle\prod\limits_{j=M}^1 e^{\frac{\timestep}{4n} \mathcal{L}_j }\right) e^{\frac{\timestep}{2n} \mathcal{L}_0 } \left(  \textstyle\prod\limits_{j=1}^M e^{\frac{\timestep}{4n} \mathcal{L}_j }\right)  \right]^n.
 \end{equation*}
+
 In the scheme above, the first propagator to act is $e^{\frac{\timestep}{4n} \mathcal{L}_M}$, which promotes a kick in the momentum of thermostat $M$ expressed as $p_{\eta_M} = p_{\eta_M}^\ast + G_M^\ast \frac{\timestep}{4n}$.
 Then, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ act sequentially, with $j$ varying from $M-1$ down to $1$.
 With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as \cite{Martyna_1996}
@@ -291,14 +291,14 @@ With $\phi(x) = \frac{1-e^{-x}}{x}$, the effect of each one is translated as \ci
 After that, propagator $e^{\frac{\timestep}{2n} \mathcal{L}_0}$ establishes the effect of thermostat $1$ on the motion of the rigid bodies, as well as the evolution of coordinate $\eta_1$.
 Its action is expressed as ${\vt p} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt p}^\ast$, ${\vt \pi} = e^{-\alpha_1^\ast \frac{\timestep}{2n}} {\vt \pi}^\ast$, and $\eta_1 = \eta_1^\ast + \alpha_1^\ast \frac{\timestep}{2n}$.
 Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied once again, but now with index $j$ ascending from $1$ to $M$.
-This numerical scheme is simply a measure-preserving version of the NVT integrator introduced by \citeauthor{Martyna_1996} \cite{Martyna_1996}.
 
-For having a low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort, making it feasible to increase the time step $\timestep$ without degrading the accuracy of the NHC part.
+Due to its low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort.
+This makes it feasible to increase the time step $\timestep$ without ruining the accuracy of the NHC part.
 In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
 A high-order integration scheme\cite{Omelyan_2007, Van_zon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients.
-The processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development.
-Here we choose to take a simpler path.
-Instead of trying to increase accuracy in the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we attempt to quantify the implied deviations, with which we can both tune the thermostatting procedure and properly weight the sampled configurations when computing ensemble averages.
+\citeauthor{Omelyan_2008}'s processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development.
+Here we choose to take a simpler path, though.
+Instead of trying to increase accuracy in the evaluation of $e^{\timestep \Liu{\tiny NVE}}$, we attempt to quantify the implied discretization errors, with which we can both tune the thermostatting procedure and properly weight the sampled configurations when ensemble average are computed.
 
 \subsection{Backward Error Analysis}
 \label{sec:modified_h}
