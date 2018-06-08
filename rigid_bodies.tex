@@ -67,13 +67,11 @@ layout=twocolumn
 
 \begin{document}
 
-\begin{tocentry}
-	Graphical Abstract
-\end{tocentry}
+%\begin{tocentry}
+%\end{tocentry}
 
-\begin{abstract}
-	Abstract.
-\end{abstract}
+%\begin{abstract}
+%\end{abstract}
 
 \section{Introduction}
 
@@ -105,23 +103,23 @@ Finally, a reweighting procedure provides us with ensemble averages which are, i
 
 Our new method is particularly appealing for rigid-body MD, primarily because its numerical stability extends up to time steps large enough to yield pronounced discretization errors. Rigid-body MD is relevant not only because some molecules are usually modeled as rigid, such as in the ubiquitous case of water \cite{Jorgensen_1983}, but also because it can provide a coarse-graining strategy for molecules that can be designed as collections of interconnected bodies, such as proteins and nanoparticles \cite{Miller_2002, Knorowski_2012, Patra_2013}.
 In fact, the approach of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, which is implemented in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995}, has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, as well as membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}.
-
 The case of rigid water exemplifies this behavior and serves as an excellent testbed for our proposal.
-In fact, we are able to eliminate the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming both the double-chain method by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} and a reimplementation of the single-chain method by \citeauthor{Martyna_1996} \cite{Martyna_1996} for rigid bodies.
+In fact, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming both the double-chain method by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} and a reimplementation of the single-chain method by \citeauthor{Martyna_1996} \cite{Martyna_1996} for rigid bodies.
 
 This paper proceeds as follows.
 In Secs.~\ref{sec:nve}-\ref{sec:nvt} we review the rigid-body dynamics in the NVE and NVT ensembles.
-This is followed by our results on backward error analysis, which we employ in Sec.~\ref{sec:refined_method} to derive our new NVT scheme, whose performance we assess in Sec.~\ref{sec:numerical_results}.
-Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}. Appendix \ref{sec:rigid body shadow hamiltonian} contains a detailed derivation of the approximation to the shadow Hamiltonian.
+This is followed by our developments on backward error analysis, which we employ in Sec.~\ref{sec:refined_method} to derive our new NVT scheme, whose performance we assess in Sec.~\ref{sec:numerical_results}.
+Finally, we present some concluding remarks in Sec.~\ref{sec:conclusion}. Appendix \ref{sec:rigid body shadow hamiltonian} contains a detailed derivation of the shadow Hamiltonian approximation.
 
 \section{Methodology}
 \label{sec:methodology}
 
-\subsection{NVE Dynamics: Notation and Symplectic Integration}
+\subsection{Hamiltonian Dynamics with Rigid Bodies: Notation and Symplectic Integration}
 \label{sec:nve}
+
 In a previous paper \cite{Silveira_2017}, we took advantage of a particular factorization of the orientation matrix expressed in terms of quaternion components to
-1) derive a new exact solution for torque-free rotations and use it as part of a symplectic numerical integrator for the motion of rigid bodies and
-2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002}, thus unveiling its equivalence to a method previously developed by Dullweber and co-workers \cite{Dullweber_1997}.
+1) derive a new exact solution for torque-free rotations and use it as part of a symplectic integrator for rigid bodies and
+2) reinterpret the approximate NO-SQUISH method \cite{Miller_2002} and unveil its equivalence to the earlier method by Dullweber and co-workers \cite{Dullweber_1997}.
 
 The Hamiltonian system of ordinary differential equations (ODE) that describes the rigid-body motion is given by \cite{Silveira_2017}
 \begin{subequations}
@@ -142,12 +140,13 @@ The Hamiltonian system of ordinary differential equations (ODE) that describes t
 %
 	&\dot{\vt \pi} =
 	%-\diff{\Ham{}}{\vt q} =
-	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau, \label{eq:EDO_pi}
+	\frac{1}{2} \mt B(\vt \pi) \vt \omega + 2 \mt C(\vt q) \vt \tau. \label{eq:EDO_pi}
 	\end{align}
 \end{subequations}
-In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the conjugate momenta of the quaternion.
-Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference; and $\vt \omega$ $=$ $\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$ is the three-dimensional angular velocity in the body-fixed frame.
-Matrices $\mt M$ and $\mt I$ are diagonal.
+
+In these equations, $\vt r$ is the center-of-mass position of the body, $\vt p$ is its linear momentum, $\vt q$ is a unit quaternion that determines its orientation, and $\vt \pi$ is the quaternion-conjugate momentum.
+Vectors $\vt F$ and $\vt \tau$ are, respectively, the resultant force and torque exerted on the body, both represented in the space-fixed frame of reference, and $\vt \omega$ $=$ $\frac{1}{2} {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}$ is the three-dimensional angular velocity in the body-fixed frame.
+Matrices $\mt M$ and $\mt I$ are diagonal ones.
 The former contains the body mass in all three diagonal entries while the latter contains the three principal moments of inertia.
 Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
 \begin{equation*}
@@ -169,7 +168,7 @@ Finally, the matrix-valued functions $\mt B$ and $\vt C$ are defined as
 \end{smallarray}.
 \end{equation*}
 
-The factorization mentioned above, which played a central role in Ref.~\citenum{Silveira_2017}, is as simple as ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$, with ${\mt A}(\vt q)$ being the orientation matrix of the body (that is, the rotation matrix connecting the body-fixed and space-fixed frames).
+The factorization which played a central role in Ref.~\citenum{Silveira_2017} is ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$, where ${\mt A}(\vt q)$ is the rotation matrix that connects the body-fixed and space-fixed frames.
 
 The Hamiltonian conserved by Eq.~\eqref{eq:ODE system for NVE} is
 \begin{equation}
@@ -183,10 +182,10 @@ While $U(\vt r, \vt q)$ is an arbitrary function, the kinetic energy is given by
 K = \frac{1}{2} \tr{\vt p} {\mt M}^{-1} {\vt p} + \frac{1}{8} \tr{\vt \pi} {\mt B}(\vt q) {\mt I}^{-1} \tr{\mt B}(\vt q) {\vt \pi}.
 \end{equation}
 
-Of course, Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together.
-The same occurs for diagonal matrices $\mt M$ and $\mt I$, whose sizes increase to $3N \times 3N$ in this case.
+Eqs.~\eqref{eq:ODE system for NVE} to \eqref{eq:kinetic energy} can also represent a system of $N$ interacting rigid bodies if we consider that vectors $\vt r$, $\vt p$, $\vt q$, and $\vt \pi$ contain the corresponding properties of all bodies piled together.
+The size of diagonal matrices $\mt M$ and $\mt I$ also increases to $3N \times 3N$ in this case.
 In addition, $\mt B(\vt q)$ and $\mt C(\vt q)$ become block-diagonal matrices with $4N$ rows and $3N$ columns.
-Yet, the notation can be made even more general if $\vt r$, $\vt p$, and $\mt M$ are enlarged further to accommodate a number of freely moving atoms.
+Yet, the notation can be made even more general if $\vt r$, $\vt p$, and $\mt M$ are enlarged further so as to accommodate a number of freely moving atoms.
 
 A numerical solution of Eq.~\eqref{eq:ODE system for NVE} is usually represented by a stepwise application of the classical time-evolution propagator \cite{Tuckerman_2010} $e^{\timestep \Liu{\tiny NVE}}$ to the system configuration, where $\timestep$ is the time-step size and $\Liu{\tiny NVE}$ is the Liouville operator associated to $\Ham{}$, which is
 \begin{equation}
@@ -203,14 +202,13 @@ A symplectic, time-reversible integrator can be devised by splitting the exponen
 e^{\timestep \Liu{\tiny NVE}} = e^{\frac{\timestep}{2} \Liu{B}} e^{\timestep \Liu{A}} e^{\frac{\timestep}{2} \Liu{B}} + \mathcal{O}(\timestep^3),
 \end{equation}
 where $\Liu{A} + \Liu{B} = \Liu{\tiny NVE}$.
-In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state immediately before the propagation occurs.
-The action of $e^{\timestep \Liu{A}}$ is the simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation over a full time step. In Ref.~\citenum{Silveira_2017} we derived an exact solution of torque-free rotation in a form that facilitates the computer implementation allowing, differently to existing schemes \cite{Kosenko_1998,vanZon2007,Celledoni_2008}, a unified treatment for both asymmetric ($I_1$ $>$ $I_2$ $>$ $I_3$) and symmetric tops (either $I_1$ = $I_2$ or $I_2$ = $I_3$).
-For mathematical details, the reader is referred to our previos work \cite{Silveira_2017}.
-The exact solution comprise ``less familiar'' mathematical functions, such as the Jacobi elliptic functions and Carlson integrals.
-On the other hand, the approximate solutions, such as the NO-SQUISH method  \cite{Miller_2002}, have proven to be very accurate in liquid-phase simulations \cite{Silveira_2017} and its formulation only involves sine and cosine terms.
-This may explain why that the approximate solution is more commonly used \cite{vanZon2007}.
-This pictures completely changes in the context of backward error analysis: in the approximate methods, an overall rotation is given by a sequence of uniform rotations around the principal axes of a body, which results in a factorization of the rotational operator given by $ e^{\frac{h}{2} i\!L_3} e^{\frac{h}{2} i\!L_2} e^{h i\!L_1} e^{\frac{h}{2} i\!L_2} e^{\frac{h}{2} i\!L_3}$, with each factor representing a rotation around a given axes.
-The analytical solution, on the other hand, entails a single operator, thus making the application of backward error analysis considerably simpler.
+In the Verlet-type splitting of Ref.~\citenum{Silveira_2017}, the action of propagator $e^{\frac{\timestep}{2} \Liu{B}}$ is a kick in the linear and quaternion momenta given by ${\vt p} = {\vt p}^\ast + \frac{\timestep}{2} {\vt F}^\ast$ and ${\vt \pi} = {\vt \pi}^\ast + \timestep {\mt C}({\vt q^\ast}) {\vt \tau}^\ast$, respectively, where the asterisk denotes the state of the system immediately before the propagation occurs.
+The action of $e^{\timestep \Liu{A}}$ is a simultaneous uniform translation (${\vt r} = {\vt r}^\ast + \timestep {\mt M}^{-1} {\vt p}^\ast$) and torque-free rotation along a full time step.
+We have derived \cite{Silveira_2017} an exact solution for torque-free rotations in a form that facilitates computer implementation and allows, differently from other existing solutions \cite{Kosenko_1998, vanZon2007, Celledoni_2008}, a unified treatment of asymmetric, symmetric, and spherical tops.
+This solution was used to evaluate the simpler NO-SQUISH method \cite{Miller_2002}.
+Despite its approximate treatment of rotations, which are split into several revolutions around the principal axes \cite{Dullweber_1997}, that method proved to be very accurate in liquid-phase simulations \cite{Silveira_2017}.
+This justifies its more widespread use.
+However, having an unplit solution for rotations at hand is crucial for the feasibility of backward error analysis, as it might become clear in Sec.~\ref{sec:modified_h} and Appendix \ref{sec:rigid body shadow hamiltonian}.
 
 \subsection{NVT Dynamics with a Single Thermostat Chain: Notation and Measure-Preserving Integration}
 \label{sec:nvt}
