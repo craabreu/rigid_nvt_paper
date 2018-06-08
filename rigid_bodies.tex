@@ -446,16 +446,14 @@ In any event, if short-term reversibility is a requirement, one can simply emplo
 \section{Application to Water and Discussion}
 \label{sec:numerical_results}
 
-In the following, we analyze the performance of the NVT scheme proposed in  this paper and compare the results with those obtained employing the measure-preserving version of the integrator due to \citeauthor{Martyna_1996} \cite{Martyna_1996} as well as the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}
+In the following, we analyze the performance of the NVT scheme proposed in  this paper and compare the results with those obtained employing the integrator due to \citeauthor{Martyna_1996} \cite{Martyna_1996} as well as the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}
 
 The system under study corresponds to 903 TIP3P\cite{Jorgensen_1983} water molecules at a density of 970 kg/m$^3$.
 The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at  10 {\AA} and smoothed via a switching function over the range of 9.5 {\AA} to  10 {\AA} as done in Ref.~\citenum{Silveira_2017}. 
 The damping of Coulombic interactions was done by a factor erfc($\alpha r$), with $\alpha$ = 0.29 {\AA}$^{-1}$.
 In addition, all the simulations were carried out considering $t_d = 100$ fs.
 
-Before presenting our main results, we first examine the departure of the \textit{refined} Hamiltonian from the specified one, as this is the most direct way to determine the importance of the discretization erros \cite{Engle_2005}. This is essential for the discussion of the NVT case. 
-
-In Fig.~\ref{fig:nve} we show the time evolution of both $\modified{\Ham{}}$ (dotted lines) and $\Ham{}$ (solid lines) for the water system undergoing NVE dynamics with different time-step sizes ($\timestep$). For this, we used the numerical scheme of Eq.~\ref{eq:splitting NVE} with the unsplit solution of rotation. As expected, $\modified{\Ham{}}$ is very well conserved and close to $\Ham{}$ for $\timestep$ = 1 fs, but fairly rapidly separates from $\Ham{}$ when increasing $\timestep$. 
+Before presenting our main results, we first examine the departure of the \textit{refined} Hamiltonian from the specified one, as this is the most direct way to determine the importance of the discretization erros \cite{Engle_2005}, which is essential for discussing the NVT case. In Fig.~\ref{fig:nve} we show the time evolution of both $\modified{\Ham{}}$ (dotted lines) and $\Ham{}$ (solid lines) for the water system undergoing NVE dynamics with different time-step sizes ($\timestep$). For this, we used the numerical scheme of Eq.~\ref{eq:splitting NVE} with the unsplit solution of rotation. As expected, $\modified{\Ham{}}$ is very well conserved and close to $\Ham{}$ for $\timestep$ = 1 fs, but fairly rapidly separates from $\Ham{}$ when increasing $\timestep$. 
 It should be remarked that $\modified{\Ham{}}$ corresponds to a simple approximation and, most important, it is computationally very cheap. As a result of such approximation, we have larger fluctuations in $\modified{\Ham{}}$ for $\timestep$ = 3 fs and $\timestep$ = 4 fs (add in conclusions that we should use high-order approximations).
 
 \begin{figure}
@@ -488,9 +486,9 @@ To end this section, we present in Fig.~\ref{fig:num_stab} the anomalous behavio
 Particularly, one can see from Fig.~\ref{fig:num_stab} (a) that for each time-step size the extended energy drifts upwards until reaching a point at which the integrator becomes stable.
 It should be remarked that these results were double-checked by using the LAMMPS software package \cite{Plimpton_1995}. 
 As already mentioned, the scheme due to Kamberaj \textit{et al.} \cite{Kamberaj_2005} couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom.
-Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2009} discovered the existence of energy flows from one thermostat to the other.
-To the best of our knowledge, the work of Davidchack \cite{Davidchack_2009} did not result in a revision in the literature of the method of Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
-As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat for different time-step sizes, that flux is also observed for the scheme due to Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
+Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2009} discovered the existence of energy flows between the two thermostats.
+To the best of our knowledge, this finding did not result in a revision in the literature of the method of Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
+As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat, that flux is also observed for the scheme due to Kamberaj \textit{et al.} \cite{Kamberaj_2005}.
 In addition, the negative values of energy correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing from this thermostat to the one coupled to the rotational degrees of freedom.
 Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state is established, and the time to reach the steady state decreases with $h$. As far as we know, this behavior has not been reported before.
 
