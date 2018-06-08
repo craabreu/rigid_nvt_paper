@@ -521,52 +521,32 @@ From Fig.~\ref{fig:properties} it becomes clear that our method yields significa
 This is true also for the results corresponding to the use of the NO-SQUISH method\cite{Miller_2002} in the NVE part of the integrator.
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the unsplit solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement.
+Also note that a small, still clearly influencing systematic error is present in our scheme, as both temperature and potential energy are slightly modified by $h$. This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian. 
 
-We have also (check ensemble results)\ref{table:check_ens} Sampling validation: Shirts \cite{Shirts_2013}
-
-With the aim of highlighting the importance of reweighting to recover averages of the physical system, in Table~\ref{table:reweight} we present the calculated temperature and potential energy for each $\timestep$ before and after applying Eq.~\ref{eq:reweighting} for time-step sizes smaller 7 fs, as we saw in Fig. that for ths case, the temperature does not reproduce the specified temperature.
-The ``refined'' temperature $\refined{T}$ was calculated by means of the generalized equipartition theorem, given by Eq.~\ref{eq:equipartition}.
-Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\ref{eq:thermostat_force}, it is expected to reproduce the specified temperature.
-Indeed, for all the time-step sizes considered the agreement is excellent.
-We see that in the absence of reweighting, the computed temperatures are notably influenced by $h$.
-Also note that a small, still clearly influencing systematic error is present in our scheme, as both temperature and potential energy are slightly modified by $h$. This could, in principle, be remediated by using a higher-order ``refined'' Hamiltonian.
-
-In addition, we are able to ``measure'' how far our sample is from the state of interest with physical Hamiltonian $\refined{\Ham{}}$ by calculating the free energy differences ($\Delta F$) between the sampled state, whose Hamiltonian is given by $\refined{\Ham{}}$, and that state of interest.
+With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for each time-step size the free energy difference per water molecule ($\Delta F/N$, circles) between the sampled and target states.
 $\Delta F$ corresponds to the denominator of Eq.~\ref{eq:reweighting}.
-As expected, from Table~\ref{table:reweight} one verifies that $\Delta F$ is only negligible for $h$ = 1 fs and systematically increases with $h$.
+As expected, the free energy is only negligible for $h$ = 1 fs.
+In Fig.~\ref{fig:free_energy} we also depict the \textit{refined} temperature ($\refined{T}$, squares), calculated by means of the generalized equipartition theorem, given by Eq.~\ref{eq:equipartition}.
+Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\ref{eq:thermostat_force}, it is expected to reproduce the target temperature.
+Indeed, for all the time-step sizes considered the agreement is excellent.
 
-\begin{table*}
-	\caption{Effect of the time-step size on .... of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing the unsplit solution for free rotations, given by the numerical schemes. uncertainties in free energy never exced 1e-4}
-    \label{table:reweight}
-    \sisetup{
-table-number-alignment = center
-}
-    \begin{tabular}{SS[separate-uncertainty,table-figures-uncertainty = 2]S[separate-uncertainty,table-figures-uncertainty=2]S[separate-uncertainty,table-figures-uncertainty= 1,table-figures-decimal=4]S[separate-uncertainty,table-figures-uncertainty= 1]S[separate-uncertainty,table-figures-uncertainty= 1,table-figures-decimal=4]S}
-     & &  \multicolumn{2}{c}{no reweighting} & \multicolumn{2}{c}{after reweighting} & \\
-     \cmidrule[0.5mm](lr){3-4} \cmidrule[0.5mm](lr){5-6}
-     $\timestep$ & $\refined{T}$  & $T$  & {$\langle U/N \rangle$}  & $T$ & {$\langle U/N \rangle$}   & {$\Delta F/N$} \\
-        $\text{(fs)}$  & $\text{(K)}$ & $\text{(K)}$ & $\text{(kcal/mol)}$  & $\text{(K)}$ & $\text{(kcal/mol)}$ & $\text{(kcal/mol)}$ \\
-	1 & 298.00(1) & 297.71(1) & -9.1015(3) & 298.00(1) & -9.1028(3) & -0.0006 \\
-	2 & 297.99(1) & 296.82(1) & -9.0970(3)  & 297.98(1)  & -9.1024(3) & -0.004 \\
-	3 & 297.98(1) & 295.38(1) & -9.0885(3) & 297.92(1) & -9.1005(3) & -0.008 \\
-	4 & 298.01(1) & 293.49(1)& -9.0764(3) & 297.85(3) & -9.0969(3) & -0.013 \\
-	5 & 297.99(1)& 291.13(1)& -9.0577(3) & 297.6(2) & -9.091(1) & -0.033 \\
-    6 & 298.00(1) & 288.46(1) & -9.0314(3) & 296.8(3) & -9.075(3) &  -0.026 \\
-	7 & 297.99(1) & 285.57(1) & -8.9944(3)  & 295.0(5)  & -9.040(4) & -0.056 \\
-	\end{tabular}
-\end{table*}
+\begin{figure}
+	\includegraphics{Figures/Free_Energy.eps}
+	\caption{Free Energy}
+	\label{fig:free_energy}
+\end{figure}
 
 We end this section with a discussion of the effect of discretization errors on the kinetic energy partition.
-In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition, which are calculated at each time-step size from the total kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times (3N - 3)$ and $\langle K_r \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times 3N$.
+In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition, which are calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times (3N - 3)$ and $\langle K_r \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times 3N$.
 
-In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because is the rotational degrees of freedom are the fastest modes in the rigid model of water. 
+In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
 We see that the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
+The results of Fig.~\ref{fig:energy_partition} (b), which were obtained for the numerical scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (c), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions. Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
 From Fig.~\ref{fig:energy_partition} it is clear that our method corrects that serious disruption and a small deviation is only observed for 7 fs.
-On the other hand, the results depicted in Fig.~\ref{fig:energy_partition} (b), which were obtained for the numerical scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (c) in the sense that the simulated translational and rotational kinetic energies deviate in opposite directions from the expected values and they do so contrary to what is predicted by the equipartition theorem.
-Since we have a smaller number of translational degrees of freedom, the corresponding kinetic energy should be smaller than the rotational part.
+
 
 \begin{figure*}
-	\includegraphics{Figures/thermodynamic_properties.eps}
+	\includegraphics{Figures/props.eps}
 	\caption{Effect of the time-step size on the thermodynamic properties and of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing...}
 	\label{fig:properties}
 \end{figure*}
@@ -577,13 +557,6 @@ Since we have a smaller number of translational degrees of freedom, the correspo
 	\label{fig:energy_partition}
 \end{figure*}
 
-%Given that the potential and kinetic energies are separable, the analysis can be made separately as follows.This last approach does not involve any binning of the energies, hence no discretization error is present.
-%m-b distribution valid when equipartition of energy is satisfied.
-
-%It can be seen that the mentioned algorithm generates a distribution consistent with the canonical ensemble, and that is also true for the kinetic energies.
-%Finally, in Table~\ref{table:ensemblevalidation} we present the results of the maximum likelihood approach applied for both NVT integration schemes.
-%It can be seen that the deviations from the true slope, $\timestep$ = 8.970~K, are less than $1\sigma$.
-%This means that effectively, the sampled values do not deviate from the correct distribution to a statistically noticeable level.
 
 \section{Concluding Remarks}
 \label{sec:conclusion}
