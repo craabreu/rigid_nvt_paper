@@ -322,8 +322,8 @@ In turn, the \textit{refined kinetic energy} can be expressed as
 \label{eq:modified kinetic energy}
 \refined K = \frac{1}{2} \tr{\left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right]} \refined{\mathbf \Omega}(\vt r, \vt q, \timestep^2) \left[\begin{array}{c} \vt p \\ \vt \pi \end{array}\right],
 \end{equation}
-where $\refined{\mathbf \Omega}$ is a matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$ given by $\tilde{\mt \Omega} = {\mt \Omega} + ({\timestep^2}/{6}) {\mt \Omega} {\mt U}_{\vt x \vt x} \tr{\mt \Omega}$.
-In this definition, ${\mt U}_{\vt x \vt x}$ is the Hessian matrix of the potential energy with respect to $\vt r$ and $\vt q$, while ${\mt \Omega}$ is a block-diagonal matrix defined so that $K = \frac{1}{2} \tr{[\substack{\vt p \\ \vt \pi}]} {\mt \Omega} [\substack{\vt p \\ \vt \pi}]$.
+where $\refined{\mathbf \Omega}$ is a matrix-valued function of $\vt r$, $\vt q$, and $\timestep^2$ given by $\tilde{\mt \Omega} = {\mt \Omega} + ({\timestep^2}/{6}) {\mt \Omega} {\mt \Xi} \tr{\mt \Omega}$.
+In this definition, $\mt \Xi$ is the Hessian matrix of the potential energy with respect to $\vt r$ and $\vt q$, while ${\mt \Omega}$ is a block-diagonal matrix defined so that $K = \frac{1}{2} \tr{[\substack{\vt p \\ \vt \pi}]} {\mt \Omega} [\substack{\vt p \\ \vt \pi}]$.
 Although $\refined{\mathbf \Omega}$ is symmetric like $\mt \Omega$, its structure is not block-diagonal due to the inter-body interactions accounted for in $U(\vt r, \vt q)$ and to the dependency of forces and torques on both $\vt r$ and $\vt q$.
 As a result, one cannot generally split the refined kinetic energy into independent translational and rotational contributions.
 
@@ -359,18 +359,18 @@ In the case of quaternions, as a simple polynomial interpolation is insufficient
 \begin{equation*}
 \dot{\vt q}^{[3]}_t = {\mt \Pi}({\vt q}_t) \frac{{\vt q}_{t-2\timestep} - 6 {\vt q}_{t-\timestep} + 3 {\vt q}_t + 2 {\vt q}_{t+\timestep}}{6\timestep},
 \end{equation*}
-where ${\mt \Pi}(\vt q)$ is a block-diagonal projection matrix, with each block given by ${\mt \Pi}_i = {\mt 1} - {\vt q}_i \tr{\vt q}_i$, where $\mt 1$ is the identity matrix.
+where ${\mt \Pi}(\vt q)$ is a block-diagonal projection matrix, with each diagonal block given by ${\mt \Pi}_i = {\mt 1} - {\vt q}_i \tr{\vt q}_i$, where $\mt 1$ is the identity matrix.
 
 \subsection{Adjustment of the NVT Dynamics}
 \label{sec:refined_method}
 
 Bringing the attention back to the NVT case, the observation that $\refined{\Ham{}}$ still has a quadratic-form dependency on the momenta has an important consequence.
 It suffices for the validity of Tolman's generalized equipartition theorem \cite{Tolman_1918, Uline_2008, Eastwood_2010} regarding a canonical ensemble for a system with this Hamiltonian.
-Moreover, as such dependency lies exclusively in $\refined K$, an outcome of this theorem for a system with $6N-3$ degrees of freedom is that
+Moreover, as such dependency lies exclusively in $\refined K$, an outcome of this theorem for a system with $L$ degrees of freedom is that
 \begin{equation*}
-\left\langle \tr{\vt p} \diff{\refined K}{\vt p} + \tr{\vt \pi} \diff{\refined K}{\vt \pi} \right\rangle = (6N - 3) k_\text{\tiny B} T,
+\left\langle \tr{\vt p} \diff{\refined K}{\vt p} + \tr{\vt \pi} \diff{\refined K}{\vt \pi} \right\rangle = L k_\text{\tiny B} T,
 \end{equation*}
-which becomes $2\langle \refined{K} \rangle = (6N - 3) k_\text{\tiny B} T$ if the refined kinetic energy is given by Eq.~\eqref{eq:modified kinetic energy}.
+which becomes $2\langle \refined{K} \rangle = L k_\text{\tiny B} T$ if the refined kinetic energy is given by Eq.~\eqref{eq:modified kinetic energy}.
 
 Our proposal for dealing with discretization effects on NVT simulations goes as follows.
 It consists in acknowledging that the middle propagator in Eq.~\eqref{eq:splitting NVT}, if split according to Eq.~\eqref{eq:splitting NVE}, will produce a phase-space move that is more closely consistent with the modified Hamiltonian equations than with the original ones.
@@ -388,26 +388,26 @@ Also, the \textit{refined extended energy} preserved by this approach is now giv
 \widetilde{H} = \refined K + \refined U + {\textstyle\sum\limits_{j=1}^{M}} \frac{p_{\eta_j}^2}{2Q_j} + L k_\text{\tiny B} T\eta_1 + k_\text{\tiny B} T {\textstyle\sum\limits_{j=2}^{M}} \eta_j.
 \end{equation}
 
-One instant in which $\refined K$ must be evaluated is right after the action of propagator $e^{\timestep \Liu{\tiny NVE}}$.
-Notice that such action takes place only once per time step, intercalating with non-Hamiltonian propagations.
-Therefore, there is no record beforehand of a Hamiltonian trajectory from which we can estimate $\dot{\vt r}^{[n]}$ and $\dot{\vt q}^{[n]}$ with high accuracy.
-This could be solved by executing a number of virtual Verlet steps, both forward and backward in time, so as to generate a virtual Hamiltonian trajectory that coincides with the actual trajectory in the two phase-space points which are input and output of the central propagator in Eq.~\eqref{eq:splitting NVT}.
-Nonetheless, this might require additional force computations per actual time step, thus increasing the cost of the simulation.
+One instant in which $\refined K$ must be evaluated is immediately after the action of propagator $e^{\timestep \Liu{\tiny NVE}}$.
+This takes place once per time step, intercalating with non-Hamiltonian propagations.
+Therefore, at such instant there is no previous record of a Hamiltonian trajectory from which we can estimate $\dot{\vt r}$ and $\dot{\vt q}$ with high accuracy.
 Fortunately, only positions and orientations are required for the numerical differentiation.
-This allows us to obtain a four-point stencil without any additional force evaluation, just by executing one incomplete virtual step for each direction in time, as schematically illustrated in Fig.~\ref{fig:virtual}.
-By incomplete we mean that the step is aborted once the positions and orientations have been updated.
+This allows us to generate a four-point stencil by executing two virtual, incomplete Verlet steps, backward and forward in time, such as illustrated in Fig.~\ref{fig:virtual steps}.
+By virtual and incomplete we mean, respectively, that these steps are never incorporated to the trajectory and that they are aborted once the positions and orientations have been updated.
+By this means, we can obtain estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]}$ without any additional force evaluation, which results in a small computational overhead.
+
 \begin{figure}
 \begin{tikzpicture}
-\draw[->, dashed]   (0,0.0) -- (7,0.0) node[right]{$r(t)$};
+\draw[->, dashed]   (0,0.0) -- (7,0.0) node[right]{${\vt r}(t)$};
 \node(0) at (0,0)[shape=circle,draw,double,scale=0.5]        {};
 \node(1) at (2.2,0)[fill=black,shape=circle,draw,scale=0.5]        {};
 \node(2) at (4.4,0)[fill=black,shape=circle,draw,scale=0.5]        {};
 \node(3) at (6.6,0)[shape=circle,draw,double,scale=0.5] {};
 \node(4) at (3.4,0.8)[] {$e^{\timestep \Liu{\tiny NVE}}$};
-\node at (0.0,-0.2)[below]{$r_{t-2h}$};
-\node at (2.2,-0.2)[below]{$r_{t-h}$};
-\node at (4.4,-0.2)[below]{$r_{t}$};
-\node at (6.6,-0.2)[below]{$r_{t+h}$};
+\node at (0.0,-0.2)[below]{${\vt r}_{t-2h}$};
+\node at (2.2,-0.2)[below]{${\vt r}_{t-h}$};
+\node at (4.4,-0.2)[below]{${\vt r}_{t}$};
+\node at (6.6,-0.2)[below]{${\vt r}_{t+h}$};
 \path[->,thick] (1) edge [bend left=45] (2);
 \path[dashed,->,thick,postaction={decorate,decoration={raise=2.5ex,text along path,text align=center,text={|\small|virtual step}}}] (0) to [bend left=45] (1);
 \path[dashed,->,thick] (1) edge [bend right=45] (0);
@@ -415,32 +415,23 @@ By incomplete we mean that the step is aborted once the positions and orientatio
 \path[dashed,->,thick] (2) edge [bend left=45] (3);
 \end{tikzpicture}
 \caption{Schematic representation}
-\label{fig:virtual}
+\label{fig:virtual steps}
 \end{figure}
 
-In addition, $\refined K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales the momentum vectors $\vt p$ and $\vt \pi$ by a common factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
-Because such propagator leaves the positions and quaternions intact and, as a consequence, the matrix $\refined{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\refined K$ goes as simply as ${\refined K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\refined K}^\ast$.
+In addition, $\refined K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales both $\vt p$ and $\vt \pi$ by a factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
+Because such action leaves the positions and quaternions intact and, as a consequence, the matrix $\refined{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\refined K$ is done as simply as ${\refined K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\refined K}^\ast$.
 
-Please note that Eq.~\ref{eq:generalized force NVT} is closely related to Tolman's generalized equipartition theorem \cite{Uline_2008}, which states that
-\begin{equation*}
-\left\langle \tr{\vt p} \diff{\refined{\Ham{}}}{\vt p} + \tr{\vt \pi} \diff{\refined{\Ham{}}}{\vt \pi} \right\rangle = (6N - 3) k_\text{\tiny B} T.
-\end{equation*}
-By substituting $\refined{\Ham{}}$ in this equation, we obtain that
-\begin{equation}
-2\left\langle \refined{K} \right\rangle = (6N - 3) k_\text{\tiny B} T.
-\end{equation}
-This result, with the \textit{refined} kinetic energy between brackets, provides a generalization for $h > 0$ of the simulated temperature \cite{Eastwood_2010}.
-
-Finally, given that configurations $x_i$ are sampled from a distribution proportional to $\exp(-\beta \refined{\Ham{}})$, we need to reweight the computed observables $A(x_i)$ to recover the original distribution $\exp (-\beta \Ham{})$.
-This is done as follows:
+Finally, given that configurations $\vt x$ are sampled from a distribution proportional to $e^{-\beta \refined{\Ham{}}(\vt x)}$, we need to reweight any computed observable $A(\vt x)$ so that its average is consistent with the original distribution.
+Such reweighting is done by \cite{Torrie_1977}
 \begin{equation}
 \label{eq:reweighting}
 \langle A \rangle = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] }.
 \end{equation}
 
-A drawback of our approach is that the resulting NVT integrator lacks time-reversal symmetry due to the employed differentiation formulas.
-As a matter of fact, long-term reversibility is not generally achievable with MD codes that rely on floating-point arithmetics.
-In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per actual time step.
+A drawback of our approach is that the resulting integrator lacks time-reversal symmetry due to the asymmetric differentiation formulas.
+As a matter of fact, long-term reversibility is not generally achievable with software that relies on floating-point arithmetics.
+In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per time step.
+Higher-order derivative estimates can also be obtained in this fashion if necessary.
 
 \section{Application to Water and Discussion}
 \label{sec:numerical_results}
