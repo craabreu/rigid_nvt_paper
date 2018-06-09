@@ -6,7 +6,7 @@ import mics
 import pandas as pd
 plt.rcParams.update({'font.size':8})
 
-fig = plt.figure('axes',figsize=(2.5,2))
+fig = plt.figure('axes',figsize=(3,2))
 ax = fig.add_subplot(111)
 ax.set_xlabel('$h$ (fs)')
 ax.set_ylabel('$\Delta F/N$ (kcal/mol)')
@@ -28,12 +28,12 @@ data = np.genfromtxt('S1.csv', delimiter=',', skip_header=1, names=[' ','T','f',
                      'dtemperatura','P','dP','E','dE','virial','dvirial','KEtotal','dKEtotal', \
                      'KEt','dKEt','KEr','dKEr','Cv1','dCv1','dfdT','ddfdT'])
 ax.errorbar(timesteps, data['f'][0:7]/(NB*beta),yerr = data['df'][0:7]/(NB*beta),linestyle ='-', color = 'black', marker = 'o',markersize = 4, linewidth = lw)
-ax2 = ax.twinx()
-ax2.set_ylim(297.0,299.0)
-yticks = [297.0,298.0,299.0]
-ax2.set_yticks(yticks)
-ax2.set_ylabel('$T$ (K)')
-ax2.errorbar(timesteps, Ts, yerr=Ts_error,linestyle ='-', color = 'red', marker = 's',markersize = 4, linewidth = lw)
+#ax2 = ax.twinx()
+#ax2.set_ylim(297.0,299.0)
+#yticks = [297.0,298.0,299.0]
+#ax2.set_yticks(yticks)
+#ax2.set_ylabel('$T$ (K)')
+#ax2.errorbar(timesteps, Ts, yerr=Ts_error,linestyle ='-', color = 'red', marker = 's',markersize = 4, linewidth = lw)
 
 
 #ax.legend(loc='upper center', bbox_to_anchor=(0.5,0.7), ncol=2, fancybox=True, frameon=False, numpoints = 1)
