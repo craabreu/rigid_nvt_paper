@@ -530,8 +530,9 @@ However, the accuracy of the approximate solution is very high for the time step
 Also note that a small, still clearly influencing systematic error is present in our scheme, as both temperature and potential energy are slightly modified by $\timestep$. This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian. 
 
 With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for each time-step size the free energy difference per water molecule ($\Delta F/N$, circles) between the sampled and target states.
-$\Delta F$ corresponds to the denominator of Eq.~\ref{eq:reweighting}.
-As expected, the free energy is only negligible for $\timestep$ = 1 fs.
+$\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\ref{eq:reweighting}.
+As expected, the free energy is only negligible for $h$ = 1 fs.
+
 In Fig.~\ref{fig:free_energy} we also depict the \textit{refined} temperature ($\refined{T}$, squares), calculated by means of the generalized equipartition theorem, given by Eq.~\ref{eq:equipartition}.
 Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\ref{eq:thermostat_force}, it is expected to reproduce the target temperature.
 Indeed, for all the time-step sizes considered the agreement is excellent.
@@ -548,7 +549,7 @@ In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotatio
 In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
 We see that the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
 The results of Fig.~\ref{fig:energy_partition} (b), which were obtained for the numerical scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (c), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions. Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
-From Fig.~\ref{fig:energy_partition} it is clear that our method corrects that serious disruption and a small deviation is only observed for 7 fs.
+From Fig.~\ref{fig:energy_partition} it is clear that our method corrects that serious disruption for time-step sizes up to 5 fs.
 
 
 \begin{figure*}
