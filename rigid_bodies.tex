@@ -467,23 +467,23 @@ This is an indication that
 	\label{fig:nve}
 \end{figure}
 
- \subsection*{Numerical Stability}
+\subsection{Numerical Stability}
 
-The explicit inclusion of the \textit{refined} Hamiltonian in a computationally cheap NVT integrator is achieved at the cost of losing the time-reversibility.
+The explicit inclusion of the refined Hamiltonian in a computationally cheap NVT integrator is achieved at the cost of losing the time-reversibility.
 This poses the question whether the symmetry loss will influence the long-term stability.
 
 Here we define the energy drift, denoted by $R$, as the the rate of change of energy with time, which corresponds to the angular coefficient obtained from linear regression fitting.
-Recall that the quantity expected to be conserved along the simulation is $\widetilde{H}$ (Eq.~\ref{eq:this extended energy}) for our method, which from now on will be referred as ``This work''.
-On the other hand, the symmetric scheme due to \citeauthor{Martyna_1996} \cite{Martyna_1996} should preserve $H$ (Eq.~\ref{eq:nvt extended energy}).
+Recall that the quantity expected to be conserved along the simulation is $\widetilde{H}$ (Eq.~\eqref{eq:this extended energy}) for our method, which from now on will be referred as ``This work''.
+On the other hand, the symmetric scheme due to \citeauthor{Martyna_1996} \cite{Martyna_1996} should preserve $H$ (Eq.~\eqref{eq:nvt extended energy}).
 In Fig.~\ref{fig:energy_drift}, we present the computed $R$ as a function of the time-step size, and one can see that for these numerical schemes the energy starts to drift upwards from $\timestep$ = 5 fs. 
 Also, the long-term stability is only modestly improved by our method. Evidently, the impact of the lack of symmetry on $R$, if any, is negligible.
 Fig.~\ref{fig:energy_drift} also contains the drift in $\refined{\Ham{}}$ for the NVE method \cite{Silveira_2017} (circles), which almost coincides with the results of our method. It is worth mentioning that the stability threshold for the NVE method corresponds to $\timestep$ = 6 fs.
-The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material). As one can notice in Fig.~\ref{fig:energy_drift}, the drift in the \textit{refined} Hamiltonian part for our NVT method (squares) remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration.
-This has already been noticed by Davidchack\cite{Davidchack_2009}, and previously by Bond \textit{et al.} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical error''.
+The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material). As one can notice in Fig.~\ref{fig:energy_drift}, the drift in the refined Hamiltonian part for our NVT method (squares) remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration.
+This has already been noticed by \citeauthor{Davidchack_2010} \cite{Davidchack_2010}, and previously by \citeauthor{Bond_2007} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical error''.
 
 \begin{figure}
 	\includegraphics{Figures/energy_drift.eps}
-    \caption{Influence of the time-step size ($\timestep$) on the long-time drift ($R$) in: the extended energy ($\refined{H}$, down triangles) and its \textit{refined} Hamiltonian ($\refined{\Ham{}}$, squares) part for our NVT method, as well as in the extended energy ($H$, up triangles) for the method due to \citeauthor{Martyna_1996} \cite{Martyna_1996} and in the \textit{refined} Hamiltonian ($\refined{\Ham{}}$, circles) for the numerical scheme of Eq.~\ref{eq:splitting NVE} with unsplit solution of rotation.}
+    \caption{Influence of the time-step size ($\timestep$) on the long-time drift ($R$) in: the extended energy ($\refined{H}$, down triangles) and its refined Hamiltonian ($\refined{\Ham{}}$, squares) part for our NVT method, as well as in the extended energy ($H$, up triangles) for the method due to \citeauthor{Martyna_1996} \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
 	\label{fig:energy_drift}
 \end{figure}
 
@@ -491,7 +491,7 @@ To end this section, we present in Fig.~\ref{fig:num_stab} the anomalous behavio
 Particularly, one can see from Fig.~\ref{fig:num_stab} (a) that for each time-step size the extended energy drifts upwards until reaching a point at which the integrator becomes stable.
 It should be remarked that these results were double-checked by using the LAMMPS software package \cite{Plimpton_1995}. 
 As already mentioned, the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom.
-Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2009} discovered the existence of energy flows between the two thermostats.
+Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
 To the best of our knowledge, this finding did not result in a revision in the literature of the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat, that flux is also observed for the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 In addition, the negative values of energy correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing from this thermostat to the one coupled to the rotational degrees of freedom.
@@ -503,7 +503,7 @@ Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state i
 	\label{fig:num_stab}
 \end{figure}
 
-\subsection*{Effect of Discretization Errors on Equilibrium Thermodynamic Properties}
+\subsection{Effect of Discretization Errors on Equilibrium Thermodynamic Properties}
 
 In the previous section we showed that the energy drift is mainly localized within the thermostat variables.
 It is then reasonable to ask if this leads to a more ``accurate'' sampling of the physical system.
@@ -513,12 +513,12 @@ In Fig.~\ref{fig:properties} we show the computed average of some thermodynamic 
 The lines are a guide for the eye. 
 Also, the horizontal dotted lines (black) help to visualize the departure of the computed averages with increasing $\timestep$.
 They correspond to the results obtained employing $\timestep$ = 1 fs for the numerical scheme proposed in this paper.
-We have included the results of applying our method but using the approximate solution of rotation due to Miller \textit{et al.} \cite{Miller_2002}, which is denoted as ``This work (NO-SQUISH)''.
+We have included the results of applying our method but using the approximate solution of rotation due to \citeauthor{Miller_2002} \cite{Miller_2002}, which is denoted as ``This work (NO-SQUISH)''.
 The temperature values of Fig.~\ref{fig:properties} (a) were computed from the simulated kinetic energies assuming equipartition, ie $2 \langle K \rangle = (6N -3) k_b T$.
 
 Despite the non-equilibrium process ocurring within the thermostats, it is worth showing the results obtained with the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, because that is not the only problematic issue.
 Particularly, from Fig.~\ref{fig:properties} (a) we note that the simulated temperature decreases systematically with $\timestep$.
-This behavior is observed in NVE simulations\cite{Davidchack_2009,Silveira_2017}, reflecting that the kinetic energy is weakly controlled in that factorization scheme.
+This behavior is observed in NVE simulations\cite{Davidchack_2010, Silveira_2017}, reflecting that the kinetic energy is weakly controlled in that factorization scheme.
 As a result, the potential energy and virial are not severely influenced by $\timestep$ as they are in the scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}. Figs.~\ref{fig:properties} (a)-(b) clearly show that the temperature control described in Sec.~\ref{sec:nvt} leads to a severely degraded accuracy in $\langle U \rangle$, which systematically increases with $\timestep$.
 As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of 2 fs.
 Thus, the results for the method of \citeauthor{Martyna_1996} \cite{Martyna_1996} can be interpreted as follows: if the kinetic energy is restricted to adopt a certain value, in accordance with the target temperature, the unavoidable discretization errors will accumulate in the remaining degrees of freedom.
@@ -530,11 +530,11 @@ However, the accuracy of the approximate solution is very high for the time step
 Also note that a small, still clearly influencing systematic error is present in our scheme, as both temperature and potential energy are slightly modified by $\timestep$. This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian. 
 
 With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for each time-step size the free energy difference per water molecule ($\Delta F/N$, circles) between the sampled and target states.
-$\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\ref{eq:reweighting}.
+$\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\eqref{eq:reweighting}.
 As expected, the free energy is only negligible for $h$ = 1 fs.
 
-In Fig.~\ref{fig:free_energy} we also depict the \textit{refined} temperature ($\refined{T}$, squares), calculated by means of the generalized equipartition theorem, given by Eq.~\ref{eq:equipartition}.
-Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\ref{eq:thermostat_force}, it is expected to reproduce the target temperature.
+In Fig.~\ref{fig:free_energy} we also depict the refined temperature ($\refined{T}$, squares), calculated by means of the generalized equipartition theorem, given by Eq.~\eqref{eq:equipartition}.
+Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\eqref{eq:thermostat_force}, it is expected to reproduce the target temperature.
 Indeed, for all the time-step sizes considered the agreement is excellent.
 
 \begin{figure}
@@ -544,7 +544,7 @@ Indeed, for all the time-step sizes considered the agreement is excellent.
 \end{figure}
 
 We end this section with a discussion of the effect of discretization errors on the kinetic energy partition.
-In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition, which are calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times (3N - 3)$ and $\langle K_r \rangle_{eq}$ = $(\langle K \rangle /(6N -3)) \times 3N$.
+In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition, which are calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
 
 In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
 We see that the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
