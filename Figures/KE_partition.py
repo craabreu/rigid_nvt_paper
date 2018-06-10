@@ -17,6 +17,7 @@ ax[3].set_xlabel('$h$ (fs)')
 
 ax[0].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
 ax[2].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
+ax[3].set_ylabel(r'{$\langle \widetilde{K} \rangle$} (kcal/mol)')
 ax[0].set_xlim(0.5,7.5)
 ax[0].set_ylim(740,825)
 
@@ -29,18 +30,18 @@ lw = 0.5
 kB = 0.0019872041 #Boltzmann's constant (kcal/mol/K).
 N = 903
 beta = 1./(kB*298.0)
-integrators = ['S1','P1','K2']
+integrators = ['P1','K2','S1']
 colors = ['black','green','blue']
 markers = ['s','^','o','v']
 
 data = np.genfromtxt('S1_KEpartition.csv', delimiter=',', skip_header=1, names=[' ','T','f','df','KEt', \
                      'dKEt','KEr','dKEr','Kt_eq','dKt_eq','Kr_eq','dKr_eq'])
-ax[0].errorbar(timesteps, data['KEt'][0:7],yerr = data['dKEt'][0:7],linestyle ='-', color = 'black', marker = 'v', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle$}',capsize=2, markeredgewidth=1)
-ax[0].errorbar(timesteps, data['KEr'][0:7],yerr = data['dKEr'][0:7],linestyle ='-', color = 'black', marker = '^', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle$}',capsize=2, markeredgewidth=1)
-ax[0].errorbar(timesteps, data['Kt_eq'][0:7],yerr =data['dKt_eq'][0:7],linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_{eq}$}', capsize=2,  markeredgewidth=1)
-ax[0].errorbar(timesteps, data['Kr_eq'][0:7],yerr = data['dKr_eq'][0:7],linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_{eq}$}', capsize=2, markeredgewidth=1)
+ax[3].errorbar(timesteps, data['KEt'][0:7],yerr = data['dKEt'][0:7],linestyle ='-', color = 'black', marker = 'v', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle$}',capsize=2, markeredgewidth=1)
+ax[3].errorbar(timesteps, data['KEr'][0:7],yerr = data['dKEr'][0:7],linestyle ='-', color = 'black', marker = '^', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle$}',capsize=2, markeredgewidth=1)
+ax[3].errorbar(timesteps, data['Kt_eq'][0:7],yerr =data['dKt_eq'][0:7],linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_{eq}$}', capsize=2,  markeredgewidth=1)
+ax[3].errorbar(timesteps, data['Kr_eq'][0:7],yerr = data['dKr_eq'][0:7],linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_{eq}$}', capsize=2, markeredgewidth=1)
 
-k = 1
+k = 0
 for i in integrators:
     data = np.genfromtxt(i + '.csv', delimiter=',', skip_header=1, names=[' ','T','f','df','temperatura',\
                      'dtemperatura','P','dP','E','dE','virial','dvirial','KEtotal','dKEtotal', \
@@ -52,14 +53,24 @@ for i in integrators:
     k = k + 1
 
 
-ax[0].annotate('No Reweighting', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.02,0.9),  \
+ax[3].annotate('No Reweighting', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[1].annotate('Refined/Unsplit', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.02,0.9),  \
+ax[2].annotate('Refined/Unsplit', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[2].annotate('Martyna', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.02,0.9),  \
+ax[0].annotate('Martyna', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[3].annotate('Kamberaj', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.02,0.9),  \
+ax[1].annotate('Kamberaj', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
   textcoords='axes fraction')
+
+ax[0].annotate('(a)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.008,0.9),  \
+                 textcoords='axes fraction')
+ax[1].annotate('(b)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.008,0.9),  \
+                 textcoords='axes fraction')
+ax[2].annotate('(c)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.008,0.9),  \
+                 textcoords='axes fraction')
+ax[3].annotate('(d)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.008,0.9),  \
+  textcoords='axes fraction')
+
 ax[0].legend(loc='upper center', bbox_to_anchor=(0.4,0.4), ncol=2, fancybox=True, frameon=False, numpoints = 1)
 fig.savefig('energy_partition.eps', format='eps', dpi=600, bbox_inches='tight')
 

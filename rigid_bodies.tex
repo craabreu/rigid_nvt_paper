@@ -507,7 +507,7 @@ Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state i
 
 In the previous section we showed that the energy drift rate is mainly localized within the thermostat variables.
 It is then reasonable to ask if this leads to a more accurate sampling of the physical system.
-To answer this question, we turn our attention to the discretization errors.
+To answer this question, we turn our attention to discretization effects.
 
 In Fig.~\ref{fig:properties} we show the computed averages of some thermodynamic properties as a function of $\timestep$. The simulations were carried out specifying T = 298 K and the analyzed quantities correspond to temperature ($T$), potential energy ($U$) and virial ($W$) per molecule, as well as the constant-volume heat capacity ($C_V$).
 The lines are a guide for the eye. 
@@ -524,14 +524,14 @@ As a result, the potential energy and virial are not severely influenced by $\ti
 As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of 2 fs.
 Thus, the results for the method of \citeauthor{Martyna_1996} \cite{Martyna_1996} can be interpreted as follows: if the kinetic energy is restricted to adopt a certain value, in accordance with the target temperature, the unavoidable discretization errors will accumulate in the remaining degrees of freedom.
 
-From Fig.~\ref{fig:properties} it becomes clear that the Refined schemes yields significantly improved results: we are able to simultaneously reproduce the specified temperature and the other thermodynamic properties.
+From Fig.~\ref{fig:properties} it becomes clear that the refined schemes yield significantly improved results: we are able to simultaneously reproduce the specified temperature and the other thermodynamic properties.
 Note that a small, still clearly influencing systematic error is present, as the computed averages are slightly modified for $\timestep$ > 5.
 This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian.
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the unsplit solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement between schemes Refined/Unsplit and Refined/NO-SQUISH.
 
 In Fig.~\ref{fig:properties} (a) we also depict the refined temperature, calculated by means of the generalized equipartition theorem, given by Eq.~\eqref{eq:equipartition}.
-Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\eqref{eq:thermostat_force} we expect the Refined schemes to reproduce the target temperature.
+Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\eqref{eq:thermostat_force} we expect the refined schemes to reproduce the target temperature.
 Indeed, for all the time-step sizes considered the agreement is excellent.
 
 With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for each time-step size the free energy difference per water molecule ($\Delta F/N$, circles) between the sampled and target states.
@@ -544,16 +544,17 @@ As expected, the free energy is only negligible for $h$ = 1 fs.
 	\label{fig:free_energy}
 \end{figure}
 
-We end this section with a discussion of the effect of discretization errors on the kinetic energy partition.
-In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition, which are calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
+We end this section with a discussion of discretization effects on the kinetic energy partition.
+In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition.
+In Figs.~\ref{fig:energy_partition} (a)-(c) these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
+For Fig.~\ref{fig:energy_partition} (d) we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of the equations above.
 
 In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
 We see that the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
-The results of Fig.~\ref{fig:energy_partition} (b), which were obtained for the numerical scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (c), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
+The results of Fig.~\ref{fig:energy_partition} (a), which were obtained for the numerical scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
 Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
-Fig.~\ref{fig:energy_partition} (a) was obtained directly from the contribution of translational and rotational degrees of freedom to the refined kinetic energy.
-It confirms that our approximation bla bla bla
-After reweighting, which yields Fig.~\ref{fig:energy_partition} (b), it becomes clear that our method corrects, for time-step sizes up to 5 fs, the serious disruption observed in the schemes of \citeauthor{Martyna_1996} \cite{Martyna_1996} and  \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}
+From Fig.~\ref{fig:energy_partition} (d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to 5 fs.
+For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition} (b), it becomes clear that our method corrects the serious disruption observed in the schemes of \citeauthor{Martyna_1996} \cite{Martyna_1996} and  \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 
 \begin{figure*}
 	\includegraphics{Figures/thermodynamic_properties.eps}
