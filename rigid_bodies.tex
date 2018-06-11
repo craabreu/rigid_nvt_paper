@@ -70,8 +70,17 @@ layout=twocolumn
 %\begin{tocentry}
 %\end{tocentry}
 
-%\begin{abstract}
-%\end{abstract}
+\begin{abstract}
+
+Deterministic and stochastic Molecular Dynamics methods aimed at reproducing a target temperature share the equipartition theorem as a premise.
+While this intends to mimic the real world physics, discretization errors, which are intrinsic to numerical integrators, may severely distort such assumption.
+Fortunately, Backward Error Analysis is a powerful tool that allows to identify the quantity that is actually subject to equipartition, which is a shadow Hamiltonian that only coincides with the specified Hamiltonian
+when the time-step size approaches zero.
+This paper deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
+shadow counterparts and then we tune the thermostatting procedure with this refined kinetic energy.
+The case of rigid water has served for an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors.
+By applying our new method to the Nos\'{e}-Hoover chain thermostat, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 6 fs.
+\end{abstract}
 
 \section{Introduction}
 
