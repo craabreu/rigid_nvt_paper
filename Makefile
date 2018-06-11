@@ -12,7 +12,7 @@ view :
 figures:
 	make -C $(FIGDIR)
 
-rigid_bodies.pdf : rigid_bodies.tex rigid_bodies.bbl rigid_bodies.blg
+rigid_bodies.pdf : rigid_bodies.tex figures rigid_bodies.bbl rigid_bodies.blg
 	$(TEX) rigid_bodies.tex
 
 rigid_bodies.bbl rigid_bodies.blg : rigid_bodies.bib rigid_bodies.aux
