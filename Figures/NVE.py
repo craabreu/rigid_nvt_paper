@@ -1,5 +1,4 @@
 import numpy as np
-import utility_belt as ub
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import mics
@@ -23,9 +22,7 @@ captions = [r'$h=1$ fs',r'$h=2$ fs',r'$h=3$ fs',r'$h=4$ fs']
 color_c = ['black', 'red', 'green', 'blue' ]
 k = 0
 for i in reversed(timesteps):
-    a = ub.lammps_parser('NVE_' + str(i) + 'fs.log', run=2)
-    p = a.data_frame()
-    df = p.iloc[::150, :]
+    df = pd.read_csv('NVE_' + str(i) + 'fs.csv')
     ax.plot(df['Step']*i*1e-6-0.9, df['TotEng'], color = color[k],label=r'$\mathcal{H}$')
     ax.plot(df['Step']*i*1e-6-0.9, df['Hs'],linestyle = 'dotted', color = color[k],label=r'$\widetilde{\mathcal{H}}$')
     ax.annotate(captions[k], xy=(0, 0) , xycoords= 'axes fraction', xytext=xy[0][k],  \
