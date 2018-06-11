@@ -12,3 +12,4 @@ acs-*.bib
 *.synctex.gz
 
 References/
+Figures/*.eps
