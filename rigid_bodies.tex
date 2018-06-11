@@ -103,7 +103,7 @@ Finally, a reweighting procedure provides us with ensemble averages which are, i
 
 Our new method is particularly appealing for rigid-body MD, primarily because its numerical stability extends up to time steps large enough to yield pronounced discretization errors. Rigid-body MD is relevant not only because some molecules are usually modeled as rigid, such as in the ubiquitous case of water \cite{Jorgensen_1983}, but also because it can provide a coarse-graining strategy for molecules that can be designed as collections of interconnected bodies, such as proteins and nanoparticles \cite{Miller_2002, Knorowski_2012, Patra_2013}.
 In fact, the approach of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, which is implemented in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995}, has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, as well as membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}.
-The case of rigid water exemplifies this behavior and serves as an excellent testbed for our proposal.
+The case of rigid water exemplifies this behavior and serves as an excellent test case for our proposal.
 In fact, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 6 fs, outperforming both the double-chain method by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} and a reimplementation of the single-chain method by \citeauthor{Martyna_1996} \cite{Martyna_1996} for rigid bodies.
 
 This paper proceeds as follows.
@@ -449,6 +449,8 @@ The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at 10 \A
 The damping of Coulombic interactions was done by a factor $\text{erfc}(-\alpha r)$, with $\alpha = 0.29~\text{\AA}^{-1}$.
 In addition, all thermostated simulations were carried out considering a time-scale constant $t_d = 100~\text{fs}$.
 
+\subsection{Refined Hamiltonian in NVE Simulations}
+
 We start by examining the departure of the \textit{refined} Hamiltonian from the specified one in NVE simulations.
 This is the most direct way of determining the importance of the discretization errors \cite{Engle_2005}, which is essential for discussing the NVT case.
 In Fig.~\ref{fig:nve} we show the time evolution of both $\refined{\Ham{}}$ (dotted lines) and $\Ham{}$ (solid lines) for the water system using different time-step sizes ($\timestep$).
@@ -474,18 +476,19 @@ However, this can only be achieved by limiting the order of approximation of num
 This poses the question whether these conditions will influence the long-term stability of the method, especially if one tries to employ long time steps.
 
 Here we define a drift rate, denoted by $R$, as the long-term rate of change of a quantity in an equilibrated MD simulation.
-This corresponds to the angular coefficient of such quantity \textit{vs}. time as determined by linear regression.
+This corresponds to the angular coefficient of such quantity \textit{vs}. time and is determined by linear regression.
 Recall that the symmetric scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996} is supposed to preserve the extended energy $H$ given by Eq.~\eqref{eq:nvt extended energy}.
-In the case of our proposed method, which we refer to here as Refined NHC, the conserved extended energy is $\refined H$, such as defined by Eq.~\eqref{eq:this extended energy}.
-In Fig.~\ref{fig:energy_drift}, we present drift rates of these quantities computed in liquid water simulations carried out with different time-step sizes.
-As one can observe in the inset, very large drifts occur for both methods when $\timestep \ge 6~\text{fs}$.
-Up to $\timestep = 5~\text{fs}$, the long-term stability is slightly improved by our method.
-Evidently, there is little or no impact of the lack of time-reversal symmetry on $R$.
-Fig.~\ref{fig:energy_drift} also contains the drift in the refined Hamiltonian $\refined{\Ham{}}$ for the NVE method \cite{Silveira_2017} (circles), which almost coincides with the results of the Refined NHC scheme.
-It is worth mentioning that $\timestep = 6~\text{fs}$ marks a stability threshold for the NVE method.
+In the case of our proposed method, which we refer to as Refined NHC, the conserved extended energy is $\refined H$, such as defined by Eq.~\eqref{eq:this extended energy}.
+In Fig.~\ref{fig:energy_drift}, we present drift rates of these quantities computed in liquid water simulations, with $18~\text{ns}$ of production time, carried out with different time-step sizes.
+As one can observe, long-term stability is slightly improved by our method for $\timestep \le 5~\text{fs}$, indicating that there is little or no impact of the lack of time-reversal symmetry on $R$.
 
-The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material). As one can notice in Fig.~\ref{fig:energy_drift}, the drift in the refined Hamiltonian part for the Refined/Unsplit method (squares) remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration.
-This has already been noticed by \citeauthor{Davidchack_2010} \cite{Davidchack_2010}, and previously by \citeauthor{Bond_2007} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical error''.
+Fig.~\ref{fig:energy_drift} also contains drift rates in the refined Hamiltonian $\refined{\Ham{}}$ for the NVE method \cite{Silveira_2017}, which almost coincide with the results for the Refined NHC scheme up to $h = 6~\text{fs}$.
+However, the NVE integration becomes fully unstable for time step sizes above this value.
+Each NVT integrator, on the other hand, manages to remain numerically stable at least up to $h = 10~\text{fs}$, but displays an exceedingly large drift in its corresponding extended energy, as one can see the inset of Fig.~\ref{fig:energy_drift}.
+Trying to look for the cause of this behavior, we also present drift rates computed for the Hamiltonian $\refined{\Ham{}}$ in the simulations carried out with the Refined NHC method.
+Recall that this part of $\refined H$ represents the total energy of the physical system.
+Note that no drift occurs for $\refined{\Ham{}}$, not even for the largest considered time-step size, which shows that the thermostat stabilizes the numerical integration of the physical variables.
+This has already been noticed by \citeauthor{Davidchack_2010} \cite{Davidchack_2010} and also by \citeauthor{Bond_2007} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical errors''.
 
 \begin{figure}
 	\includegraphics{Figures/energy_drift.eps}
@@ -493,15 +496,16 @@ This has already been noticed by \citeauthor{Davidchack_2010} \cite{Davidchack_2
 	\label{fig:energy_drift}
 \end{figure}
 
-To end this section, we present in Fig.~\ref{fig:num_stab} the anomalous behavior encountered when using the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
-Particularly, one can see from Fig.~\ref{fig:num_stab} (a) that for each time-step size the extended energy drifts upwards until reaching a point at which the integrator becomes stable.
-It should be remarked that these results were double-checked by using the LAMMPS software package \cite{Plimpton_1995}. 
-As already mentioned, the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom.
-Considering a factorization scheme different to the one employed by those authors, \citeauthor{Davidchack_2010} \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
-To the best of our knowledge, this finding did not result in a revision in the literature of the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
-As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat, that flux is also observed for the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
-In addition, the negative values of energy correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing from this thermostat to the one coupled to the rotational degrees of freedom.
-Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state is established, and the time to reach the steady state decreases with $\timestep$. As far as we know, this behavior has not been reported before.
+To end this section, we report in Fig.~\ref{fig:num_stab} an anomalous behavior encountered when the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} is employed.
+Particularly, one can see in Fig.~\ref{fig:num_stab}(a) that, for each considered time-step size, the extended energy $H$ drifts upwards until reaching a steady-state value at which the integrator becomes stable.
+These results were obtained with our own simulation code and double-checked using LAMMPS \cite{Plimpton_1995} with a custom pair style.
+As already mentioned, the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} couples separate NHC thermostats to the rotational and translational degrees of freedom.
+Considering a different factorization scheme, \citeauthor{Davidchack_2010} \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
+%Nevertheless, this finding did not result in a revision of the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} in the literature.
+This is confirmed for the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} in Fig.~\ref{fig:num_stab}(b), where we depict separately the contribution of each thermostat to the extended energy $H$.
+In this figure, the negative energy values always correspond to the thermostat coupled to the translational degrees of freedom.
+Therefore, energy flows from this thermostat to the one coupled to the rotational degrees.
+Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermostats approach the steady state decreases with $\timestep$. As far as we know, this behavior has not been reported before.
 
 \begin{figure}
 	\includegraphics{Figures/numerical_stability.eps}
