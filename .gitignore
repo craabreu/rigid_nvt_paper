@@ -12,3 +12,5 @@ acs-*.bib
 *.synctex.gz
 
 References/
+Figures/*.eps
+rigid_bodies.dvi

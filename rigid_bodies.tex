@@ -478,21 +478,27 @@ This is an indication that
 
 \subsection{Numerical Stability}
 
-The explicit inclusion of the refined Hamiltonian in a computationally cheap NVT integrator is achieved at the cost of losing the time-reversibility.
-This poses the question whether the symmetry loss will influence the long-term stability.
+As described in Sec.~\ref{sec:refined_method}, the refined kinetic energy $\refined K$ can be explicitly included in an NVT integrator without a substantial increase in computational effort.
+However, this can only be achieved by limiting the order of approximation of numerical derivatives and sacrificing short-term reversibility.
+This poses the question whether these conditions will influence the long-term stability of the method, especially if one tries to employ long time steps.
 
-Here we define the energy drift, denoted by $R$, as the the rate of change of energy with time, which corresponds to the angular coefficient obtained from linear regression fitting.
-Recall that the quantity expected to be conserved along the simulation is $\widetilde{H}$ (Eq.~\eqref{eq:this extended energy}) for our method, which from now on will be referred as ``Refined/Unsplit''.
-On the other hand, the symmetric scheme due to \citeauthor{Martyna_1996} \cite{Martyna_1996} should preserve $H$ (Eq.~\eqref{eq:nvt extended energy}).
-In Fig.~\ref{fig:energy_drift}, we present the computed $R$ as a function of the time-step size, and one can see that for these numerical schemes the energy starts to drift upwards from $\timestep$ = 5 fs. 
-Also, the long-term stability is only modestly improved by our method. Evidently, the impact of the lack of symmetry on $R$, if any, is negligible.
-Fig.~\ref{fig:energy_drift} also contains the drift in $\refined{\Ham{}}$ for the NVE method \cite{Silveira_2017} (circles), which almost coincides with the results of the Refined/Unsplit scheme. It is worth mentioning that the stability threshold for the NVE method corresponds to $\timestep$ = 6 fs.
+Here we define a drift rate, denoted by $R$, as the long-term rate of change of a quantity in an equilibrated MD simulation.
+This corresponds to the angular coefficient of such quantity \textit{vs}. time as determined by linear regression.
+Recall that the symmetric scheme of \citeauthor{Martyna_1996} \cite{Martyna_1996} is supposed to preserve the extended energy $H$ given by Eq.~\eqref{eq:nvt extended energy}.
+In the case of our proposed method, which we refer to here as Refined NHC, the conserved extended energy is $\refined H$, such as defined by Eq.~\eqref{eq:this extended energy}.
+In Fig.~\ref{fig:energy_drift}, we present drift rates of these quantities computed in liquid water simulations carried out with different time-step sizes.
+As one can observe in the inset, very large drifts occur for both methods when $\timestep \ge 6~\text{fs}$.
+Up to $\timestep = 5~\text{fs}$, the long-term stability is slightly improved by our method.
+Evidently, there is little or no impact of the lack of time-reversal symmetry on $R$.
+Fig.~\ref{fig:energy_drift} also contains the drift in the refined Hamiltonian $\refined{\Ham{}}$ for the NVE method \cite{Silveira_2017} (circles), which almost coincides with the results of the Refined NHC scheme.
+It is worth mentioning that $\timestep = 6~\text{fs}$ marks a stability threshold for the NVE method.
+
 The NVT methods discussed so far allow to extend that limit to 10 fs (see Table~\ref{table:stability} in the Supplementary Material). As one can notice in Fig.~\ref{fig:energy_drift}, the drift in the refined Hamiltonian part for the Refined/Unsplit method (squares) remains bounded for all the time-step sizes considered, so the thermostat is stabilizing the numerical integration.
 This has already been noticed by \citeauthor{Davidchack_2010} \cite{Davidchack_2010}, and previously by \citeauthor{Bond_2007} \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical error''.
 
 \begin{figure}
 	\includegraphics{Figures/energy_drift.eps}
-    \caption{Influence of the time-step size ($\timestep$) on the long-time drift ($R$) in: the extended energy ($\refined{H}$, down triangles) and its refined Hamiltonian ($\refined{\Ham{}}$, squares) part for the Refined/Unsplit method, as well as in the extended energy ($H$, up triangles) for the method due to \citeauthor{Martyna_1996} \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
+	\caption{Influence of the time-step size ($\timestep$) on the long-term drift rate ($R$) in: the extended energy ($\refined{H}$, down-pointing triangles) and its refined Hamiltonian ($\refined{\Ham{}}$, squares) part for our NVT method, as well as in the extended energy ($H$, up-pointing triangles) for the method due to \citeauthor{Martyna_1996} \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
 	\label{fig:energy_drift}
 \end{figure}
 
@@ -500,7 +506,7 @@ To end this section, we present in Fig.~\ref{fig:num_stab} the anomalous behavio
 Particularly, one can see from Fig.~\ref{fig:num_stab} (a) that for each time-step size the extended energy drifts upwards until reaching a point at which the integrator becomes stable.
 It should be remarked that these results were double-checked by using the LAMMPS software package \cite{Plimpton_1995}. 
 As already mentioned, the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005} couples separate chains of Nos\'{e}-Hoover thermostats on the rotational and translational degrees of freedom.
-Considering a factorization scheme different to the one employed by those authors, Davidchack \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
+Considering a factorization scheme different to the one employed by those authors, \citeauthor{Davidchack_2010} \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
 To the best of our knowledge, this finding did not result in a revision in the literature of the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 As can be seen in Fig.~\ref{fig:num_stab} (b), where we depict the energy of each thermostat, that flux is also observed for the scheme due to \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 In addition, the negative values of energy correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing from this thermostat to the one coupled to the rotational degrees of freedom.
@@ -508,7 +514,7 @@ Interestingly, Fig.~\ref{fig:num_stab} (b) suggests that a unique steady state i
 
 \begin{figure}
 	\includegraphics{Figures/numerical_stability.eps}
-    \caption{Long-time drift in (a) the extended energy and (b) in each thermostat energy for the NVT method introduced by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing to the thermostat coupled to the rotational degrees of freedom.}
+	\caption{Long-time drift rate in (a) the extended energy and (b) in each thermostat energy for the NVT method introduced by \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom, so the energy is flowing to the thermostat coupled to the rotational degrees of freedom.}
 	\label{fig:num_stab}
 \end{figure}
 
