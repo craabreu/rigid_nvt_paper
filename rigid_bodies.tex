@@ -1,60 +1,46 @@
 \documentclass[
-journal=jctcce,
-layout=twocolumn
-]{achemso}
+	aip,
+	jcp,
+%	preprint,
+	reprint,
+]{revtex4-1}
 
-\setkeys{acs}{
-	abbreviations = false,
-	articletitle  = false,
-	keywords      = false,
-	maxauthors    = 10,
-	super         = true
-}
-
-% Comment below before submitting
-\let\titlefont\undefined
-\usepackage[fontsize=11pt]{scrextend}
 \usepackage[hidelinks,colorlinks,citecolor=blue]{hyperref}
-%\flushbottom
-% Comment above before submitting
-
-\usepackage{xr}
-\externaldocument{rigid_bodies_supp_info}
-\usepackage{booktabs}
-\usepackage{threeparttable}
+\usepackage{natbib}
+\usepackage{natmove}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage[T1]{fontenc}
-\usepackage[table]{xcolor}
-\definecolor{lightgray}{gray}{0.9}
 \usepackage{tikz}
 \usetikzlibrary{decorations.text}
 
-\newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}   % matrix symbol
-\newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}   % vector symbol
-\newcommand{\tr}[1]{#1^\text{t}}                % transposition
+%\usepackage{xr}
+%\usepackage{booktabs}
+%\usepackage{threeparttable}
+%\usepackage[T1]{fontenc}
+%\usepackage[table]{xcolor}
+%\definecolor{lightgray}{gray}{0.9}
+%\usepackage[exponent-product=\times]{siunitx}
+
+\newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}          % matrix symbol
+\newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}          % vector symbol
+\newcommand{\tr}[1]{#1^\text{t}}                       % transposition
 \newcommand{\diff}[2]{\frac{\partial #1}{\partial #2}} % derivative
-\newcommand{\sdiff}[2]{\nabla^2_{#2}#1}         % 2nd derivative
-\newcommand{\Ham}[1]{{\mathcal H}_\text{#1}}    % Hamiltonian
-\newcommand{\Liu}[1]{i\!L_\text{#1}}            % Liouville
+\newcommand{\Ham}[1]{{\mathcal H}_\text{#1}}           % Hamiltonian
+\newcommand{\Liu}[1]{i\!L_\text{#1}}                   % Liouville
 \newcommand{\timestep}{h}
 \newcommand{\refined}[1]{\widetilde{#1}}
 \newcommand{\mini}[1]{\text{\tiny{#1}}}
 
-\usepackage{array}
-\newcolumntype{L}{>{$}l<{$}}
-\newcolumntype{C}{>{$}c<{$}}
-\newcolumntype{R}{>{$}r<{$}}
-\usepackage{booktabs}    
-\usepackage[exponent-product=\times]{siunitx}
-
 \newenvironment{smallarray}[1]                          % small arrays
-{\null\,\vcenter\bgroup\scriptsize
+{
+	\null\,\vcenter\bgroup\scriptsize
 	\renewcommand{\arraystretch}{1.5}
 	\arraycolsep=.13885em
 	\hbox\bgroup$\left[\array{@{}#1@{}}}
-{\endarray\right]$\egroup\egroup\,\null}
-\listfiles
+	{\endarray\right]$\egroup\egroup\,\null
+}
+
+\begin{document}
 
 \author{Ana J. Silveira}
 \email{asilveira@plapiqui.edu.ar}
@@ -70,7 +56,6 @@ layout=twocolumn
 
 \date{\today}
 
-\begin{document}
 
 %\begin{tocentry}
 %\end{tocentry}
@@ -84,6 +69,8 @@ layout=twocolumn
 %The case of rigid water has served for an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors.
 %By applying our new method to the Nos\'{e}-Hoover chain thermostat, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 5 fs.
 \end{abstract}
+
+\maketitle
 
 \section{Introduction}
 
@@ -607,12 +594,12 @@ For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:
 
 To be included.
 
-\begin{acknowledgement}
+\begin{acknowledgements}
 	The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
-\end{acknowledgement}
+\end{acknowledgements}
 
 \appendix
-\numberwithin{equation}{section}
+%\numberwithin{equation}{section}
 
 \section{Shadow Hamiltonian Approximation for Rigid Bodies}
 \label{sec:rigid body shadow hamiltonian}
