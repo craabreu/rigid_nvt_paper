@@ -52,22 +52,18 @@
 
 \title{Refinement of Thermostated Molecular Dynamics via Backward Error Analysis}
 
-\keywords{aaa, bbb, ccc}
+\keywords{Molecular Dynamics, Thermostat, Shadow Hamiltonian, Backward Error Analysis}
 
 \date{\today}
 
-
-%\begin{tocentry}
-%\end{tocentry}
-
 \begin{abstract}
-%Many deterministic and stochastic molecular dynamics methods that aim at reproducing a target temperature have equipartition of kinetic energy as a premise.
-%While this intends to mimic the real world, discretization errors, which are intrinsic to numerical integrators, may distort such assumption.
-%Fortunately, backward error analysis is a powerful tool that allows us to identify the quantity actually subject to equipartition, which is a shadow Hamiltonian that only coincides with the specified Hamiltonian when the time-step size approaches zero.
-%In this paper,  deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
-%shadow counterparts and then we tune the thermostatting procedure with this refined kinetic energy.
-%The case of rigid water has served for an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors.
-%By applying our new method to the Nos\'{e}-Hoover chain thermostat, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 5 fs.
+Many deterministic and stochastic molecular dynamics methods that aim at reproducing a target temperature have equipartition of kinetic energy as a premise.
+While this intends to mimic the real world, discretization errors, which are intrinsic to numerical integrators, may distort such assumption.
+Fortunately, backward error analysis is a powerful tool that allows us to identify the quantity actually subject to equipartition, which is a shadow Hamiltonian that only coincides with the specified Hamiltonian when the time-step size approaches zero.
+In this paper,  deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
+shadow counterparts and then we tune the thermostatting procedure with this refined kinetic energy.
+The case of rigid water has served for an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors.
+By applying our new method to the Nos\'{e}-Hoover chain thermostat, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 5 fs.
 \end{abstract}
 
 \maketitle
@@ -599,7 +595,6 @@ To be included.
 \end{acknowledgements}
 
 \appendix
-%\numberwithin{equation}{section}
 
 \section{Shadow Hamiltonian Approximation for Rigid Bodies}
 \label{sec:rigid body shadow hamiltonian}
@@ -728,7 +723,6 @@ U_{\vt q \vt r} & U_{\vt q \vt q}
 
 Finally, the shadow Hamiltonian is given by $\Ham{S} = {\refined U} + {\refined K} + {\mathcal O}(\timestep^4)$.
 
-%\suppinfo
-
 \bibliography{rigid_bodies}
+
 \end{document}
