@@ -289,7 +289,7 @@ Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied once a
 
 Due to its low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort.
 This makes it feasible to increase the time step $\timestep$ without ruining the accuracy of the NHC part.
-In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
+In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
 A high-order integration scheme\cite{Omelyan_2007, Van_zon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients.
 Omelyan's processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development.
 Here we choose to take a simpler path, though.
@@ -425,7 +425,6 @@ Notwithstanding, it is possible to compute ensemble averages consistent with a d
 For this, we simply need to reweight any computed observable $A$ in accordance with \cite{Torrie_1977}
 \begin{equation}
 \label{eq:reweighting}
-%\langle A \rangle_0 = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] },
 \langle A \rangle_0 = \frac{\left\langle A \exp \left({\frac{\refined{\Ham{}} - \Ham{}}{k_\text{\tiny B} T}}\right)\right\rangle_\timestep}{\left\langle \exp \left({\frac{\refined{\Ham{}} - \Ham{}}{k_\text{\tiny B} T}}\right)\right\rangle_\timestep}.
 \end{equation}
 
