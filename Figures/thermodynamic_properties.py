@@ -13,10 +13,10 @@ fig.set_size_inches(w=7.5,h=4)
 ax[2].set_xlabel('$h$ (fs)')
 ax[3].set_xlabel('$h$ (fs)')
 
-ax[0].set_ylabel(r'T (K)')
+ax[0].set_ylabel(r'$T_\textnormal{est}$ (K)')
 ax[1].set_ylabel(r'{$\langle U/N \rangle$} (kcal/mol)')
 ax[2].set_ylabel(r'{$\langle W/N \rangle$} (kcal/mol)')
-ax[3].set_ylabel(r'$C_V$ (cal/mol K)')
+ax[3].set_ylabel(r'$C_V$ (cal/mol.K)')
 
 
 ax[1].set_xlim(0.5,7.5)

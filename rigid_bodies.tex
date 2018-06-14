@@ -10,6 +10,7 @@ layout=twocolumn
 	maxauthors    = 10,
 	super         = true
 }
+
 % Comment below before submitting
 \let\titlefont\undefined
 \usepackage[fontsize=11pt]{scrextend}
@@ -28,6 +29,7 @@ layout=twocolumn
 \definecolor{lightgray}{gray}{0.9}
 \usepackage{tikz}
 \usetikzlibrary{decorations.text}
+
 \newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}   % matrix symbol
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}   % vector symbol
 \newcommand{\tr}[1]{#1^\text{t}}                % transposition
@@ -37,6 +39,7 @@ layout=twocolumn
 \newcommand{\Liu}[1]{i\!L_\text{#1}}            % Liouville
 \newcommand{\timestep}{h}
 \newcommand{\refined}[1]{\widetilde{#1}}
+\newcommand{\mini}[1]{\text{\tiny{#1}}}
 
 \usepackage{array}
 \newcolumntype{L}{>{$}l<{$}}
@@ -64,6 +67,8 @@ layout=twocolumn
 \title{Refinement of Thermostated Molecular Dynamics via Backward Error Analysis}
 
 \keywords{aaa, bbb, ccc}
+
+\date{\today}
 
 \begin{document}
 
@@ -523,19 +528,32 @@ Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermost
 	\label{fig:num_stab}
 \end{figure}
 
-\subsection{Discretization Effects on Equilibrium Thermodynamic Properties (Work in Progress)}
+\subsection{Correction of Discretization Effects on Thermodynamic Properties}
 
-%In the previous section, we have shown that the extended energy drifts in NVT simulations are localized within the thermostat variables.
-%It is then reasonable to ask if this leads to a more accurate sampling of the physical system.
-%To answer this question, we turn our attention to discretization effects.
+In the previous section, we have seen that drifts in the extended energy of an NVT simulation can accumulate in the thermostat-related variables, thus preventing full-fledged instability from happening.
+This allows simulations to be executed with large time steps, which could in principle save computer time.
+However, as we will show now, discretization errors can become manifest much earlier than any risk of instability.
+Fortunately, our proposed methodology is capable of mitigating the effect of these errors on the ensemble averages computed for the simulated system.
 
-In Fig.~\ref{fig:properties}, we show the computed averages of some thermodynamic properties as a function of $\timestep$. The simulations were carried out by specifying $T = 298~\text{K}$ and the analyzed quantities correspond to temperature ($T$), potential energy ($U$) and virial ($W$) per molecule, as well as the constant-volume specific heat capacity ($C_V$).
-The lines are a guide for the eyes. 
-Also, the horizontal dotted lines (black) help to visualize the departure of the computed averages with increasing $\timestep$.
-They correspond to the results obtained employing $\timestep = 1~\text{fs}$ in the Refined NHC numerical scheme.
+In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for our liquid water system using several NVT-MD methods with different time step sizes.
+All simulations were carried out by specifying $T = 298~\text{K}$ and the analyzed quantities are the estimated temperature $T_\text{est} = \frac{2\langle K \rangle}{(6N-3)k_\mini{B}}$,
+the mean potential energy per molecule $\langle U/N \rangle$,
+the mean internal virial per molecule $\langle W/N \rangle$, and
+the constant-volume specific heat $c_\mini{V} = \frac{\langle \Ham{}^2 \rangle - \langle \Ham{} \rangle^2}{N k_\mini{B} T^2}$.
+The internal virial $W$ is computed as described in Ref.~\citenum{Silveira_2017}.
+All symbols in Fig.~\ref{fig:properties} represent results obtained after $18~\text{ns}$ of production time, while the lines are just guides for the eyes.
+The horizontal, dotted lines are meant to help visualizing the departure of the computed averages from their expected values.
+They correspond to the results obtained by employing the Refined NHC method with $\timestep = 1~\text{fs}$.
+Error bars were obtained using the Overlapping Batch Means estimator \cite{Meketon_1984, Flegal_2010} and standard uncertainty propagation formulas.
+
+\begin{figure*}
+	\includegraphics{Figures/thermodynamic_properties.eps}
+	\caption{Effect of the time-step size on the thermodynamic properties and of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing...}
+	\label{fig:properties}
+\end{figure*}
+
 We have included the results of applying our method, but using the approximate solution of rotation due to \citeauthor{Miller_2002} \cite{Miller_2002}, which is denoted as ``Refined/NO-SQUISH''.
-Recall that the computed averages for both refined schemes are obtained via reweighting by employing Eq.~\eqref{eq:reweighting}. 
-In addition, it should be pointed out that the temperature values in Fig.~\ref{fig:properties}(a) were computed from the simulated kinetic energies assuming equipartition, i.e. $2 \langle K \rangle = (6N -3) k_b T$.
+Recall that the computed averages for both refined schemes are obtained via reweighting by employing Eq.~\eqref{eq:reweighting}.
 
 Despite the non-equilibrium process occurring within the thermostats, it is worth showing the results obtained with the method of \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}, because that is not the only problematic issue.
 Particularly, from Fig.~\ref{fig:properties}(a) we note that the simulated temperature decreases systematically with $\timestep$.
@@ -576,11 +594,6 @@ Also, they do so contrary to what is expected: the translational kinetic energy 
 From Fig.~\ref{fig:energy_partition} (d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to 5 fs.
 For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition} (b), it becomes clear that our method corrects the serious disruption observed in the schemes of \citeauthor{Martyna_1996} \cite{Martyna_1996} and  \citeauthor{Kamberaj_2005} \cite{Kamberaj_2005}.
 
-\begin{figure*}
-	\includegraphics{Figures/thermodynamic_properties.eps}
-	\caption{Effect of the time-step size on the thermodynamic properties and of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing...}
-	\label{fig:properties}
-\end{figure*}
 
 \begin{figure*}
 	\includegraphics{Figures/energy_partition.eps}
