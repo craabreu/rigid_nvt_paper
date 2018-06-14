@@ -13,10 +13,10 @@ fig.set_size_inches(w=7.5,h=4)
 ax[2].set_xlabel('$h$ (fs)')
 ax[3].set_xlabel('$h$ (fs)')
 
-ax[0].set_ylabel(r'T (K)')
+ax[0].set_ylabel(r'$T_\textnormal{est}$ (K)')
 ax[1].set_ylabel(r'{$\langle U/N \rangle$} (kcal/mol)')
 ax[2].set_ylabel(r'{$\langle W/N \rangle$} (kcal/mol)')
-ax[3].set_ylabel(r'$C_V$ (kcal/mol K)')
+ax[3].set_ylabel(r'$C_V$ (cal/mol.K)')
 
 
 ax[1].set_xlim(0.5,7.5)
@@ -41,7 +41,7 @@ for i in integrators:
     ax[0].errorbar(timesteps, data['temperatura'][0:7],yerr = data['dtemperatura'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,   markeredgewidth=1)
     ax[1].errorbar(timesteps, data['P'][0:7],yerr = data['dP'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
     ax[2].errorbar(timesteps, data['virial'][0:7],yerr = data['dvirial'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
-    ax[3].errorbar(timesteps, data['Cv1'][0:7],yerr = data['dCv1'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2, markeredgewidth=1)
+    ax[3].errorbar(timesteps, data['Cv1'][0:7]/0.903,yerr = data['dCv1'][0:7]/0.903,linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2, markeredgewidth=1)
 
     k = k + 1
 
@@ -50,12 +50,12 @@ data = np.genfromtxt('S1wr.csv', delimiter=',', skip_header=1, names=[' ','T','f
                      'KEt','dKEt','KEr','dKEr','Cv1','dCv1','dfdT','ddfdT'])
 ax[0].errorbar(timesteps, data['temperatura'][0:7],yerr = data['dtemperatura'][0:7],linestyle ='-', color = 'red', marker = 'x',markersize = 4, linewidth = lw, markeredgewidth=0.5,markeredgecolor='red', markerfacecolor='None', label = 'No Reweighting')
 ax[1].errorbar(timesteps, data['P'][0:7],yerr = data['dP'][0:7],linestyle ='-', color = 'red', marker = 'x',markersize = 4, linewidth = lw, markeredgewidth=0.5,markeredgecolor='red', markerfacecolor='None', label = 'No Reweighting')
-ax[3].errorbar(timesteps, data['Cv1'][0:7],yerr = data['dCv1'][0:7],linestyle ='-', color = 'red', marker = 'x',markersize = 4, linewidth = lw, markeredgewidth=0.5,markeredgecolor='red', markerfacecolor='None', label = 'No Reweighting' )
+ax[3].errorbar(timesteps, data['Cv1'][0:7]/0.903,yerr = data['dCv1'][0:7]/0.903,linestyle ='-', color = 'red', marker = 'x',markersize = 4, linewidth = lw, markeredgewidth=0.5,markeredgecolor='red', markerfacecolor='None', label = 'No Reweighting' )
 
 ax[0].axhline(y=298.0, color='black', linestyle='dotted',linewidth=1.0)
 ax[1].axhline(y=-9.1028, color='black', linestyle='dotted',linewidth=1.0)
 ax[2].axhline(y=-1.776, color='black', linestyle='dotted',linewidth=1.0)
-ax[3].axhline(y=17.512, color='black', linestyle='dotted',linewidth=1.0)
+ax[3].axhline(y=17.512/0.903, color='black', linestyle='dotted',linewidth=1.0)
 ax[0].legend(loc='upper center', bbox_to_anchor=(1.1,1.2), ncol=5, fancybox=True, frameon=False, numpoints = 1)
 fig.savefig('thermodynamic_properties.eps', format='eps', dpi=600, bbox_inches='tight')
 
