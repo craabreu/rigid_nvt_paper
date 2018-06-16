@@ -1,8 +1,8 @@
 \documentclass[
 	aip,
 	jcp,
-%	preprint,
-	reprint,
+	preprint,
+%	reprint,
 ]{revtex4-1}
 
 \usepackage[hidelinks,colorlinks,citecolor=blue]{hyperref}
@@ -203,7 +203,7 @@ Despite its approximate treatment of rotations, which are split into several rev
 This justifies its more widespread use.
 However, having an unplit solution for rotations at hand is crucial for the feasibility of backward error analysis, as it might become clear in Sec.~\ref{sec:modified_h} and Appendix \ref{sec:rigid body shadow hamiltonian}.
 
-\subsection{NVT Dynamics with a Single Thermostat Chain: Notation and Measure-Preserving Integration}
+\subsection{NVT Dynamics with a Single Nos\'{e}-Hoover Chain: Notation and Measure-Preserving Integration}
 \label{sec:nvt}
 
 In this work, we couple a single Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992} to both the translational and rotational degrees of freedom of the rigid-body system.
@@ -289,7 +289,7 @@ Finally, propagators $e^{\frac{\timestep}{4n} \mathcal{L}_j}$ are applied once a
 
 Due to its low computational cost, the whole procedure described above can be repeated $n$ times with little impact on the overall integration effort.
 This makes it feasible to increase the time step $\timestep$ without ruining the accuracy of the NHC part.
-In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down very quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
+In contrast, evaluating the NVE part is expensive for involving force/torque computations and, in addition, its accuracy goes down quickly as $\timestep$ increases \cite{Davidchack_2010, Silveira_2017}.
 A high-order integration scheme\cite{Omelyan_2007, Van_zon_2008} could possibly admit larger time steps, but it would raise both cost and complexity for entailing the computation (or numerical estimation) of force/torque gradients.
 Omelyan's processed splitting approach \cite{Omelyan_2008} seems promising, but its extension to the NVT case without doing back-and-forth processing at every time step would require further theoretical development.
 Here we choose to take a simpler path, though.
@@ -425,7 +425,6 @@ Notwithstanding, it is possible to compute ensemble averages consistent with a d
 For this, we simply need to reweight any computed observable $A$ in accordance with \cite{Torrie_1977}
 \begin{equation}
 \label{eq:reweighting}
-%\langle A \rangle_0 = \frac{\sum\limits_{i=1}^{N_s} A(\vt x_i) \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right]}{\sum\limits_{i=1}^{N_s} \exp \left[{\frac{\refined{\Ham{}}(\vt x_i) - {\Ham{}}(\vt x_i)}{k_\text{\tiny B} T}}\right] },
 \langle A \rangle_0 = \frac{\left\langle A \exp \left({\frac{\refined{\Ham{}} - \Ham{}}{k_\text{\tiny B} T}}\right)\right\rangle_\timestep}{\left\langle \exp \left({\frac{\refined{\Ham{}} - \Ham{}}{k_\text{\tiny B} T}}\right)\right\rangle_\timestep}.
 \end{equation}
 
@@ -542,11 +541,11 @@ Despite the non-equilibrium process occurring within the thermostats, it is wort
 Particularly, from Fig.~\ref{fig:properties}(a) we note that the simulated temperature decreases systematically with $\timestep$.
 This behavior is observed in NVE simulations\cite{Davidchack_2010, Silveira_2017}, reflecting that the kinetic energy is weakly controlled in that factorization scheme.
 As a result, the potential energy and virial are not severely influenced by $\timestep$ as they are in the scheme of Martyna \textit{et al}. \cite{Martyna_1996}. Figs.~\ref{fig:properties}(a) and \ref{fig:properties}(b) clearly show that the temperature control described in Sec.~\ref{sec:nvt} leads to a severely degraded accuracy in $\langle U \rangle$, which systematically increases with $\timestep$.
-As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of 2 fs.
+As demonstrated in Fig.~\ref{fig:nve}, the discretization errors are non-negligible even for a small step size of $2~\text{fs}$.
 Thus, the results for the method of Martyna \textit{et al}. \cite{Martyna_1996} can be interpreted as follows: if the kinetic energy is restricted to adopt a certain value, in accordance with the target temperature, the unavoidable discretization errors will accumulate in the remaining degrees of freedom.
 
 From Fig.~\ref{fig:properties} it becomes clear that the refined schemes yield significantly improved results: we are able to simultaneously reproduce the specified temperature and the other thermodynamic properties.
-Note that a small, still clearly influencing systematic error is present, as the computed averages are slightly modified for $\timestep$ > 5.
+Note that a small, still clearly influencing systematic error is present, as the computed averages are slightly modified for $\timestep > 5~\text{fs}$.
 This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian.
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the unsplit solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement between schemes Refined/Unsplit and Refined/NO-SQUISH.
@@ -557,7 +556,7 @@ Indeed, for all the time-step sizes considered the agreement is excellent.
 
 With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for each time-step size the free energy difference per water molecule ($\Delta F/N$, circles) between the sampled and target states.
 $\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\eqref{eq:reweighting}.
-As expected, the free energy is only negligible for $h$ = 1 fs.
+As expected, the free energy is only negligible for $h = 1~\text{fs}$.
 
 \begin{figure}
 	\includegraphics{Figures/Free_Energy.eps}
@@ -567,15 +566,15 @@ As expected, the free energy is only negligible for $h$ = 1 fs.
 
 We end this section with a discussion of discretization effects on the kinetic energy partition.
 In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition.
-In Figs.~\ref{fig:energy_partition} (a)-(c) these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
-For Fig.~\ref{fig:energy_partition} (d) we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of the equations above.
+In Figs.~\ref{fig:energy_partition}(a) to \ref{fig:energy_partition}(c) these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
+For Fig.~\ref{fig:energy_partition}(d) we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of the equations above.
 
-In our previous work\cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
+In our previous work \cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
 We see that the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
-The results of Fig.~\ref{fig:energy_partition} (a), which were obtained for the numerical scheme of Martyna \textit{et al}. \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition} (b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
+The results of Fig.~\ref{fig:energy_partition}(a), which were obtained for the numerical scheme of Martyna \textit{et al}. \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition}(b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
 Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
-From Fig.~\ref{fig:energy_partition} (d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to 5 fs.
-For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition} (b), it becomes clear that our method corrects the serious disruption observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and  Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
+From Fig.~\ref{fig:energy_partition}(d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
+For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition}(b), it becomes clear that our method corrects the serious disruption observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and  Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
 
 
 \begin{figure*}
