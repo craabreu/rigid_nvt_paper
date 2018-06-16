@@ -513,8 +513,8 @@ Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermost
 \subsection{Correction of Discretization Effects on Thermodynamic Properties}
 
 In the previous section, we have seen that drifts in the extended energy of an NVT simulation can accumulate in the thermostat-related variables, thus preventing full-fledged instability from happening.
-This allows simulations to be executed with large time steps, which could in principle save computer time.
-However, as we will show now, discretization errors can become manifest much earlier than any risk of instability.
+This allows simulations to be executed with large time steps, which could in principle be used to save computer time.
+However, as we will show in this section, discretization errors can become manifest much earlier than does any risk of instability.
 Fortunately, our proposed methodology is capable of mitigating the effect of these errors on the ensemble averages computed for the simulated system.
 
 In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for our liquid water system using several NVT-MD methods with different time step sizes.
