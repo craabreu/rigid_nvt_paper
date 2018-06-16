@@ -517,8 +517,8 @@ This allows simulations to be executed with large time steps, which could in pri
 However, as we will show in this section, discretization errors can become manifest much earlier than does any risk of instability.
 Fortunately, our proposed methodology is capable of mitigating the effect of these errors on the ensemble averages computed for the simulated system.
 
-In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for our liquid water system using several NVT-MD methods with different time step sizes.
-All simulations were carried out by specifying $T = 298~\text{K}$ and the analyzed quantities are the estimated temperature $T_\text{est} = \frac{2\langle K \rangle}{(6N-3)k_\mini{B}}$,
+In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for the liquid water system using several NVT-MD methods with different time step sizes.
+All simulations were carried out by specifying $T = 298.0~\text{K}$ and the analyzed quantities are the estimated temperature $T_\text{est} = \frac{2\langle K \rangle}{(6N-3)k_\mini{B}}$,
 the mean potential energy per molecule $\langle U/N \rangle$,
 the mean internal virial per molecule $\langle W/N \rangle$, and
 the constant-volume specific heat $c_\mini{V} = \frac{\langle \Ham{}^2 \rangle - \langle \Ham{} \rangle^2}{N k_\mini{B} T^2}$.

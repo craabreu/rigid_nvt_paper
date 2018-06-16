@@ -15,6 +15,7 @@ ax[2].set_xlabel('$h$ (fs)')
 ax[3].set_xlabel('$h$ (fs)')
 
 ax[0].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
+ax[1].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
 ax[2].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
 ax[3].set_ylabel(r'{$\langle \widetilde{K} \rangle$} (kcal/mol)')
 ax[0].set_xlim(0.5,7.5)
@@ -37,8 +38,8 @@ data = np.genfromtxt('S1_KEpartition.csv', delimiter=',', skip_header=1, names=[
                      'dKEt','KEr','dKEr','Kt_eq','dKt_eq','Kr_eq','dKr_eq'])
 ax[3].errorbar(timesteps, data['KEt'][0:7],yerr = data['dKEt'][0:7],linestyle ='-', color = 'black', marker = 'v', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle$}',capsize=2, markeredgewidth=1)
 ax[3].errorbar(timesteps, data['KEr'][0:7],yerr = data['dKEr'][0:7],linestyle ='-', color = 'black', marker = '^', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle$}',capsize=2, markeredgewidth=1)
-ax[3].errorbar(timesteps, data['Kt_eq'][0:7],yerr =data['dKt_eq'][0:7],linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_{eq}$}', capsize=2,  markeredgewidth=1)
-ax[3].errorbar(timesteps, data['Kr_eq'][0:7],yerr = data['dKr_eq'][0:7],linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_{eq}$}', capsize=2, markeredgewidth=1)
+ax[3].errorbar(timesteps, data['Kt_eq'][0:7],yerr =data['dKt_eq'][0:7],linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_\textnormal{eq}$}', capsize=2,  markeredgewidth=1)
+ax[3].errorbar(timesteps, data['Kr_eq'][0:7],yerr = data['dKr_eq'][0:7],linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_\textnormal{eq}$}', capsize=2, markeredgewidth=1)
 
 k = 0
 for i in integrators:
@@ -47,8 +48,8 @@ for i in integrators:
                      'KEt','dKEt','KEr','dKEr','Cv1','dCv1','dfdT','ddfdT'])
     ax[k].errorbar(timesteps, data['KEt'][0:7],yerr = data['dKEt'][0:7],linestyle ='-', color = 'black', marker = 'v', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle$}',capsize=2, markeredgewidth=1)
     ax[k].errorbar(timesteps, data['KEr'][0:7],yerr = data['dKEr'][0:7],linestyle ='-', color = 'black', marker = '^', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle$}',capsize=2, markeredgewidth=1)
-    ax[k].errorbar(timesteps, (data['KEtotal'][0:7]/(6*N-3))*(3*N-3),yerr =(data['dKEtotal'][0:7]/(6*N-3))*(3*N-3),linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_{eq}$}', capsize=2,  markeredgewidth=1)
-    ax[k].errorbar(timesteps, (data['KEtotal'][0:7]/(6*N-3))*(3*N),yerr = (data['dKEtotal'][0:7]/(6*N-3))*(3*N-3),linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_{eq}$}', capsize=2, markeredgewidth=1)
+    ax[k].errorbar(timesteps, (data['KEtotal'][0:7]/(6*N-3))*(3*N-3),yerr =(data['dKEtotal'][0:7]/(6*N-3))*(3*N-3),linestyle ='-', color = 'green', marker = 's', markersize = 4, linewidth = lw, label = r'{$\langle K_t \rangle_\textnormal{eq}$}', capsize=2,  markeredgewidth=1)
+    ax[k].errorbar(timesteps, (data['KEtotal'][0:7]/(6*N-3))*(3*N),yerr = (data['dKEtotal'][0:7]/(6*N-3))*(3*N-3),linestyle ='-', color = 'red', marker = 'x', markersize = 4, linewidth = lw, label = r'{$\langle K_r \rangle_\textnormal{eq}$}', capsize=2, markeredgewidth=1)
     k = k + 1
 
 
