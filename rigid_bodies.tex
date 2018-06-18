@@ -60,10 +60,10 @@
 Many deterministic and stochastic molecular dynamics methods that aim at reproducing a target temperature have equipartition of kinetic energy as a premise.
 While this intends to mimic the real world, discretization errors, which are intrinsic to numerical integrators, may distort such assumption.
 Fortunately, backward error analysis is a powerful tool that allows us to identify the quantity actually subject to equipartition, which is a shadow Hamiltonian that only coincides with the specified Hamiltonian when the time-step size approaches zero.
-In this paper,  deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
+This paper deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
 shadow counterparts and then we tune the thermostatting procedure with this refined kinetic energy.
-The case of rigid water has served for an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors.
-By applying our new method to the Nos\'{e}-Hoover chain thermostat, we were able to correct the discretization errors in numerically computed averages for time-step sizes up to 5 fs.
+The case of rigid water has served as an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors in Verlet-type integrators.
+By applying our new approach, we have been able to correct the discretization effects in numerically computed averages for time-step sizes up to 5 fs.
 \end{abstract}
 
 \maketitle
@@ -88,13 +88,15 @@ As Eastwood \textit{et al}. \cite{Eastwood_2010} have shown, Tolman's generalize
 The authors then employed backward error analysis to successfully eliminate the artifacts mentioned above.
 Here, we prove that their findings can be extended to the symplectic integration of rigid-body motion.
 
-It seems then reasonable to argue that a NHC thermostat should regulate the shadow kinetic energy instead of the specified one.
-However, the theory underlying the concept of shadow Hamiltonian is only applicable to symplectic integrators, whereas NHC thermostats introduce non-Hamiltonian components to the equations of motion.
+It seems then reasonable to argue that any thermostat should regulate the shadow kinetic energy instead of the specified one.
+However, the theory underlying the concept of shadow Hamiltonian is only applicable to symplectic integrators.
 In this paper, we devise a novel procedure that partially overcomes this limitation.
 It consists in using a splitting-based numerical integrator that entails a Hamiltonian component and carrying out backward error analysis out of this NVE part only.
 This allows us to obtain, with minimal computational overhead, a \textit{refined kinetic energy} and a \textit{refined Hamiltonian} as suitable estimators of their shadow counterparts.
 By recasting the thermostat equations with this refined kinetic energy, we are able to predict its equipartition and to reproduce a canonical ensemble consistent with the refined Hamiltonian.
-Finally, a reweighting procedure provides us with ensemble averages which are, instead, consistent with the specified one. It should be emphasized that this approach is not limited to deterministic thermostats. It is straightforward to use it, for instance, in conjunction with global stochastic thermostats such as those of Bussi \textit{et al}. \cite{Bussi_2007} and Leimkuhler \textit{et al}. \cite{Leimkuhler_2009}, for instance.
+Finally, a reweighting procedure provides us with ensemble averages which are, instead, consistent with the specified one.
+Although we will show the detailed derivation for the particular case of the Nos\'{e}-Hoover chain thermostat, it should be emphasized that our new approach is not limited to deterministic thermostats. 
+It is straightforward to use it, for instance, in conjunction with global stochastic thermostats such as those of Bussi \textit{et al}. \cite{Bussi_2007} and Leimkuhler \textit{et al}. \cite{Leimkuhler_2009}, for instance.
 
 Our new method is particularly appealing for rigid-body MD, primarily because its numerical stability extends up to time steps large enough to yield pronounced discretization errors. Rigid-body MD is relevant not only because some molecules are usually modeled as rigid, such as in the ubiquitous case of water \cite{Jorgensen_1983}, but also because it can provide a coarse-graining strategy for molecules that can be designed as collections of interconnected bodies, such as proteins and nanoparticles \cite{Miller_2002, Knorowski_2012, Patra_2013}.
 In fact, the approach of Kamberaj \textit{et al}. \cite{Kamberaj_2005}, which is implemented in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995}, has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, as well as membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}.
@@ -359,10 +361,10 @@ where ${\mt \Pi}(\vt q)$ is a block-diagonal projection matrix, with each diagon
 The observation that $\refined{\Ham{}}$ still has a quadratic-form dependency on the momenta has an important consequence.
 It suffices for the validity of Tolman's generalized equipartition theorem \cite{Tolman_1918, Uline_2008, Eastwood_2010} regarding a system with this Hamiltonian.
 Moreover, as such dependency lies exclusively in $\refined K$, an outcome of this theorem for a system with $L$ degrees of freedom is that
-\begin{equation*}
+\begin{equation}
 \label{eq:equipartition}
 L k_\text{\tiny B} T = \left\langle \tr{\vt p} \diff{\refined K}{\vt p} + \tr{\vt \pi} \diff{\refined K}{\vt \pi} \right\rangle_\timestep = 2\langle \refined{K} \rangle_\timestep,
-\end{equation*}
+\end{equation}
 where subscript $\timestep$ points out the dependency of this average on the employed time step size.
 The expression above extends the main result of Eastwood \textit{et al}. \cite{Eastwood_2010} to systems containing rigid bodies.
 It provides a temperature estimator in substitution to the ordinary one, which is proportional to $\langle K \rangle$.
@@ -432,6 +434,12 @@ A drawback of our approach is that the resulting integrator lacks time-reversal 
 As a matter of fact, long-term reversibility is not generally achievable with software that relies on floating-point arithmetics.
 In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per time step.
 Higher-order derivative estimates can also be obtained in this fashion if necessary.
+
+\subsection{Refinement of Stochastic NVT Dynamics}
+\label{sec:refined_bussi}
+
+As an example of application in stochastic thermostats, we consider the  velocity-rescaling scheme introduced by Bussi \textit{et al}. \cite{Bussi_2007}.
+Its refined version is simply obtained by substituting $K$ by $\refined{K}$ in Eq.~(A7) of Ref.~\citenum{Bussi_2007}.
 
 \section{Application to the Simulation of Liquid Water}
 \label{sec:numerical_results}
