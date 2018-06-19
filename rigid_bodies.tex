@@ -532,8 +532,8 @@ the mean internal virial per molecule $\langle W/N \rangle$, and
 the constant-volume specific heat $c_\mini{V} = \frac{\langle \Ham{}^2 \rangle - \langle \Ham{} \rangle^2}{N k_\mini{B} T^2}$.
 The internal virial $W$ is computed as described in Ref.~\citenum{Silveira_2017}.
 All symbols in Fig.~\ref{fig:properties} represent results obtained after $18~\text{ns}$ of production time, while the lines are just guides for the eyes.
-The horizontal, dotted lines are meant to help visualizing the departure of the computed averages from their expected values.
-They correspond to the results obtained by employing the Refined NHC method with $\timestep = 1~\text{fs}$.
+The horizontal, dotted lines are meant to help visualizing the departure of the computed ensemble averages from their expected values.
+They correspond to average results obtained with $\timestep = 1~\text{fs}$ by employing the three refined methods.
 Error bars were obtained using the Overlapping Batch Means estimator \cite{Meketon_1984, Flegal_2010} and standard uncertainty propagation formulas.
 
 \begin{figure*}
@@ -541,6 +541,11 @@ Error bars were obtained using the Overlapping Batch Means estimator \cite{Meket
 	\caption{Effect of the time-step size on the thermodynamic properties and of 903 TIP3P\cite{Jorgensen_1983} water molecules in NVT MD simulations employing...}
 	\label{fig:properties}
 \end{figure*}
+
+Fig.~\ref{fig:properties} contains results obtained by using five different NVT integrators.
+First, for the sake of comparison, we test our measure-preserving extension to rigid bodies of the method of Martyna \textit{et al}. \cite{Martyna_1996} without doing any refinement, such as detailed in Sec.~\ref{sec:nvt}.
+Another method we use with no refinement is that of Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
+We will show that, besides the spurious energy flux between the thermostats, such method exhibits some discretization-related issues....................................
 
 We have included the results of applying our method, but using the approximate solution of rotation due to Miller \textit{et al}. \cite{Miller_2002}, which is denoted as ``Refined/NO-SQUISH''.
 Recall that the computed averages for both refined schemes are obtained via reweighting by employing Eq.~\eqref{eq:reweighting}.
@@ -557,6 +562,8 @@ Note that a small, still clearly influencing systematic error is present, as the
 This could, in principle, be remediated by using a higher-order approximation to the shadow Hamiltonian.
 Mathematically, the derivation of the refined Hamiltonian was facilitated by the fewer number of operators associated with the unsplit solution of rotation.
 However, the accuracy of the approximate solution is very high for the time step sizes considered\cite{Silveira_2017} and this explains the good agreement between schemes Refined/Unsplit and Refined/NO-SQUISH.
+
+SAY THAT BUSSI AND MARTYNA, BOTH WITHOUT REFINEMENT, YIELD SIMILAR RESULTS.
 
 In Fig.~\ref{fig:properties}(a) we also depict the refined temperature, calculated by means of the generalized equipartition theorem, given by Eq.~\eqref{eq:equipartition}.
 Of course, as $\refined{T}$ is indirectly controlled by means of Eq.~\eqref{eq:thermostat_force} we expect the refined schemes to reproduce the target temperature.
