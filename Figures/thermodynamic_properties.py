@@ -30,7 +30,7 @@ NB = 903
 kB = 0.0019872041 #Boltzmann's constant (kcal/mol/K).
 beta = 1./(kB*298.0)
 integrators = ['S1','S1mr','B1s','P1','K2']
-colors = ['black','magenta','green','red','blue']
+colors = ['black','magenta','limegreen','red','blue']
 markers = ['s','^','x','o','v']
 labels = ['Refined/NHC','Refined/NHC/NO-SQUISH','Refined/Bussi', r'Martyna', r'Kamberaj']
 k = 0
@@ -53,9 +53,9 @@ for i in integrators:
 #ax[3].errorbar(timesteps, data['Cv1'][0:7]/0.903,yerr = data['dCv1'][0:7]/0.903,linestyle ='-', color = 'red', marker = 'x',markersize = 4, linewidth = lw, markeredgewidth=0.5,markeredgecolor='red', markerfacecolor='None', label = 'No Reweighting' )
 
 ax[0].axhline(y=298.0, color='black', linestyle='dotted',linewidth=1.0)
-ax[1].axhline(y=-9.1028, color='black', linestyle='dotted',linewidth=1.0)
-ax[2].axhline(y=-1.776, color='black', linestyle='dotted',linewidth=1.0)
-ax[3].axhline(y=17.512/0.903, color='black', linestyle='dotted',linewidth=1.0)
+ax[1].axhline(y=(-9.1021-9.1028431-9.102223)/3, color='black', linestyle='dotted',linewidth=1.0)
+ax[2].axhline(y=(-1.7799-1.77606-1.776779)/3, color='black', linestyle='dotted',linewidth=1.0)
+ax[3].axhline(y=(17.4749+17.51209+17.32699)/(3*0.903), color='black', linestyle='dotted',linewidth=1.0)
 ax[0].legend(loc='upper center', bbox_to_anchor=(1.1,1.2), ncol=5, fancybox=True, frameon=False, numpoints = 1)
 fig.savefig('thermodynamic_properties.eps', format='eps', dpi=600, bbox_inches='tight')
 
