@@ -29,19 +29,19 @@ lw = 0.5
 NB = 903
 kB = 0.0019872041 #Boltzmann's constant (kcal/mol/K).
 beta = 1./(kB*298.0)
-integrators = ['S1','S1mr','B1s','P1','K2']
-colors = ['black','magenta','limegreen','red','blue']
-markers = ['s','^','x','o','v']
-labels = ['Refined/NHC','Refined/NHC/NO-SQUISH','Refined/Bussi', r'Martyna', r'Kamberaj']
+integrators = ['P1','S1','S1mr','B1s','K2']
+colors = ['red','black','magenta','green','blue']
+markers = ['o','s','^','x','v']
+labels = [r'Martyna', 'Refined/NHC','Refined/NHC/Miller','Refined/Bussi', r'Kamberaj']
 k = 0
 for i in integrators:
     data = np.genfromtxt(i + '.csv', delimiter=',', skip_header=1, names=[' ','T','f','df','temperatura',\
                      'dtemperatura','P','dP','E','dE','virial','dvirial','KEtotal','dKEtotal', \
                      'KEt','dKEt','KEr','dKEr','Cv1','dCv1','dfdT','ddfdT'])
-    ax[0].errorbar(timesteps, data['temperatura'][0:7],yerr = data['dtemperatura'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,   markeredgewidth=1)
-    ax[1].errorbar(timesteps, data['P'][0:7],yerr = data['dP'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
-    ax[2].errorbar(timesteps, data['virial'][0:7],yerr = data['dvirial'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
-    ax[3].errorbar(timesteps, data['Cv1'][0:7]/0.903,yerr = data['dCv1'][0:7]/0.903,linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2, markeredgewidth=1)
+    ax[0].errorbar(timesteps, data['temperatura'][0:7],yerr = 1.96*data['dtemperatura'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,   markeredgewidth=1)
+    ax[1].errorbar(timesteps, data['P'][0:7],yerr = 1.96*data['dP'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
+    ax[2].errorbar(timesteps, data['virial'][0:7],yerr = 1.96*data['dvirial'][0:7],linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2,  markeredgewidth=1)
+    ax[3].errorbar(timesteps, data['Cv1'][0:7]/0.903,yerr = 1.96*data['dCv1'][0:7]/0.903,linestyle ='-', color = colors[k], marker = markers[k],markersize = 4, linewidth = lw, label = labels[k],capsize=2, markeredgewidth=1)
 
     k = k + 1
 
@@ -57,5 +57,9 @@ ax[1].axhline(y=(-9.1021-9.1028431-9.102223)/3, color='black', linestyle='dotted
 ax[2].axhline(y=(-1.7799-1.77606-1.776779)/3, color='black', linestyle='dotted',linewidth=1.0)
 ax[3].axhline(y=(17.4749+17.51209+17.32699)/(3*0.903), color='black', linestyle='dotted',linewidth=1.0)
 ax[0].legend(loc='upper center', bbox_to_anchor=(1.1,1.2), ncol=5, fancybox=True, frameon=False, numpoints = 1)
+
+for (i, text) in enumerate(['(a)', '(b)', '(c)', '(d)']):
+    ax[i].annotate(text, xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.02,0.05), textcoords='axes fraction')
+
 fig.savefig('thermodynamic_properties.eps', format='eps', dpi=600, bbox_inches='tight')
 
