@@ -520,21 +520,21 @@ Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermost
 
 \subsection{Correction of Discretization Effects on Thermodynamic Properties}
 
-In the previous section, we have seen that drifts in the extended energy of an NVT simulation can accumulate in the thermostat-related variables, thus preventing full-fledged instability from happening.
+In the previous section, we have seen that drifts in the extended energy of an NVT simulation can accumulate in the thermostat-related variables, thus preventing full-fledged instability.
 This allows simulations to be executed with large time steps, which could in principle be used to save computer time.
-However, as we will show in this section, discretization errors can become manifest much earlier than does any risk of instability.
-Fortunately, our proposed methodology is capable of mitigating the effect of these errors on the ensemble averages computed for the simulated system.
+However, as we will show in this section, discretization errors can become manifest much earlier than any risk of instability.
+Fortunately, our proposed methodology is capable of mitigating the effect of these errors on ensemble averages computed for the simulated system.
 
-In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for the liquid water system using several NVT-MD methods with different time step sizes.
-All simulations were carried out by specifying $T = 298.0~\text{K}$ and the analyzed quantities are the estimated temperature $T_\text{est} = \frac{2\langle K \rangle}{(6N-3)k_\mini{B}}$,
+In Fig.~\ref{fig:properties}, we present some thermodynamic properties computed for our liquid-water system using several NVT-MD methods with various time-step sizes.
+All simulations were carried out for $T = 298.0~\text{K}$ and the analyzed quantities are the estimated temperature $T_\text{est} = \frac{2\langle K \rangle}{(6N-3)k_\mini{B}}$,
 the mean potential energy per molecule $\langle U/N \rangle$,
 the mean internal virial per molecule $\langle W/N \rangle$, and
 the constant-volume specific heat $c_\mini{V} = \frac{\langle \Ham{}^2 \rangle - \langle \Ham{} \rangle^2}{N k_\mini{B} T^2}$.
 The internal virial $W$ is computed as described in Ref.~\citenum{Silveira_2017}.
 All symbols in Fig.~\ref{fig:properties} represent results obtained after $18~\text{ns}$ of production time, while the lines are just guides for the eyes.
 The horizontal, dotted lines are meant to help visualizing the departure of the computed ensemble averages from their expected values.
-They correspond to average results obtained with $\timestep = 1~\text{fs}$ by employing the three refined methods.
-Error bars represent 95\% confidence intervals obtained using the Overlapping Batch Means estimator \cite{Meketon_1984, Flegal_2010} and standard uncertainty propagation formulas.
+They correspond to average results obtained with $\timestep = 1~\text{fs}$ by employing the three refined methods (details below).
+Error bars represent 95\% confidence intervals obtained by using the Overlapping Batch Means estimator \cite{Meketon_1984, Flegal_2010} and standard uncertainty propagation formulas.
 
 \begin{figure*}
 	\includegraphics{Figures/thermodynamic_properties.eps}
@@ -542,21 +542,26 @@ Error bars represent 95\% confidence intervals obtained using the Overlapping Ba
 	\label{fig:properties}
 \end{figure*}
 
-Fig.~\ref{fig:properties} contains results obtained by using five different NVT integrators.
-Our measure-preserving extension to rigid bodies of the splitting scheme developed by Martyna \textit{et al}. \cite{Martyna_1996} is the basis of three of them.
+Fig.~\ref{fig:properties} contains results of five different NVT integrators.
+Our measure-preserving extension to rigid bodies of the splitting scheme by Martyna \textit{et al}. \cite{Martyna_1996} is the basis of three of them.
 Recall that this is a deterministic method in which a single Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992} is attached to all degrees of freedom.
-First, the method is applied in a conventional (that is, refinement-free) way using the unsplit solution of Ref.~\citenum{Silveira_2017} for handling rotations.
+First, the method is applied in a conventional, refinement-free way, with the unsplit solution of Ref.~\citenum{Silveira_2017} being used for handling rotations.
 Then, it is modified by introducing the refinement/reweighting procedure proposed in Sec.~\ref{sec:refined_method}.
 In Fig.~\ref{fig:properties}, these two integrators are referred to as ``Martyna'' and ``Refined/NHC'', respectively.
-Next, we substitute the unsplit rotation by the simpler NO-SQUISH splitting of Miller \textit{et al}. \cite{Miller_2002}, denoting the obtained integrator by ``Refined/Miller'' in Fig.~\ref{fig:properties}.
+Next, we replace the unsplit rotation solution by the simpler NO-SQUISH splitting of Miller \textit{et al}. \cite{Miller_2002}, denoting the resulting integrator by ``Refined/Miller'' in Fig.~\ref{fig:properties}.
 We note that our refinement procedure is rigorously sustained (see Appendix \ref{sec:rigid body shadow hamiltonian}) for unsplit rotations only.
-However, NO-SQUISH rotations have been shown to approach them almost indistinguishably in the case of water if small time steps are employed \cite{Silveira_2017}.
-The fourth integrator we test here is a refined version of the velocity-rescaling method of Bussi \textit{et al}. \cite{Bussi_2007}, which differs from the other ones for involving a single stochastic (rather than deterministic) thermostat.
+Nevertheless, it is known that NO-SQUISH rotations approach them almost indistinguishably in the case of water if small time steps are employed \cite{Silveira_2017}.
+The fourth integrator we test is a refined version of the velocity-rescaling method of Bussi \textit{et al}. \cite{Bussi_2007}, which differs from the others for involving a single stochastic thermostat.
 This is identified in Fig.~\ref{fig:properties} as ``Refined/Bussi''.
 Finally, we also consider the double-thermostat integrator of Kamberaj \textit{et al}. \cite{Kamberaj_2005} for comparison purposes, despite the spurious energy flux between thermostats described in the preceding section.
 This is done to show that the method, denoted by ``Kamberaj'' in Fig.~\ref{fig:properties}, also exhibits discretization-related issues not present in other integrators.
 
-Before discussing the results shown in Fig.~\ref{fig:properties}, we stress that the thermodynamic properties are estimated by simple averages taken from the sampled configurations in the case of a conventional method (either Martyna or Kamberaj), whereas reweighting via Eq.~\eqref{eq:reweighting} is carried out in the case of a refined one.
+Before discussing the results shown in Fig.~\ref{fig:properties}, we stress that the thermodynamic properties are estimated in distinct ways for conventional and refined integrators.
+For the conventional ones, Martyna and Kamberaj, simple averages are taken from the sampled configurations.
+For the refined ones, reweighting is carried out via Eq.~\eqref{eq:reweighting}.
+
+Fig.~\ref{fig:properties}(a) 
+
 
 %Despite the non-equilibrium process occurring within the thermostats, it is worth showing the results obtained with the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005}, because that is not the only problematic issue.
 Particularly, from Fig.~\ref{fig:properties}(a) we note that the simulated temperature decreases systematically with $\timestep$.
