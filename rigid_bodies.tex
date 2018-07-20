@@ -1,8 +1,8 @@
 \documentclass[
 	aip,
 	jcp,
-	preprint,
-%	reprint,
+%	preprint,
+	reprint,
 ]{revtex4-1}
 
 \usepackage[hidelinks,colorlinks,citecolor=blue]{hyperref}
@@ -393,7 +393,7 @@ Therefore, at such instant there is no previous record of a Hamiltonian trajecto
 Fortunately, only positions and orientations are required for the numerical differentiation.
 This allows us to generate a four-point stencil by executing two virtual, incomplete Verlet steps, backward and forward in time, such as illustrated in Fig.~\ref{fig:virtual steps}.
 By virtual and incomplete we mean, respectively, that these steps are never incorporated to the trajectory and that they are aborted once the positions and orientations have been updated.
-By this means, we can obtain estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]}$ without any additional force evaluation, which results in a small computational overhead.
+By this means, we can obtain the estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]}$ without any additional force evaluation, which results in a small computational overhead.
 
 \begin{figure}
 \begin{tikzpicture}
@@ -413,13 +413,16 @@ By this means, we can obtain estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]
 \path[dashed,->,thick,postaction={decorate,decoration={raise=2.5ex,text along path,text align=center,text={|\small|virtual step}}}] (2) to [bend left=45] (3);
 \path[dashed,->,thick] (2) edge [bend left=45] (3);
 \end{tikzpicture}
-\caption{Schematic representation of the executed steps in a single time-step of the refined NVT methods.
+\caption{Schematic representation of the executed steps in a single time-step of our refined NVT dynamics.
 The solid arrow represents the NVE part of the integration, while the dotted arrows emphasize that forward and backward steps are carried out for positions and orientations with the only purpose of approximating their time-derivatives at point $t$.}
 \label{fig:virtual steps}
 \end{figure}
 
 In addition, $\refined K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales both $\vt p$ and $\vt \pi$ by a factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
 Because such action leaves the positions and quaternions intact and, as a consequence, the matrix $\refined{\mathbf \Omega}(\vt r, \vt q, \timestep^2)$ in Eq.~\eqref{eq:modified kinetic energy} remains unaltered, the reevaluation of $\refined K$ is done as simply as ${\refined K} = e^{-\alpha_1^\ast \frac{\timestep}{n}} {\refined K}^\ast$.
+
+As an example of application in stochastic thermostats, we consider the  velocity-rescaling scheme introduced by Bussi \textit{et al}. \cite{Bussi_2007}.
+Its refined version is simply obtained by substituting $K$ by $\refined{K}$ in Eq.~(A7) of Ref.~\citenum{Bussi_2007}.
 
 Finally, we recall that configurations are sampled from a distribution proportional to $e^{-\beta \refined{\Ham{}}}$.
 Notwithstanding, it is possible to compute ensemble averages consistent with a distribution proportional to $e^{-\beta \Ham{}}$, which would have been obtained if $\timestep \to 0$.
@@ -433,9 +436,6 @@ A drawback of our approach is that the resulting integrator lacks time-reversal 
 As a matter of fact, long-term reversibility is not generally achievable with software that relies on floating-point arithmetics.
 In any event, if short-term reversibility is a requirement, one can simply employ a symmetric five-point stencil formula, at the price of one additional force computation round per time step.
 Higher-order derivative estimates can also be obtained in this fashion if necessary.
-
-As an example of application in stochastic thermostats, we consider the  velocity-rescaling scheme introduced by Bussi \textit{et al}. \cite{Bussi_2007}.
-Its refined version is simply obtained by substituting $K$ by $\refined{K}$ in Eq.~(A7) of Ref.~\citenum{Bussi_2007}.
 
 \section{Application to the Simulation of Liquid Water}
 \label{sec:numerical_results}
@@ -458,7 +458,7 @@ As expected, $\refined{\Ham{}}$ is very well conserved and is close to $\Ham{}$ 
 It is worth remarking that $\refined{\Ham{}}$ corresponds to a simple and, most importantly, computationally inexpensive approximation of the truly conserved shadow Hamiltonian.
 As a result, we observe increasing fluctuations in $\refined{\Ham{}}$ for $\timestep = 3~\text{fs}$ and $\timestep = 4~\text{fs}$.
 This is an indication that
-1) the employed four-point formulas do not provide derivatives with the required accuracy or
+1) the employed four-point formulas do not provide derivatives with the required accuracy and/or
 2) the neglected high-order terms of the Baker-Campbell-Hausdorff series (see Appendix \ref{sec:rigid body shadow hamiltonian}) would contribute notably to the shadow Hamiltonian.
 
 \begin{figure}
@@ -482,27 +482,25 @@ As one can observe, long-term stability is slightly improved by our method if $\
 
 \begin{figure}
 	\includegraphics{Figures/energy_drift.eps}
-	\caption{Influence of the time-step size ($\timestep$) on the long-term drift rate ($R$) in: the extended energy ($\refined{H}$, down-pointing triangles) and its refined Hamiltonian ($\refined{\Ham{}}$, squares) part for our NVT method, as well as in the extended energy ($H$, up-pointing triangles) for the method due to Martyna \textit{et al}. \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
+	\caption{Influence of the time-step size ($\timestep$) on the long-term drift rate ($R$) in: the extended energy ($\refined{H}$, black squares) and its refined Hamiltonian ($\refined{\Ham{}}$, green up triangles) part for our NVT method, as well as in the extended energy ($H$, red x) for the method due to Martyna \textit{et al}. \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, blue circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
 	\label{fig:energy_drift}
 \end{figure}
 
 Fig.~\ref{fig:energy_drift} also contains drift rates computed for the refined Hamiltonian $\refined{\Ham{}}$ in an NVE simulation \cite{Silveira_2017}.
-Up to $h = 6~\text{fs}$, these rates practically coincide with those obtained for $\refined H$ with the Refined NHC scheme.
-This indicates that the major causes for the observed drift took place during evaluations of the NVE propagator.
+Up to $h = 6~\text{fs}$, these rates practically coincide with those obtained for $\refined H$ with the Refined NHC scheme, indicating that the major causes for the observed drift in this scheme took place during evaluations of the NVE propagator.
 As the interaction potential we use is very smooth at cutoff, a possible cause is the amplification of round-off errors which can occur in events of close interatomic approaches \cite{Engle_2005}.
 For time steps larger than $6~\text{fs}$, the NVE integration becomes fully unstable.
 In contrast, each NVT integrator manages to remain numerically stable at least up to $h = 10~\text{fs}$, but at the cost of displaying an exceedingly large drift in its corresponding extended energy, as one can see the inset of Fig.~\ref{fig:energy_drift}.
 Trying to look for the cause of this behavior, we also present drift rates computed for the Hamiltonian $\refined{\Ham{}}$ in the simulations carried out with the Refined NHC method.
 Recall that this part of $\refined H$ represents the total energy of the physical system.
-Note that no drift occurs for $\refined{\Ham{}}$, not even for the largest considered time steps, which shows that the thermostat stabilizes the numerical integration of the physical variables.
+Note that no drift occurs for $\refined{\Ham{}}$, not even for the largest time steps considered, which shows that the thermostat stabilizes the numerical integration of the physical variables.
 This has already been noticed by Davidchack \cite{Davidchack_2010} and also by Bond and Leimkhuler \cite{Bond_2007}, who in this respect stated that ``the thermostat acts as a sort of reservoir for numerical errors''.
 
 To end this section, we report in Fig.~\ref{fig:num_stab} an anomalous behavior observed when the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} is employed.
-Particularly, one can see in Fig.~\ref{fig:num_stab}(a) that, for each considered time-step size, the extended energy $H$ drifts upwards until reaching a steady-state value at which the integrator becomes stable.
+Particularly, one can see in Fig.~\ref{fig:num_stab}(a) that, for each time-step size, the extended energy $H$ drifts upwards until reaching a steady-state value at which the integrator becomes stable.
 These results were obtained with our own simulation code and double-checked using LAMMPS \cite{Plimpton_1995} with a custom pair style.
 As already mentioned, the scheme due to Kamberaj \textit{et al}. \cite{Kamberaj_2005} couples separate NHC thermostats to the rotational and translational degrees of freedom.
 Considering a different factorization scheme, Davidchack \cite{Davidchack_2010} discovered the existence of energy flows between the two thermostats.
-%Nevertheless, this finding did not result in a revision of the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} in the literature.
 This is confirmed for the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} in Fig.~\ref{fig:num_stab}(b), where we depict separately the contribution of each thermostat to the extended energy $H$.
 In this figure, the negative energy values always correspond to the thermostat coupled to the translational degrees of freedom.
 Therefore, energy flows from this thermostat to the one coupled to the rotational degrees.
@@ -510,7 +508,7 @@ Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermost
 
 \begin{figure}
 	\includegraphics{Figures/numerical_stability.eps}
-	\caption{Long-term drift rate in (a) the extended energy and (b) each thermostat energy for the NVT method introduced by Kamberaj \textit{et al}. \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom.}
+	\caption{Time evolution of (a) the extended energy and (b) of each thermostat energy for the NVT method introduced by Kamberaj \textit{et al}. \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom.}
 	\label{fig:num_stab}
 \end{figure}
 
@@ -573,7 +571,7 @@ Interestingly, for $\timestep < 5~\text{fs}$ all the NVT schemes yield similar r
 Even though the discretization errors affect $\Ham{}$,  Fig.~\ref{fig:properties}(d) shows that the derivative of $\Ham{}$ with respect $T$ is being successfully predicted by all schemes, as $c_\mini{V} \equiv \partial \Ham{} / \partial T$.
 In addition, the fact that $c_\mini{V}$ does not change much in the range of estimated temperatures depicted in Fig.~\ref{fig:properties}(a)\cite{Yigzawe_2013} explains why the poor performance of the scheme by Kamberaj \textit{et al.} \cite{Kamberaj_2005} has almost no impact on the predicted $c_\mini{V}$. 
 
-With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for the ``Refined/NHC'' scheme the free energy differences per water molecule ($\Delta F/N$, circles) between the sampled and target states as a function of the time-step size.
+With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for the ``Refined/NHC'' scheme the free energy difference per water molecule ($\Delta F/N$) between the sampled and target states as a function of the time-step size.
 $\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\eqref{eq:reweighting}.
 It should be noted that the other refined schemes yield identical results and, as expected, the free energy is only negligible for $h = 1~\text{fs}$.
 
@@ -595,17 +593,18 @@ Also, they do so contrary to what is expected: the translational kinetic energy 
 From Fig.~\ref{fig:energy_partition}(d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
 For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition}(c), it becomes clear that our method corrects the serious disruption observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
 
-
 \begin{figure*}
 	\includegraphics{Figures/energy_partition.eps}
-		\caption{Influence of the time-step size on the kinetic energy partition in NVT MD simulations of 903 TIP3P\cite{Jorgensen_1983} water molecules for the numerical schemes introduced by (a) Martyna \textit{et al.} \cite{Martyna_1996} and (b) Kamberaj \textit{et al.} \cite{Kamberaj_2005}, as well as for (c) our refined version of the thermostat by Martyna \textit{et al.} \cite{Martyna_1996}, for which we also consider in (d) the results obtained without applying the reweighting procedure. For each case, we depict the simulated translational (black down triangles) and rotational (black up triangles) kinetic energies, and show its deviation from the expected translational (green squares) and rotational (red x) values assuming equipartition.}
+		\caption{Influence of the time-step size on the kinetic energy partition in NVT MD simulations of 903 TIP3P\cite{Jorgensen_1983} water molecules for (a) our implementation of the numerical scheme by Martyna \textit{et al.} \cite{Martyna_1996} and (b) the method due to Kamberaj \textit{et al.} \cite{Kamberaj_2005}, as well as for (c) our refined version of the thermostat by Martyna \textit{et al.} \cite{Martyna_1996}, for which we also depict in (d) the results obtained without applying the reweighting procedure. For each case, we show the simulated translational (black down triangles) and rotational (black up triangles) kinetic energies, as well as the expected translational (green squares) and rotational (red x) values assuming equipartition.}
 	\label{fig:energy_partition}
 \end{figure*}
 
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-To be included.
+In this paper, we have devised an approach that integrates the powerful machinery of backward error analysis into Nos\'{e}-Hoover chains dynamics and global stochastic thermostats.
+A valuable enhancement is achieved with a simple approximation of the shadow Hamiltonian: in the case of TIP3P water, we have been able to overcome the serious disruptions observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}, correcting the discretization effects in numerically computed averages for time-step sizes up to 5 fs.
+
 
 \begin{acknowledgements}
 	The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
