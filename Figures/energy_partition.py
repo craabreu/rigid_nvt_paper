@@ -53,9 +53,9 @@ for i in integrators:
     k = k + 1
 
 
-ax[3].annotate('No Reweighting', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[3].annotate('Refined/NHC (No Reweighting)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[2].annotate('Refined/Unsplit', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[2].annotate('Refined/NHC', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
 ax[0].annotate('Martyna', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
