@@ -13,14 +13,6 @@
 \usepackage{tikz}
 \usetikzlibrary{decorations.text}
 
-%\usepackage{xr}
-%\usepackage{booktabs}
-%\usepackage{threeparttable}
-%\usepackage[T1]{fontenc}
-%\usepackage[table]{xcolor}
-%\definecolor{lightgray}{gray}{0.9}
-%\usepackage[exponent-product=\times]{siunitx}
-
 \newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}          % matrix symbol
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}          % vector symbol
 \newcommand{\tr}[1]{#1^\text{t}}                       % transposition
@@ -63,7 +55,7 @@ Fortunately, backward error analysis is a powerful tool that allows us to identi
 This paper deals with discretization effects in a straightforward way: with a minimal computational overhead, we obtain a refined kinetic energy and a refined Hamiltonian as suitable estimators of their
 shadow counterparts and then we tune the thermostatting procedure with this refined kinetic energy.
 The case of rigid water has served as an excellent test case for our proposal, because its numerical stability extends up to time steps large enough to yield pronounced discretization errors in Verlet-type integrators.
-By applying our new approach, we have been able to correct the discretization effects in numerically computed averages for time-step sizes up to 5 fs.
+By applying our new approach, we have been able to correct the discretization effects in equilibrium properties for time-step sizes up to 5 fs.
 \end{abstract}
 
 \maketitle
@@ -591,7 +583,7 @@ From Fig.~\ref{fig:energy_partition}(b), we see that the method of Kamberaj \tex
 The results of Fig.~\ref{fig:energy_partition}(a), which were obtained for the numerical scheme of Martyna \textit{et al}. \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition}(b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
 Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
 From Fig.~\ref{fig:energy_partition}(d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
-For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition}(c), it becomes clear that our method corrects the serious disruption observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
+For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition}(c), it becomes clear that our method corrects the artifacts observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
 
 \begin{figure*}
 	\includegraphics{Figures/energy_partition.eps}
@@ -602,9 +594,17 @@ For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-In this paper, we have devised an approach that integrates the powerful machinery of backward error analysis into Nos\'{e}-Hoover chains dynamics and global stochastic thermostats.
-A valuable enhancement is achieved with a simple approximation of the shadow Hamiltonian: in the case of TIP3P water, we have been able to overcome the serious disruptions observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}, correcting the discretization effects in numerically computed averages for time-step sizes up to 5 fs.
+In this paper, we have devised a general approach that integrates backward error analysis into the Nos\'{e}-Hoover chains and global stochastic thermostats.
+The key rationale behind our proposal came from recognizing that a Shadow kinetic energy should substitute the specified one in the equations dictating the thermostat action.
+This turns out to be crucial for simulations that display considerable discretization errors, as a ``clear definition of simulation temperature''\cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to a Shadow kinetic energy.
 
+A significant enhancement was achieved for a system of TIP3P rigid water molecules\cite{Jorgensen_1983} by using an analytically approximation to the Shadow Hamiltonian (here refered to as \textit{refined Hamiltonian}) with a minimal computatioal overhead, and whose derivation was greatly facilitated by the unsplit solution of rotation introduced in our previous paper\cite{Silveira_2017}.
+Particularly, we have been able to remove the serious artifacts observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}, correcting the discretization effects in numerically computed averages for time-step sizes up to $5~\text{fs}$.
+From our rigorous analysis of these schemes, we would not recommend a time-step size larger than $1~\text{fs}$.
+The fact of having overcome that barrier is of paramount importance as allows us to actually exploit the high numerical stability provided by rigid-body MD.
+
+Finally, it should be remarked that our method is not limited to rigid-body MD. It could be employed, for instance, in conjuction with other constrained MD schemes, such as SHAKE\cite{Ryckaert_1977} and RATTLE\cite{Andersen_1983}.
+Of course, restrictions arising from these methods must be properly taken into account, as we did for the quaternion time-derivative.
 
 \begin{acknowledgements}
 	The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
