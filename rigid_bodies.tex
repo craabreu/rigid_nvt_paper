@@ -70,35 +70,33 @@ Naively, we tend to rank simulation results by their proximity to experimental d
 However, systematic errors can possibly be hidden in these deviations, being the cause of non-physical behavior.
 For instance, it has been shown \cite{Eastwood_2010} that errors due to the discretization of the equations of motion can disrupt the equipartition of kinetic energy among molecules of distinct sizes.
 A similar artifact occurs for the partition of kinetic energy between translational and rotational degrees of freedom in rigid-body systems \cite{Davidchack_2010, Silveira_2017}.
-This brings into question the NVT-MD integrator developed by Kamberaj \textit{et al}. \cite{Kamberaj_2005} in which, by assuming translational-rotational equipartition, separate chains of Nos\'{e}-Hoover thermostats are coupled to the two classes of degrees of freedom.
-In addition, as we will show here, this method fails to reproduce the specified temperature even for a time-step size $\timestep$ typically employed in MD.
+This issue is relevant not only because water \cite{Jorgensen_1983} and other small molecules are usually modeled as rigid bodies, but also because designing proteins, nanoparticles, or other large structures as collections of interconnected bodies \cite{Miller_2002, Knorowski_2012, Patra_2013} can be seen as a useful coarse-graining strategy.
+This brings into question the NVT-MD method developed by Kamberaj, Low, and Neal \cite{Kamberaj_2005} who, by assuming equipartition, coupled two independent thermostats to the translational and rotational degrees of freedom.
+As we will show here, the method fails to reproduce the specified temperature even for time-step sizes typically employed in MD.
 In fact, Davidchack \cite{Davidchack_2010} recommends that the use of separate thermostats for translation and rotation should always be avoided.
-Nevertheless, issues arise even for freely-moving particles or when translation and rotation are coupled to a single thermostat.
-This occurs because Nos\'{e}-Hoover chains (NHC) \cite{Martyna_1992} and other thermostat methods are based on the relation between temperature and kinetic energy that is a corollary of the equipartition theorem.
+Nonetheless, the cited double-thermostat method is available in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995} and has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}, in spite of all the issues observed here.
+
+Debenedetti....
 
 For a symplectic integration of Hamiltonian equations of motion, the breakage of equipartition is arguably only apparent \cite{Eastwood_2010}.
-The produced trajectory actually follows the dynamics dictated by a \textit{shadow Hamiltonian} \cite{Tuckerman_2010}, which is no longer separable into exclusively momentum- and position-dependent parts and only coincides with the specified Hamiltonian when $\timestep \to 0$.
+The produced trajectory actually follows the dynamics dictated by a \textit{shadow Hamiltonian} \cite{Tuckerman_2010}, which is no longer separable into exclusively momentum- and position-dependent parts and only coincides with the specified Hamiltonian as the time-step size approaches zero.
 Therefore, what seems to occur, in fact, is a failure to identify the quantity that is subject to equipartition in place of the specified kinetic energy.
 As Eastwood \textit{et al}. \cite{Eastwood_2010} have shown, Tolman's generalized equipartition theorem \cite{Tolman_1918} holds at least for small steps, when such a \textit{shadow kinetic energy} keeps displaying a quadratic dependency on the momenta.
 The authors then employed backward error analysis to successfully eliminate the artifacts mentioned above.
 Here, we prove that their findings can be extended to the symplectic integration of rigid-body motion.
 
-It seems reasonable to argue that a thermostat should regulate the shadow kinetic energy instead of the specified one.
+Issues arise in NVT-MD because thermostatting methods usually rely on the corollary of the equipartition theorem which relates temperature to kinetic energy.
+Thus, it seems reasonable to argue that a thermostat should regulate the shadow kinetic energy instead of the specified one.
 However, the theory underlying the concept and computation of shadow Hamiltonians is only applicable to symplectic equations and symplectic integrators, thus ruling out most NVT-MD methods in use today.
-In this paper, we devise a novel procedure which partially overcomes this limitation.
-It consists in using a splitting-based numerical integrator that entails a Hamiltonian component and applying backward error analysis only to this part of the integrator.
-This allows us to obtain, with minimal computational overhead, a \textit{refined kinetic energy} and a \textit{refined Hamiltonian} as suitable estimators of their shadow counterparts.
+In this paper, we devise a novel procedure that is able to overcome this limitation in the case of global thermostatting methods such as, for instance, the Nos\'{e}-Hoover Chain (NHC) \cite{Martyna_1992}, the Stochastic Velocity Rescaling (SVR) \cite{Bussi_2007}, and the Nos\'{e}-Hoover-Langevin (NHL) \cite{Leimkuhler_2009} methods.
+It consists in using a splitting-based numerical integrator that entails a Hamiltonian component and then applying backward error analysis to that part only.
+This allows one to obtain, with minimal computational overhead, a \textit{refined kinetic energy} and a \textit{refined Hamiltonian} as suitable estimators of their shadow counterparts.
 By recasting the thermostat equations with such a refined kinetic energy, we are able to predict its equipartition and reproduce a canonical ensemble consistent with the refined Hamiltonian.
 Finally, a reweighting procedure yields ensemble averages which are, instead, consistent with the specified one.
-Although we restrict our detailed derivation to the case of a Nos\'{e}-Hoover chain thermostat, our new approach is applicable to other deterministic and stochastic thermostats.
-It is straightforward to use it, for instance, in conjunction with global thermostats such as the Stochastic Velocity Rescaling method of Bussi \textit{et al}. \cite{Bussi_2007} and the Nos\'{e}-Hoover-Langevin thermostat of Leimkuhler \textit{et al}. \cite{Leimkuhler_2009}.
+For simplicity, we restrict our detailed derivation to the case of a NHC thermostat \cite{Martyna_1992}.
 
-Our new method is particularly appealing for rigid-body MD, primarily because its numerical stability can extend up to time-step sizes large enough to yield pronounced discretization errors.
-It should be pointed out that rigid-body MD is relevant not only because some small molecules are usually modeled as rigid structures, such as in the ubiquitous case of water \cite{Jorgensen_1983}, but also because it can provide a coarse-graining strategy for molecules that can be envisioned as collections of interconnected bodies, such as proteins and nanoparticles \cite{Miller_2002, Knorowski_2012, Patra_2013}.
-In fact, the approach of Kamberaj \textit{et al}. \cite{Kamberaj_2005}, which is implemented in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995}, has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, as well as membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}.
-In the case of rigid water, which served as an excellent test case for our proposal, we were able to correct discretization errors in ensemble averages computed with time-step sizes up to $5~\text{fs}$, thus outperforming not only the double-chain method of Kamberaj \textit{et al}. \cite{Kamberaj_2005}, but also a single-chain reimplementation of the method by Martyna \textit{et al}. \cite{Martyna_1996} and the stochastic rescaling method \cite{Bussi_2007} applied simultaneously to translational and angular velocities.
-
-
+The new method is specially appealing for rigid-body MD, primarily because numerical stability can, in this case, extend up to time-step sizes large enough to yield pronounced discretization errors.
+For rigid water, which served as an excellent test case, we were able to correct discretization errors in ensemble averages computed with time-step sizes up to $5~\text{fs}$, thus outperforming not only the double-thermostat method of Kamberaj, Low, and Neal (KLN) \cite{Kamberaj_2005}, but also a reimplementation for rigid bodies of the NHC integrator developed by Martyna \textit{et al}. \cite{Martyna_1996}, as well as the SVR method \cite{Bussi_2007} employed to simultaneously rescale translational and angular velocities.
 
 This paper proceeds as follows.
 In Secs.~\ref{sec:nve} and \ref{sec:nvt} we review the rigid-body dynamics in the NVE and NVT ensembles.
@@ -441,7 +439,7 @@ In this section, we analyze the performance of our proposed NVT-MD method and co
 The system under study has periodic boundary conditions and contains 903 TIP3P \cite{Jorgensen_1983} water molecules at a density of 970~kg/m\textsuperscript{3}.
 The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at 10 {\AA} and smoothed by a switching function over the range from 9.5 {\AA} to 10 {\AA}, such as done in Ref.~\citenum{Silveira_2017}. 
 The damping of Coulombic interactions was done by a factor $\text{erfc}(-\alpha r)$, with $\alpha = 0.29~\text{\AA}^{-1}$.
-In addition, all thermostated simulations were carried out considering a time-scale constant $t_d = 100~\text{fs}$ (or $\tau = 100~\text{fs}$, in the nomenclature of Ref.~\citenum{Bussi_2007}).
+In addition, all thermostated simulations were carried out considering a time-scale constant $t_d = 100~\text{fs}$ (or $\tau = 100~\text{fs}$, in the terminology of Ref.~\citenum{Bussi_2007}).
 
 \subsection{Refined Hamiltonian Calculation in NVE Simulations}
 
