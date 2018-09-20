@@ -5,7 +5,7 @@ from matplotlib import rc
 plt.rcParams.update({'font.size':8})
 rc('text', usetex=True)
 
-fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,sharex=True,sharey=True)  
+fig,((ax1,ax4),(ax3,ax2)) = plt.subplots(2,2,sharex=True,sharey=True)  
 ax = (ax1,ax2,ax3,ax4)
 fig.subplots_adjust(hspace=0.1,wspace=0.1)
 fig.set_size_inches(w=7.5,h=4)
@@ -53,13 +53,13 @@ for i in integrators:
     k = k + 1
 
 
-ax[3].annotate('Refined/NHC (No Reweighting)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[3].annotate('Refined NHC \& Refined Kinetic Energy', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[2].annotate('Refined/NHC', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[2].annotate('Refined NHC \& Reweighted Kinetic Energy', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[0].annotate('Martyna', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[0].annotate('NHC', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
                  textcoords='axes fraction')
-ax[1].annotate('Kamberaj', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
+ax[1].annotate('KLN', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.08,0.9),  \
   textcoords='axes fraction')
 
 ax[0].annotate('(a)', xy=(0, 0) , xycoords= 'axes fraction', xytext=(0.008,0.9),  \

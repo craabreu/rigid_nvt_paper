@@ -32,7 +32,7 @@ beta = 1./(kB*298.0)
 integrators = ['P1','S1','S1mr','B1s','K2']
 colors = ['red','black','magenta','green','blue']
 markers = ['o','s','^','x','v']
-labels = [r'Martyna', 'Refined/NHC','Refined/NHC/Miller','Refined/Bussi', r'Kamberaj']
+labels = [r'NHC', 'Refined NHC','Refined NHC/NSQ','Refined CSVR', r'KLN']
 k = 0
 for i in integrators:
     data = np.genfromtxt(i + '.csv', delimiter=',', skip_header=1, names=[' ','T','f','df','temperatura',\
