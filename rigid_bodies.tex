@@ -24,15 +24,6 @@
 \newcommand{\refined}[1]{\widetilde{#1}}
 \newcommand{\mini}[1]{\text{\tiny{#1}}}
 
-\newenvironment{smallarray}[1]                          % small arrays
-{
-	\null\,\vcenter\bgroup\scriptsize
-	\renewcommand{\arraystretch}{1.5}
-	\arraycolsep=.13885em
-	\hbox\bgroup$\left[\array{@{}#1@{}}}
-	{\endarray\right]$\egroup\egroup\,\null
-}
-
 \begin{document}
 
 \author{Ana J. Silveira}
@@ -43,7 +34,7 @@
 \email{abreu@eq.ufrj.br}
 \affiliation{Chemical Engineering Department, Escola de Qu\'imica, Universidade Federal do Rio de Janeiro, Rio de Janeiro, RJ 21941-909, Brazil}
 
-\title{Refinement of Thermostated Molecular Dynamics via Backward Error Analysis}
+\title{Refinement of Thermostated Molecular Dynamics Using Backward Error Analysis}
 
 \keywords{Molecular Dynamics, Thermostat, Shadow Hamiltonian, Backward Error Analysis}
 
@@ -77,7 +68,7 @@ As we will show here, the method fails to reproduce the specified temperature ev
 In fact, Davidchack \cite{Davidchack_2010} recommends that the use of separate thermostats for translation and rotation should always be avoided.
 Nonetheless, the cited double-thermostat method is available in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995} and has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}, in spite of all the issues observed here.
 
-Debenedetti....
+Debenedetti.... \cite{Palmer_2018} \cite{Limmer_2011, Limmer_2013}
 
 For a symplectic integration of Hamiltonian equations of motion, the breakage of equipartition is arguably only apparent \cite{Eastwood_2010}.
 The produced trajectory actually follows the dynamics dictated by a \textit{shadow Hamiltonian} \cite{Tuckerman_2010}, which is no longer separable into exclusively momentum- and position-dependent parts and only coincides with the specified Hamiltonian as the time-step size approaches zero.
@@ -142,21 +133,21 @@ The former contains the body mass in all three diagonal entries while the latter
 Finally, the matrix-valued functions $\mt B$ and $\vt C$, given by
 \begin{equation*}
 \label{eq:def_B_and_C}
-\mt B(\vt q) = \begin{smallarray}{rrrr}
+\mt B(\vt q) = \left[\begin{array}{rrrr}
 -q_2 & -q_3 & -q_4 \\
  q_1 & -q_4 &  q_3 \\
  q_4 &  q_1 & -q_2 \\
 -q_3 &  q_2 &  q_1
-\end{smallarray}
-%
-\; \text{and} \;
-%
-\mt C(\vt q) = \begin{smallarray}{rrrr}
+\end{array}\right]
+\end{equation*}
+and
+\begin{equation*}
+\mt C(\vt q) = \left[\begin{array}{rrrr}
 -q_2 & -q_3 & -q_4 \\
  q_1 &  q_4 & -q_3 \\
 -q_4 &  q_1 &  q_2 \\
  q_3 & -q_2 &  q_1
-\end{smallarray},
+\end{array}\right]
 \end{equation*}
 are related to the rotation matrix ${\mt A}(\vt q)$ through the factorization ${\mt A}(\vt q) = \tr{\mt B}(\vt q) {\mt C}(\vt q)$ that was mentioned at the beginning of this section. Eq.~\eqref{eq:ODE system for NVE} preserves the constraints $\tr{\vt q}{\vt q} = 1$ and $\tr{\vt q}{\vt \pi} = 0$, as well as the value of a Hamiltonian
 \begin{equation}
@@ -577,21 +568,19 @@ As stated above, the NO-SQUISH solution \cite{Dullweber_1997, Miller_2002} is ve
 which explains the remarkable agreement between the results shown in Fig.~\ref{fig:properties} for the ``Refined NHC'' and ``Refined NHC/NSQ'' schemes.
 This is an advantage because the NO-SQUISH method is much simpler to implement than the exact rotation solution and is already available in LAMMPS \cite{Plimpton_1995} and other MD packages.
 
-Regarding the refinement of stochastic methods, the results obtained from the ``Refined CSVR'' scheme are similar to those from other refined schemes.
-This was expected because the unrefined versions of the CSVR \cite{Bussi_2007} (stochastic) and the NHC \cite{Martyna_1996} (deterministic) thermostats for rigid bodies produce virtually identical thermodynamic properties of water as functions of the time-step size (results not shown).
+Regarding the refinement of stochastic methods, the results obtained from the ``Refined CSVR'' scheme are similar to those from other refined ones.
+This was expected because the unrefined versions of the CSVR \cite{Bussi_2007} (stochastic) and the NHC \cite{Martyna_1996} (deterministic) thermostats for rigid bodies produce virtually identical properties as functions of the time-step size (results not shown).
 Similar behavior is expected for other global thermostats such as the Nos\'{e}-Hoover-Langevin method \cite{Samoletov_2007, Leimkuhler_2009}.
 Extension of our approach to massive Langevin-type thermostats \cite{Brunger_1984, Davidchack_2009, Davidchack_2015}, in which every degree of freedom is acted upon independently, is beyond the scope of this work.
-Nonetheless, we envision that such an extension would entail using the components of entrywise products between $\vt p$ and $\dot{\vt r}^{[n]}$, and also between ${\vt \pi}$ and $\dot{\vt q}^{[n]}$ in the case of rigid bodies, instead of the scalar products present in Eq.~\eqref{eq:modified kinetic energy estimator}.
+Nonetheless, we envision that this would entail using the components of entrywise products between $\vt p$ and $\dot{\vt r}^{[n]}$, and also between ${\vt \pi}$ and $\dot{\vt q}^{[n]}$ in the case of rigid bodies, instead of the scalar products present in Eq.~\eqref{eq:modified kinetic energy estimator}.
 
-Interestingly, all thermostatting schemes analyzed in Fig.~\ref{fig:properties}, including the KLN method, yield similar results for $c_\mini{V}$.
-Even though the average $\langle \Ham{} \rangle$ gets affected by discretization errors, Fig.~\ref{fig:properties}(d) shows that the magnitude of fluctuations in the sampled $\Ham{}$ values does not, and this is successfully predicted by all schemes.
-To put it differently, consider that discretization errors in a simulation at temperature $T$ cause the computed average $\langle \Ham{} \rangle$ to erroneously correspond to a nearby temperature, say, $T^\ast$.
-If the specific heat of the system changes little with temperature in the proximities of $T$, then it is natural to expect little effect of the same discretization errors on the computed $c_\mini{V}$.
-This is the case of liquid water in the vicinities of $298~\mathrm{K}$.
+Fig.~\ref{fig:properties}(d) contains results for the constant-volume specific heat capacity.
+Interestingly, these results do not get affected by the discretization errors when $\timestep \leq 5~\mathrm{fs}$, not even if the KLN method is employed.
+Given that the specific heat of water changes little with temperature in the vicinity of $298~\mathrm{K}$, it is not surprising to observe that $c_\mini{V}$ remains unaltered while other properties vary.
 
-With the aim of highlighting the importance of reweighting, in Fig.~\ref{fig:free_energy} we show for the ``Refined NHC'' scheme the free energy difference per water molecule ($\Delta F/N$) between the sampled and target states as a function of the time-step size.
-$\Delta F$ corresponds to the logarithm of the averaged denominator of Eq.~\eqref{eq:reweighting}.
-It should be noted that the other refined schemes yield identical results and, as expected, the free energy is only negligible for $h = 1~\text{fs}$.
+With the aim of highlighting the importance of the reweighting procedure, in Fig.~\ref{fig:free_energy} we show the free energy difference per water molecule ($\Delta F/N$) between the actually sampled and the target states, obtained with the ``Refined NHC'' scheme as a function of the time-step size.
+Note that $\Delta F$ corresponds to the logarithm of the denominator of Eq.~\eqref{eq:reweighting}.
+It should be mentioned that the other refined schemes yield similar results and, as expected, the free energy difference is non-negligible except for the smallest time steps.
 
 \begin{figure}
 	\includegraphics{Figures/Free_Energy.eps}
@@ -604,7 +593,7 @@ In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotatio
 In Figs.~\ref{fig:energy_partition}(a) to \ref{fig:energy_partition}(c), these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
 For Fig.~\ref{fig:energy_partition}(d), we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of these equations.
 
-In our previous work \cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water. 
+In our previous work \cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water.
 From Fig.~\ref{fig:energy_partition}(b), we see that the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
 The results of Fig.~\ref{fig:energy_partition}(a), which were obtained for the numerical scheme of Martyna \textit{et al}. \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition}(b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
 Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
@@ -624,7 +613,7 @@ In this paper, we have devised a general approach that integrates backward error
 The key rationale behind our proposal came from recognizing that a Shadow kinetic energy should substitute the specified one in the equations dictating the thermostat action.
 This turns out to be crucial for simulations that display considerable discretization errors, as a ``clear definition of simulation temperature''\cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to a Shadow kinetic energy.
 
-A significant enhancement was achieved for a system of TIP3P rigid water molecules\cite{Jorgensen_1983} by using an analytically approximation to the Shadow Hamiltonian (here refered to as \textit{refined Hamiltonian}) with a minimal computatioal overhead, and whose derivation was greatly facilitated by the unsplit solution of rotation introduced in our previous paper\cite{Silveira_2017}.
+A significant enhancement was achieved for a system of TIP3P rigid water molecules\cite{Jorgensen_1983} by using an analytically approximation to the Shadow Hamiltonian (here referred to as \textit{refined Hamiltonian}) with a minimal computational overhead, and whose derivation was greatly facilitated by the unsplit solution of rotation introduced in our previous paper\cite{Silveira_2017}.
 Particularly, we have been able to remove the serious artifacts observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}, correcting the discretization effects in numerically computed averages for time-step sizes up to $5~\text{fs}$.
 From our rigorous analysis of these schemes, we would not recommend a time-step size larger than $1~\text{fs}$.
 The fact of having overcome that barrier is of paramount importance as allows us to actually exploit the high numerical stability provided by rigid-body MD.
