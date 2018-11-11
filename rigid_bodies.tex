@@ -527,11 +527,11 @@ Error bars represent 95\% confidence intervals estimated via overlapping batch m
 \begin{figure*}
 	\includegraphics{Figures/thermodynamic_properties.eps}
 	\caption{Effect of the time-step size on (a) the estimated temperature, (b) the mean potential energy per molecule, (c) the mean internal virial per molecule, and (d) the constant-volume specific heat of water, as obtained from NVT-MD simulations of 903 TIP3P \cite{Jorgensen_1983} water molecules at $T=298~\mathrm{K}$ and $\rho=970~\mathrm{kg/m^3}$ and employing different numerical integration schemes.
-	The ``NHC'' scheme ($\bullet$) corresponds to the Nos\'{e}-Hoover Chain integrator of Martyna \textit{et al}. \cite{Martyna_1996} extended to rigid bodies with analytically computed free rotations \cite{Silveira_2017}.
-	The ``Refined NHC'' scheme ($\blacksquare$) is obtained by subjecting the preceding method to the refinement procedure described in Sec.~\ref{sec:refined_method}.
-	The ``Refined NHC/NSQ'' scheme ($\blacktriangle$) differs from ``Refined NHC'' only in that the approximate NO-SQUISH \cite{Dullweber_1997, Miller_2002} solution is used for free rotations.
-	The ``Refined CSVR'' scheme ($\times$) corresponds to the canonical stochastic velocity rescaling method \cite{Bussi_2007} subject to refinement as well.
-	Finally, the ``KLN'' scheme ($\blacktriangledown$) consists in the double-thermostat method of Kamberaj, Low, and Neal \cite{Kamberaj_2005}.}
+	The NHC scheme ($\bullet$) corresponds to the Nos\'{e}-Hoover Chain integrator of Martyna \textit{et al}. \cite{Martyna_1996} extended to rigid bodies with analytically computed free rotations \cite{Silveira_2017}.
+	The Refined NHC scheme ($\blacksquare$) is obtained by subjecting the preceding method to the refinement procedure described in Sec.~\ref{sec:refined_method}.
+	The Refined NHC/NSQ scheme ($\blacktriangle$) differs from Refined NHC only in that the approximate NO-SQUISH \cite{Dullweber_1997, Miller_2002} solution is used for free rotations.
+	The Refined CSVR scheme ($\times$) corresponds to the canonical stochastic velocity rescaling method \cite{Bussi_2007} subject to refinement as well.
+	Finally, the KLN scheme ($\blacktriangledown$) consists in the double-thermostat method of Kamberaj, Low, and Neal \cite{Kamberaj_2005}.}
 	\label{fig:properties}
 \end{figure*}
 
@@ -540,23 +540,23 @@ Our measure-preserving extension to rigid bodies of the splitting scheme by Mart
 Recall that this is a deterministic method in which a single Nos\'{e}-Hoover chain \cite{Martyna_1992} is attached to all degrees of freedom.
 First, the method is applied in a conventional (i.e. unrefined) way with the unsplit solution of Ref.~\citenum{Silveira_2017} being used for handling rotations.
 Then, it is modified by introducing the refinement/reweighting procedure proposed in Sec.~\ref{sec:refined_method}.
-In Fig.~\ref{fig:properties}, these two integrators are referred to as ``NHC'' and ``Refined NHC'', respectively.
-Next, we replace the unsplit rotation solution by the simpler NO-SQUISH splitting of Miller \textit{et al}. \cite{Miller_2002}, denoting the resulting integrator by ``Refined NHC/NSQ'' in Fig.~\ref{fig:properties}.
+In Fig.~\ref{fig:properties}, these two integrators are referred to as NHC and Refined NHC, respectively.
+Next, we replace the unsplit rotation solution by the simpler NO-SQUISH splitting of Miller \textit{et al}. \cite{Miller_2002}, denoting the resulting integrator by Refined NHC/NSQ in Fig.~\ref{fig:properties}.
 We note that our refinement procedure is only rigorously valid (see Appendix \ref{sec:rigid body shadow hamiltonian}) for unsplit rotations.
 Nevertheless, it is known that NO-SQUISH rotations approach them almost indistinguishably in the case of water if small time steps are employed \cite{Silveira_2017}.
 The fourth integrator we test is a refined version of the velocity rescaling method of Bussi, Donadio, and Parrinello \cite{Bussi_2007}, which differs from the others for involving a global stochastic thermostat.
-This is identified in Fig.~\ref{fig:properties} as ``Refined CSVR'' (acronym for Canonical Stochastic Velocity Rescaling).
+This is identified in Fig.~\ref{fig:properties} as Refined CSVR (acronym for Canonical Stochastic Velocity Rescaling).
 Finally, we also consider the double-thermostat KLN integrator \cite{Kamberaj_2005} for comparison purposes, despite the spurious energy flux it generates (see Sec.~\ref{sec:numerical stability}).
-This is to show that the method, denoted by ``KLN'' in Fig.~\ref{fig:properties}, also exhibits discretization-related issues not present in other integrators.
+This is to show that the method, denoted by KLN in Fig.~\ref{fig:properties}, also exhibits discretization-related issues not present in other integrators.
 We stress that thermodynamic properties are estimated in distinct ways for the conventional and the refined integrators.
 For the former class, simple averages are taken from the sampled configurations.
 For the latter, reweighting is carried out via Eq.~\eqref{eq:reweighting}.
 
-In Fig.~\ref{fig:properties}(a), we see that the estimated temperature for the thermostat identified as ``KLN'' decreases appreciably as the time step size increases.
+In Fig.~\ref{fig:properties}(a), we see that the estimated temperature for the thermostat identified as KLN decreases appreciably as the time step size increases.
 This behavior is typical of Verlet-like NVE integrators\cite{Davidchack_2010, Silveira_2017}, indicating that the KLN factorization scheme \cite{Kamberaj_2005} produces a relatively weak effect on the particle momenta.
-On the other hand, the stringent temperature control achieved by the ``NHC'' scheme leads to a severely degraded accuracy in both $\langle U/N \rangle$ and $\langle W/N \rangle$, as noted in Figs.~\ref{fig:properties}(b) and \ref{fig:properties}(c), respectively.
+On the other hand, the stringent temperature control achieved by the NHC scheme leads to a severely degraded accuracy in both $\langle U/N \rangle$ and $\langle W/N \rangle$, as noted in Figs.~\ref{fig:properties}(b) and \ref{fig:properties}(c), respectively.
 According to the results of Fig.~\ref{fig:nve}, discretization errors in the NVE integration become manifest at $2~\text{fs}$.
-Thus, the apparent success of the unrefined ``NHC'' scheme, in terms of kinetic energy control along the entire range of time-step sizes considered, is wiped out by those discretization errors.
+Thus, the apparent success of the unrefined NHC scheme, in terms of kinetic energy control along the entire range of time-step sizes considered, is wiped out by those discretization errors.
 If not handled properly, they can yield unreliable configurational properties.
 
 From Fig.~\ref{fig:properties}, it becomes clear that the refined schemes produce significantly improved results. For $\timestep \leq 5~\mathrm{fs}$, we are able to accurately reproduce the specified temperature and compute other thermodynamic properties considered.
@@ -565,10 +565,10 @@ In principle, this could be mitigated by using a higher-order approximation to t
 Nonetheless, we cannot anticipate whether the ability to increase the step size would compensate the additional effort required per time step.
 
 As stated above, the NO-SQUISH solution \cite{Dullweber_1997, Miller_2002} is very accurate for the system and time-step sizes considered here \cite{Silveira_2017},
-which explains the remarkable agreement between the results shown in Fig.~\ref{fig:properties} for the ``Refined NHC'' and ``Refined NHC/NSQ'' schemes.
+which explains the remarkable agreement between the results shown in Fig.~\ref{fig:properties} for the Refined NHC and Refined NHC/NSQ schemes.
 This is an advantage because the NO-SQUISH method is much simpler to implement than the exact rotation solution and is already available in LAMMPS \cite{Plimpton_1995} and other MD packages.
 
-Regarding the refinement of stochastic methods, the results obtained from the ``Refined CSVR'' scheme are similar to those from other refined ones.
+Regarding the refinement of stochastic methods, the results obtained from the Refined CSVR scheme are similar to those from other refined ones.
 This was expected because the unrefined versions of the CSVR \cite{Bussi_2007} (stochastic) and the NHC \cite{Martyna_1996} (deterministic) thermostats for rigid bodies produce virtually identical properties as functions of the time-step size (results not shown).
 Similar behavior is expected for other global thermostats such as the Nos\'{e}-Hoover-Langevin method \cite{Samoletov_2007, Leimkuhler_2009}.
 Extension of our approach to massive Langevin-type thermostats \cite{Brunger_1984, Davidchack_2009, Davidchack_2015}, in which every degree of freedom is acted upon independently, is beyond the scope of this work.
@@ -578,17 +578,17 @@ Fig.~\ref{fig:properties}(d) contains results for the constant-volume specific h
 Interestingly, these results do not get affected by the discretization errors when $\timestep \leq 5~\mathrm{fs}$, not even if the KLN method is employed.
 Given that the specific heat of water changes little with temperature in the vicinity of $298~\mathrm{K}$, it is not surprising to observe that $c_\mini{V}$ remains unaltered while other properties vary.
 
-With the aim of highlighting the importance of the reweighting procedure, in Fig.~\ref{fig:free_energy} we show the free energy difference per water molecule ($\Delta F/N$) between the actually sampled and the target states, obtained with the ``Refined NHC'' scheme as a function of the time-step size.
+With the aim of highlighting the importance of the reweighting procedure, in Fig.~\ref{fig:free_energy} we show the free energy difference per water molecule ($\Delta F/N$) between the actually sampled and the target states, obtained with the Refined NHC scheme as a function of the time-step size.
 Note that $\Delta F$ corresponds to the logarithm of the denominator of Eq.~\eqref{eq:reweighting}.
 It should be mentioned that the other refined schemes yield similar results and, as expected, the free energy difference is non-negligible except for the smallest time steps.
 
 \begin{figure}
 	\includegraphics{Figures/Free_Energy.eps}
-	\caption{Difference in free energy per water molecule between the sampled and target states as a function of the time-step size. The sampled state was obtained by employing the ``Refined NHC'' scheme, while the target state is consistent with a distribution proportional to $e^{-\beta \Ham{}}$, where $\Ham{}$ corresponds to the specified Hamiltonian.}
+	\caption{Difference in free energy per water molecule between the sampled and target states as a function of the time-step size. The sampled state was obtained by employing the Refined NHC scheme, while the target state is consistent with a distribution proportional to $e^{-\beta \Ham{}}$, where $\Ham{}$ corresponds to the specified Hamiltonian.}
 	\label{fig:free_energy}
 \end{figure}
 
-We end this section with a discussion of discretization effects on the kinetic energy partition, for which we present the results corresponding to the methods referred as ``KLN'', ``NHC'' and ``Refined NHC''.
+We end this section with a discussion of discretization effects on the kinetic energy partition, for which we present the results corresponding to the methods referred as KLN, NHC and Refined NHC.
 In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition.
 In Figs.~\ref{fig:energy_partition}(a) to \ref{fig:energy_partition}(c), these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
 For Fig.~\ref{fig:energy_partition}(d), we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of these equations.
