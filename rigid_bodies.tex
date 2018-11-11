@@ -584,25 +584,33 @@ It should be mentioned that the other refined schemes yield similar results and,
 
 \begin{figure}
 	\includegraphics{Figures/Free_Energy.eps}
-	\caption{Difference in free energy per water molecule between the sampled and target states as a function of the time-step size. The sampled state was obtained by employing the Refined NHC scheme, while the target state is consistent with a distribution proportional to $e^{-\beta \Ham{}}$, where $\Ham{}$ corresponds to the specified Hamiltonian.}
+	\caption{Difference in free energy per water molecule between the actually sampled and the target states as a function of the time-step size. The sampling was done by employing the Refined NHC scheme, while the target state is consistent with a distribution proportional to $e^{-\beta \Ham{}}$, where $\Ham{}$ corresponds to the specified Hamiltonian.}
 	\label{fig:free_energy}
 \end{figure}
 
-We end this section with a discussion of discretization effects on the kinetic energy partition, for which we present the results corresponding to the methods referred as KLN, NHC and Refined NHC.
-In Fig.~\ref{fig:energy_partition} we show the translational ($K_t$) and rotational ($K_r$) kinetic energies as a function of the time-step size, and compare the results with the expected values assuming equipartition.
-In Figs.~\ref{fig:energy_partition}(a) to \ref{fig:energy_partition}(c), these were calculated from the kinetic energy $\langle K \rangle$, as follows: $\langle K_t \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times (3N-3)$ and $\langle K_r \rangle_\text{eq}$ = $\frac{\langle K \rangle}{6N-3} \times 3N$.
-For Fig.~\ref{fig:energy_partition}(d), we substituted $\langle K \rangle$ for $\langle \refined{K} \rangle$ in the right-hand side of these equations.
-
-In our previous work \cite{Silveira_2017}, we demonstrated that in the NVE case the rotational kinetic energy is more influenced by the time-step size because the rotational degrees of freedom are the fastest modes in the rigid model of water.
-From Fig.~\ref{fig:energy_partition}(b), we see that the method of Kamberaj \textit{et al}. \cite{Kamberaj_2005} reproduces the behavior of the NVE case, as noted before.
-The results of Fig.~\ref{fig:energy_partition}(a), which were obtained for the numerical scheme of Martyna \textit{et al}. \cite{Martyna_1996}, are similar to Fig.~\ref{fig:energy_partition}(b), in the sense that the simulated translational and rotational kinetic energies deviate almost symmetrically and in opposite directions.
-Also, they do so contrary to what is expected: the translational kinetic energy should be smaller than the rotational one.
-From Fig.~\ref{fig:energy_partition}(d) one can note that the refined translational and rotational kinetic energies obey the energy partition predicted by Tolman's theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
-For this range of $\timestep$ and after reweighting, which yields Fig.~\ref{fig:energy_partition}(c), it becomes clear that our method corrects the artifacts observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}.
+We end this section with a discussion about discretization effects on the kinetic energy partition amongst translational and rotational degrees of freedom.
+Davidchack \cite{Davidchack_2010} has already performed a thorough analysis of such effects in thermostated rigid-body dynamics.
+Here we complement his study by including the KLN method \cite{Kamberaj_2005} and by showing that the refinement procedure is able to mitigate the observed artifacts.
+In Fig.~\ref{fig:energy_partition}, we present computed averages of the translational ($K_t$) and rotational ($K_r$) kinetic energies as functions of the time-step size, and compare them to the values that would be expected by assuming equipartition.
+In Figs.~\ref{fig:energy_partition}(a) to \ref{fig:energy_partition}(c), these were calculated from the average kinetic energy $\langle K \rangle$ by means of $\langle K_t \rangle_\text{eq}$ = $\frac{3N-3}{6N-3} \langle K \rangle$ and $\langle K_r \rangle_\text{eq}$ = $\frac{3N}{6N-3} \langle K \rangle$.
+For Fig.~\ref{fig:energy_partition}(d), $K$ is simply replaced by $\refined{K}$ in these equations.
+In a previous work \cite{Silveira_2017}, we have shown that the rotational energy is more strongly influenced by the time-step size in the NVE case than the translational energy.
+This occurs because the rotational degrees of freedom display the fastest motion in a rigid water molecule \cite{Silveira_2017}.
+In Fig.~\ref{fig:energy_partition}(a), one can see that the KLN method \cite{Kamberaj_2005} tends, once again, to reproduce the behavior of the NVE integration.
+The results of Fig.~\ref{fig:energy_partition}(b) were obtained by using the NHC scheme of Martyna \textit{et al}. \cite{Martyna_1996} applied to rigid bodies.
+These results are similar to those shown in Fig.~\ref{fig:energy_partition}(a), in the sense that the simulated translational and rotational components deviate upwards and downwards, respectively, from their equipartioned values.
+This observation is in consonance with the analysis of Ref.~\citenum{Davidchack_2010}.
+To some extent, our refinement/reweighting procedure is able to correct these deviations, as one can see in Fig.~\ref{fig:energy_partition}(c).
+Finally, by observing Fig.~\ref{fig:energy_partition}(d), one can note that the refined translational and rotational kinetic energies, being estimates of their ``shadow'' counterparts, comply with Tolman's equipartition theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
 
 \begin{figure*}
 	\includegraphics{Figures/energy_partition.eps}
-		\caption{Influence of the time-step size on the kinetic energy partition in NVT MD simulations of 903 TIP3P\cite{Jorgensen_1983} water molecules for (a) our implementation of the numerical scheme by Martyna \textit{et al.} \cite{Martyna_1996} and (b) the method due to Kamberaj \textit{et al.} \cite{Kamberaj_2005}, as well as for (c) our refined version of the thermostat by Martyna \textit{et al.} \cite{Martyna_1996}, for which we also depict in (d) the results obtained without applying the reweighting procedure. For each case, we show the simulated translational (black down triangles) and rotational (black up triangles) kinetic energies, as well as the expected translational (green squares) and rotational (red x) values assuming equipartition.}
+		\caption{Influence of the time-step size on the kinetic energy partition in NVT-MD simulations of 903 TIP3P \cite{Jorgensen_1983} water molecules.
+		Part (a) contains results obtained from the KLN method \cite{Kamberaj_2005}.
+		The results in Part (b) were obtained by using the NHC method \cite{Martyna_1996} extended for rigid bodies and without any refinement.
+		In Part (c), they  were obtained from our Refined NHC \cite{Martyna_1996} method, with the kinetic energies computed at the target state via reweighting.
+		Finally, Part (d) depict the refined kinetic energies at every sampled state resulting from the same simulations of Part (c).
+		In all parts, we present the simulated translational ($\blacktriangledown$) and rotational ($\blacktriangle$) kinetic energies, as well as the expected translational ($\blacksquare$) and rotational ($\times$) values assuming equipartition.}
 	\label{fig:energy_partition}
 \end{figure*}
 
