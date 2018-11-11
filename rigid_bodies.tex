@@ -618,17 +618,21 @@ $\refined K_t = \frac{1}{2} \tr{\vt p} \dot{\vt r}^{[3]}$ and $\refined K_r = \f
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-In this paper, we have devised a general approach that integrates backward error analysis into the Nos\'{e}-Hoover chains and global stochastic thermostats.
-The key rationale behind our proposal came from recognizing that a Shadow kinetic energy should substitute the specified one in the equations dictating the thermostat action.
-This turns out to be crucial for simulations that display considerable discretization errors, as a ``clear definition of simulation temperature''\cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to a Shadow kinetic energy.
+In this paper, we have devised a general approach that integrates backward error analysis into Nos\'{e}-Hoover chains and other global thermostats.
+The rationale for our proposal arises from recognizing that a ``shadow kinetic energy'' should substitute the conventional one in the equations that dictate the thermostat action.
+In practice, we employ backward error analysis to compute, with minimal computational overhead, a refined version of the kinetic energy, which serves as an estimate for its shadow analogue.
+This turns out to be crucial for simulations that display considerable discretization errors, in which a clearer definition of the simulation temperature \cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to the refined kinetic energy rather than to the conventional one.
 
-A significant enhancement was achieved for a system of TIP3P rigid water molecules\cite{Jorgensen_1983} by using an analytically approximation to the Shadow Hamiltonian (here referred to as \textit{refined Hamiltonian}) with a minimal computational overhead, and whose derivation was greatly facilitated by the unsplit solution of rotation introduced in our previous paper\cite{Silveira_2017}.
-Particularly, we have been able to remove the serious artifacts observed in the schemes of Martyna \textit{et al}. \cite{Martyna_1996} and Kamberaj \textit{et al}. \cite{Kamberaj_2005}, correcting the discretization effects in numerically computed averages for time-step sizes up to $5~\text{fs}$.
-From our rigorous analysis of these schemes, we would not recommend a time-step size larger than $1~\text{fs}$.
-The fact of having overcome that barrier is of paramount importance as allows us to actually exploit the high numerical stability provided by rigid-body MD.
+A significant enhancement was achieved for a system of rigid TIP3P-water molecules \cite{Jorgensen_1983}.
+Analytical derivation of a refined Hamiltonian formula for rigid bodies was greatly facilitated by considering an unsplit integration of rotations, such as in the method we have recently introduced \cite{Silveira_2017}.
+Particularly, we have been able to remove serious artifacts observed when using the method of Kamberaj, Low, and Neal \cite{Kamberaj_2005} or a rigid-body extension of the standard Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992, Martyna_1996}.
+The refinement/reweighting approach described in Sec.~\ref{sec:refined_method} corrected discretization effects in computed thermodynamic properties of water for time-step sizes up to $5~\text{fs}$.
+Without the refinement, we would not recommend the use of time steps larger than $1~\text{fs}$.
+Having overcome such barrier is of paramount importance as it allows one to actually exploit the high numerical stability and useful coarse-graining provided by rigid-body MD.
 
-Finally, it should be remarked that our method is not limited to rigid-body MD. It could be employed, for instance, in conjuction with other constrained MD schemes, such as SHAKE\cite{Ryckaert_1977} and RATTLE\cite{Andersen_1983}.
-Of course, restrictions arising from these methods must be properly taken into account, as we did for the quaternion time-derivative.
+Finally, it is worth remarking that our method is not limited to rigid bodies.
+It can be employed, for instance, in conjunction with other constrained MD schemes, such as SHAKE \cite{Ryckaert_1977} and RATTLE \cite{Andersen_1983}, for instance.
+Of course, restraints arising from these methods must be properly taken into account, as done here for the time-derivatives of orientation quaternions.
 
 \begin{acknowledgements}
 The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
