@@ -16,7 +16,7 @@ ax[3].set_xlabel('$h$ (fs)')
 
 ax[0].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
 ax[1].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
-ax[2].set_ylabel(r'{$\langle K \rangle$} (kcal/mol)')
+ax[2].set_ylabel(r'{$\langle K \rangle_0$} (kcal/mol)')
 ax[3].set_ylabel(r'{$\langle \widetilde{K} \rangle$} (kcal/mol)')
 ax[0].set_xlim(0.5,7.5)
 ax[0].set_ylim(740,825)
