@@ -29,6 +29,7 @@
 \author{Ana J. Silveira}
 \email{asilveira@plapiqui.edu.ar}
 \affiliation{Planta Piloto de Ingenier\'ia Qu\'imica, PLAPIQUI, Universidad Nacional del Sur, Camino La Carrindanga Km 7-CC: 717, Bah\'ia Blanca, Argentina}
+\altaffiliation{Current address: Computational \& Systems Biology Program, Memorial Sloan Kettering Cancer Center, New York, NY, USA}
 
 \author{Charlles R. A. Abreu}
 \email{abreu@eq.ufrj.br}
@@ -60,22 +61,22 @@ By applying our new approach, we were able to mitigate discretization effects in
 Molecular dynamics (MD) simulation involves several types of approximations in the quest for mimicking real systems.
 Naively, we tend to rank simulation results by their proximity to experimental data and attribute any disagreement to a lack of accuracy of the employed force field.
 However, systematic errors can possibly be hidden in these deviations, being the cause of non-physical behavior.
-For instance, it has been shown \cite{Eastwood_2010} that errors due to the discretization of the equations of motion can disrupt the equipartition of kinetic energy among molecules of distinct sizes.
-A similar artifact occurs for the partition of kinetic energy between translational and rotational degrees of freedom in rigid-body systems \cite{Davidchack_2010, Silveira_2017}.
-This issue is relevant not only because water \cite{Jorgensen_1983} and other small molecules are usually modeled as rigid bodies, but also because designing proteins, nanoparticles, or other large structures as collections of interconnected bodies \cite{Miller_2002, Knorowski_2012, Patra_2013} can be seen as a useful coarse-graining strategy.
-This brings into question the NVT-MD method developed by Kamberaj, Low, and Neal \cite{Kamberaj_2005} (KLN) who, by assuming equipartition, coupled two independent thermostats to the translational and rotational degrees of freedom.
+It has been recently shown \cite{Palmer_2018} that erroneous simulation results \cite{Limmer_2011, Limmer_2013} were the cause of a long-standing controversy \cite{Smart_2018} about a liquid-liquid transition believed to exist for supercooled water.
+In this case, hybrid Monte Carlo steps were employed with initial velocities that failed to comply with the equipartition between translational and rotational degrees of freedom \cite{Palmer_2018}.
+As a matter of fact, similar ill-partitioning of kinetic energy can arise in MD simulations as an artifact due to the discretization of the equations of motion.
+This can affect not only the translation/rotation equipartition in rigid-body systems \cite{Davidchack_2010, Silveira_2017}, but also the distribution of energy among molecules of distinct sizes \cite{Eastwood_2010}.
+The issue with rigid-body MD is relevant not only because water \cite{Jorgensen_1983} and other small molecules are usually modeled as rigid bodies, but also because designing proteins, nanoparticles, or other large structures as collections of interconnected bodies \cite{Miller_2002, Knorowski_2012, Patra_2013} can be seen as a useful coarse-graining strategy.
+It also brings into question the NVT-MD method developed by Kamberaj, Low, and Neal \cite{Kamberaj_2005} (KLN) who, by assuming equipartition, coupled two independent thermostats to the translational and rotational degrees of freedom.
 As we will show here, the method fails to reproduce the specified temperature even for time-step sizes typically employed in MD.
 In fact, Davidchack \cite{Davidchack_2010} recommends that the use of separate thermostats for translation and rotation should always be avoided.
 Nonetheless, the cited double-thermostat method is available in software packages such as HOOMD-\textit{blue}\cite{Anderson_2008} and LAMMPS\cite{Plimpton_1995} and has been applied to simulate small molecules \cite{Geiger_2013, Aimoli_2014, Aimoli_2014_2}, membranes \cite{Bucior_2012}, molecular motors \cite{Akimov_2012}, micelles \cite{Yan_2008}, and nanoparticles \cite{Patra_2014}, in spite of all the issues observed here.
-
-Debenedetti.... \cite{Palmer_2018} \cite{Limmer_2011, Limmer_2013}
 
 For a symplectic integration of Hamiltonian equations of motion, the breakage of equipartition is arguably only apparent \cite{Eastwood_2010}.
 The produced trajectory actually follows the dynamics dictated by a \textit{shadow Hamiltonian} \cite{Tuckerman_2010}, which is no longer separable into exclusively momentum- and position-dependent parts and only coincides with the specified Hamiltonian as the time-step size approaches zero.
 Therefore, what seems to occur, in fact, is a failure to identify the quantity that is subject to equipartition in place of the specified kinetic energy.
 As Eastwood \textit{et al}. \cite{Eastwood_2010} have shown, Tolman's generalized equipartition theorem \cite{Tolman_1918} holds at least for small steps, when such a \textit{shadow kinetic energy} keeps displaying a quadratic dependency on the momenta.
 The authors then employed backward error analysis to successfully eliminate the artifacts mentioned above.
-Here, we prove that their findings can be extended to the symplectic integration of rigid-body motion.
+As we manage to prove here, their findings can be extended to the symplectic integration of rigid-body motion as well.
 
 Issues arise in NVT-MD because thermostatting methods usually rely on the corollary of the equipartition theorem which relates temperature to kinetic energy.
 Thus, it seems reasonable to argue that a thermostat should regulate the shadow kinetic energy instead of the specified one.
@@ -618,21 +619,20 @@ $\refined K_t = \frac{1}{2} \tr{\vt p} \dot{\vt r}^{[3]}$ and $\refined K_r = \f
 \section{Concluding Remarks}
 \label{sec:conclusion}
 
-In this paper, we have devised a general approach that integrates backward error analysis into Nos\'{e}-Hoover chains and other global thermostats.
+In this paper, we have devised a simple, general approach that integrates backward error analysis into Nos\'{e}-Hoover chains and other global thermostats.
 The rationale for our proposal arises from recognizing that a ``shadow kinetic energy'' should substitute the conventional one in the equations that dictate the thermostat action.
-In practice, we employ backward error analysis to compute, with minimal computational overhead, a refined version of the kinetic energy, which serves as an estimate for its shadow analogue.
-This turns out to be crucial for simulations that display considerable discretization errors, in which a clearer definition of the simulation temperature \cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to the refined kinetic energy rather than to the conventional one.
+In practice, we employ backward error analysis to compute, with small computational overhead, a refined version of the kinetic energy, which serves as an estimate for its shadow analogue.
+This turns out to be crucial for simulations that display considerable discretization errors, in which a more precise definition of the simulation temperature \cite{Eastwood_2010} is obtained by applying Tolman's generalized equipartition theorem to the refined kinetic energy rather than to the conventional one.
 
-A significant enhancement was achieved for a system of rigid TIP3P-water molecules \cite{Jorgensen_1983}.
+Significant enhancement was achieved for a system of rigid TIP3P-water molecules \cite{Jorgensen_1983}.
 Analytical derivation of a refined Hamiltonian formula for rigid bodies was greatly facilitated by considering an unsplit integration of rotations, such as in the method we have recently introduced \cite{Silveira_2017}.
-Particularly, we have been able to remove serious artifacts observed when using the method of Kamberaj, Low, and Neal \cite{Kamberaj_2005} or a rigid-body extension of the standard Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992, Martyna_1996}.
+In practice, we have been able to remove serious artifacts which take place when the method of Kamberaj, Low, and Neal \cite{Kamberaj_2005} or a rigid-body extension of the standard Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992, Martyna_1996} is used with time steps larger than $1~\text{fs}$.
 The refinement/reweighting approach described in Sec.~\ref{sec:refined_method} corrected discretization effects in computed thermodynamic properties of water for time-step sizes up to $5~\text{fs}$.
-Without the refinement, we would not recommend the use of time steps larger than $1~\text{fs}$.
-Having overcome such barrier is of paramount importance as it allows one to actually exploit the high numerical stability and useful coarse-graining provided by rigid-body MD.
+Having overcome such barrier is of paramount importance as it allows one to actually exploit the high numerical stability and useful coarse-graining strategy provided by rigid-body MD.
 
 Finally, it is worth remarking that our method is not limited to rigid bodies.
-It can be employed, for instance, in conjunction with other constrained MD schemes, such as SHAKE \cite{Ryckaert_1977} and RATTLE \cite{Andersen_1983}, for instance.
-Of course, restraints arising from these methods must be properly taken into account, as done here for the time-derivatives of orientation quaternions.
+It can also be employed in conjunction with other constrained MD schemes, such as SHAKE \cite{Ryckaert_1977} and RATTLE \cite{Andersen_1983}, for instance.
+Of course, constraints must be properly taken into account in the computation of time-derivatives of atomic positions, as was done here for the time-derivatives of quaternions.
 
 \begin{acknowledgements}
 The authors acknowledge the financial support provided by Petrobras (project code CENPES 16113).
