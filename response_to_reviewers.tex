@@ -1,0 +1,279 @@
+\documentclass[]{article}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage[version=4]{mhchem}
+\usepackage{textcomp}
+%opening
+\title{\normalsize \textbf{Response to the Reviewers' Comments on Manuscript A18.12.0101}}
+\author{}
+\date{}
+
+\begin{document}
+\doublespacing
+\maketitle
+
+To: Prof. Carlos Vega 
+
+Associate Editor 
+
+The Journal of Chemical Physics
+\vspace{1cm}
+
+Dear Prof. Vega:
+
+Thank you for your message forwarding the reviewer’s comments on our manuscript entitled “Refinement of Thermostated Molecular Dynamics Using Backward Error Analysis”. We have carefully addressed all comments, which required us to make changes in the text. In order to facilitate your evaluation, we have attached an annotated version in which we crossed out in red all removed text and incorporated new content in blue.
+
+We hope the revised version of our manuscript is suitable for publication in the Journal of Chemical Physics.
+
+\begin{center}
+Sincerely yours,
+\end{center}
+\begin{flushright}
+Ana J. Silveira
+
+Memorial Sloan Kettering Cancer Center
+
+\vspace{1cm}
+
+Charlles R. A. Abreu
+
+Federal University of Rio de Janeiro
+
+\end{flushright}
+
+\section{\textbf{Reviewer \#1}}
+
+{\color{blue}{
+The authors investigate the influence of finite time step numerical discretization errors on the computation of averages in the molecular system with rigid bodies. They analyze the possibility of compensating for such errors by using 'refined' expressions for the kinetic and potential energies and the re-weighting of computed quantities. While the effects of the numerical integration error and the re-weighting procedures have been studied before, the authors demonstrate how this approach can work in practice, using a model of rigid water molecules as an example. 
+
+Besides, the authors investigate the effect of using different thermostatting approaches, highlighting some of the pitfalls of using multiple thermostats, like in the KLN method. Unfortunately, the MD practitioners sometimes don't pay attention to such problems with their thermostats, which may lead to erroneous results. 
+
+Therefore, I recommend publication of this manuscript in the JCP, after the authors implement minor revisions listed below. 
+}}
+
+\textbf{Answer}:
+We thank the reviewer for having done such a careful examination of our manuscript. All comments and suggestions were very meaningful and constructive. We really appreciate it.
+
+{\color{blue}{
+- Abstract: ``may distort such assumption". This needs re-wording, since equipartition is not an assumption. Maybe better say ``may lead to deviation from equipartition in measured quantities".
+}}
+
+\textbf{Answer}:
+We replaced ``may distort such assumption'' by ``may lead to deviations from equipartition”. In order to maintain the specific reference to the kinetic energy, made in the preceding sentence, we did not include the fragment “in measured quantities".
+
+{\color{blue}{
+- Abstract: ``quantity that is actually subject to equipartition". I think this need to be stated more precisely, since we don't know the expression for such a quantity. What we can derive is a quantity that deviations from equipartition to higher order in the time step.
+}}
+
+\textbf{Answer}:
+We replaced “identify” by “obtain a higher-order estimate of”.
+
+{\color{blue}{
+- Abstract: ``which coincides with'' better to say ``which converges to".
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.1, middle of right column: ``breakage'' \textrightarrow ``breakdown". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.1, bottom of right column: ``manage to prove here'' - you are not proving, but rather ``show'' or ``demonstrate'' 
+}}
+
+\textbf{Answer}:
+We were referring to the mathematical derivation in the Appendix. Anyways, we agree that this is not a formal proof and thus replaced “prove” by “demonstrate”.
+
+{\color{blue}{
+- p.2, middle of left column: ``specially'' \textrightarrow ``especially'' 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.2, bottom of right column: ``While U(r,q) is an arbitrary function". This may be interpreted too broadly. Better to say something like ``While the form of U(r,q) depends on the specific interaction model". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.2, bottom of right column: ``all bodies piled together'' \textrightarrow ``all bodies combined in a single vector". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.3, top of left column: ``freely moving atoms". I guess the authors talk about a mixed system of rigid bodies and point masses. Freely moving atoms has the meaning of 'non-interacting atoms'. I suggest replacing ``freely moving atoms'' with ``point masses'' or ``interacting point masses". 
+}}
+
+\textbf{Answer}:The reviewer is right. The expression ``freely moving atoms'' is not adequate. We decided to use the term “individual point masses” instead.
+
+{\color{blue}{
+- p.3, middle of left column: ``is a kick in the linear and quaternion momenta given by", better say ``is a kick that changes the linear and quaternion momenta according to'' 
+}}
+
+\textbf{Answer}:Done.
+
+{\color{blue}{
+- p.3, before subsection B: ``unplit'' \textrightarrow ``unsplit", although it may be better to say ``exact solution for free rotations'' instead. 
+}}
+
+\textbf{Answer}:
+We used the second option, that is, “exact solution for free rotations”.
+
+{\color{blue}{
+- same place: ``might become clear'' \textrightarrow ``will become clear'' 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.4, middle of left column: ``for entailing the computation (or numerical estimation) of", replace with ``due to the need to evaluate (or approximate numerically) the". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- same place: ``a simpler path, though". Not sure it is simpler, so better say ``different path'' and delete ``though". 
+}}
+
+\textbf{Answer}:
+We did the suggested replacement.
+
+{\color{blue}{
+- same place: delete ``implied", since not sure what this word changes in the meaning of ``we attempt to quantify the discretization errors".
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- same place: ``average'' \textrightarrow ``averages'' 
+}}
+
+\textbf{Answer}:
+Done.
+{\color{blue}{
+- Start of subsection C: ``our proposal'' \textrightarrow ``our approach'' 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.4, after Eq. (10): ``but keep being independent'' \textrightarrow ``but, like U, independent". 
+ }}
+
+\textbf{Answer}:
+Done.
+{\color{blue}{
+- p.4, after Eq. (11): ``stacked vector [p pi]". I think this should be [r, q]. Also, not sure why it is necessary to say ``stacked vector", maybe just enough to say ``with respect to [r q]'' 
+}}
+
+\textbf{Answer}:
+The reviewer is right. We made the correction and removed the expression “stacked vector”.
+
+{\color{blue}{
+- p.4, bottom of right column: introduced ``n-th order estimator", but variable n was used earlier to denote sub-steps in the splitting after Eq. (9) and in the middle of right column on p.5. Suggest to use a different letter to avoid confusion. 
+}}
+
+\textbf{Answer}:
+We thank the reviewer for pointing this out. We now use “k” instead of “n”. We have also replaced “k” by “j” as the index of a few summation signs in the Appendix.
+
+{\color{blue}{
+- p.5, middle of right column: ``By this means'' \textrightarrow ``Thus'' 
+}}
+
+\textbf{Answer}:
+Done.
+{\color{blue}{
+- the next paragraph: ``intact'' \textrightarrow ``unchanged'' 
+}}
+
+\textbf{Answer}:
+Done.
+{\color{blue}{
+- p.6, middle of right column: Change ``poses the question whether'' to ``introduces the question of whether'' and delete ``or not". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- the next paragraph: what do you mean by ``the angular coefficient"? Is this the slope of the regression line? If yes, then use this term instead of the angular coefficient. 
+}}
+
+\textbf{Answer}:
+We replaced the original sentence by “It is defined as the slope of a least-square regression line expressing such quantity as a function of time.”
+
+{\color{blue}{
+- p.7, middle of left column: ``Leimkhuler'' \textrightarrow ``Leimkuhler".
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.8, middle of left column: ``which differs from the others for involving a global stochastic thermostat", should be ``by involving". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.8, right column, paragraph starting with ``Fig. 5(d) contains...". The conclusion in this paragraph seems dubious. The authors appear to confuse numerical artefacts, due to finite time step, with the physical phenomenon of heat capacity dependence on temperature. A much more plausible explanation is that statistical error in the measurement of $c_v$ (which is related to the variance of the total energy) is much larger (for the same simulation sample) than that in other quantities (like kinetic or potential energy). So, the statistical error masks the systematic error due to finite time step. In other words, the dependence of measured $c_v$ on time step size is present, but would require more simulation time in order to measure with sufficient precision. 
+}}
+
+\textbf{Answer}:
+Our (unfulfilled) intention here was to suggest that the effect caused by the numerical artifact is similar to that of a small variation in temperature, in which the average $\langle H \rangle$ changes while $c_v$ remains practically unaltered. We have rewritten the paragraph so as to make this intention clearer. We also employed the expression “are not noticeably influenced” in place of “does not get affected”, in order to acknowledge the statistical nature of these measurements.
+
+{\color{blue}{
+- Fig. 5 end of caption: replace ``consists in'' with ``is", as in ``Finally, the KLN scheme (triangle) is the double-thermostat method...". 
+}}
+
+\textbf{Answer}:
+Done.
+
+{\color{blue}{
+- p.10, bottom of left column: ``Having overcome such barrier ...'' I'm not sure what ``barrier'' the authors have in mind. What they propose allows to increase the accuracy of the results (maybe double it, if we are talking about increasing the time step from 1fs to 4fs), or get the same accuracy with 25% of the computational resource (again from 1fs to 4fs), but this is not overcoming a ``barrier". So, I suggest either deleting this sentence as unnecessary, or modifying it to reflect more accurately the contribution of this work. 
+}}
+
+\textbf{Answer}:
+
+
+\section{\textbf{Reviewer \#2}}
+
+{\color{blue}{
+The manuscript presents results from a computational study examining the influence of integration errors on kinetic energy equipartitioning in canonical ensemble MD simulations. The authors argue that an auxiliary shadow kinetic energy should be used instead of the conventional definition when formulating thermostats and analyzing equipartitioning behavior. They show that use of this shadow kinetic energy leads to improved numerical stability and subsequently demonstrate that accurate estimates of properties in the target ensemble can be obtained by reweighting. This reformulation approach is shown to work successfully for several widely-used thermostats. 
+
+This is a nicely presented article that is likely to be of interest the readership of JCP. Overall, it is technically sound, but I have a couple of comments that the authors should consider. 
+}}
+
+\textbf{Answer}:
+
+
+{\color{blue}{
+(1) There is a recent paper by Smit and co-workers on equipartitioning in thermostatted MD simulations [Smit and co-workers J. Chem. Theory Comput., 2018, 14 (10), pp 5262-5272]. There is no direct overlap with the work presented here, but the authors may wish to add this reference for interested readers and discuss the results in the context of the current study. 
+}}
+
+\textbf{Answer}:
+
+{\color{blue}{
+(2) The authors assess the magnitude of sampling errors by examining the dependence of average thermodynamics properties on time step. This assumes that correct canonical sampling is recovered when using a small time step, but this may not be true in practice for a number of reasons (e.g., errors in thermostat implementation). The authors should consider analyzing the sample distributions rather than just the averages. To this end, they may wish to consider implementing some of the numerical tests described in J. Chem. Theory Comput., 2013, 9 (2), pp 909-926. 
+}}
+
+\textbf{Answer}:
+
+%\bibliographystyle{ieeetr}
+%\bibliography{rigid_bodies.bib}
+\end{document}
