@@ -434,6 +434,8 @@ The 12-6 Lennard-Jones and damped Coulombic interactions were truncated at 10 {\
 The damping of Coulombic interactions was done by a factor $\text{erfc}(-\alpha r)$, with $\alpha = 0.29~\text{\AA}^{-1}$.
 In addition, all thermostated simulations were carried out considering a time-scale constant $t_d = 100~\text{fs}$ (or $\tau = 100~\text{fs}$, in the terminology of Ref.~\citenum{Bussi_2007}).
 
+Although the results are not shown here, we have applied a method, introduced and implemented by Shirts ~\cite{Shirts_2013}, that serves for checking the consistency between the sampled energy distributions and the theoretical ones. For the NVT-MD methods investigated, we have verified that, generally, the total energy distributions deviate 1$\sigma$ or less from the theoretical ones for time-step sizes up to 5 fs. 
+
 \subsection{Refined Hamiltonian Calculation in NVE Simulations}
 
 We start by examining how much the refined Hamiltonian departs from the specified one in NVE simulations.
@@ -575,11 +577,9 @@ Similar behavior is expected for other global thermostats such as the Nos\'{e}-H
 Extension of our approach to massive Langevin-type thermostats \cite{Brunger_1984, Davidchack_2009, Davidchack_2015}, in which every degree of freedom is acted upon independently, is beyond the scope of this work.
 Nonetheless, we envision that this would entail using the components of entrywise products between $\vt p$ and $\dot{\vt r}^{[n]}$, and also between ${\vt \pi}$ and $\dot{\vt q}^{[n]}$ in the case of rigid bodies, instead of the scalar products present in Eq.~\eqref{eq:modified kinetic energy estimator}.
 
-Fig.~\ref{fig:properties}(d) contains results for the constant-volume specific heat capacity.
-Interestingly, these results are not noticeably influenced by the discretization errors when $\timestep \leq 5~\mathrm{fs}$, not even if the KLN method is employed.
-This means that the numerical artifacts do not affect the dispersion as much as they affect the center of the energy distribution.
-This is similar to what a small variation in temperature would cause in the system,
-given that the specific heat of water changes little with temperature in the vicinity of $298~\mathrm{K}$.
+Fig.~\ref{fig:properties}(d) contains results for the constant-volume specific heat capacity, which
+are not noticeably influenced by the discretization errors when $\timestep \leq 5~\mathrm{fs}$, not even if the KLN method is employed.
+This means that the numerical artifacts do not affect the variance in total energy, which determines the $c_v$, as much as they affect the center of the corresponding distribution.
 
 With the aim of highlighting the importance of the reweighting procedure, in Fig.~\ref{fig:free_energy} we show the free energy difference per water molecule ($\Delta F/N$) between the actually sampled and the target states, obtained with the Refined NHC scheme as a function of the time-step size.
 Note that $\Delta F$ corresponds to the logarithm of the denominator of Eq.~\eqref{eq:reweighting}.
@@ -629,8 +629,7 @@ This turns out to be crucial for simulations that display considerable discretiz
 Significant enhancement was achieved for a system of rigid TIP3P-water molecules \cite{Jorgensen_1983}.
 Analytical derivation of a refined Hamiltonian formula for rigid bodies was greatly facilitated by considering an unsplit integration of rotations, such as in the method we have recently introduced \cite{Silveira_2017}.
 In practice, we have been able to remove serious artifacts which take place when the method of Kamberaj, Low, and Neal \cite{Kamberaj_2005} or a rigid-body extension of the standard Nos\'{e}-Hoover chain thermostat \cite{Martyna_1992, Martyna_1996} is used with time steps larger than $1~\text{fs}$.
-The refinement/reweighting approach described in Sec.~\ref{sec:refined_method} corrected discretization effects in computed thermodynamic properties of water for time-step sizes up to $5~\text{fs}$.
-Having overcome such barrier is of paramount importance as it allows one to actually exploit the high numerical stability and useful coarse-graining strategy provided by rigid-body MD.
+The refinement/reweighting approach described in Sec.~\ref{sec:refined_method} corrected discretization effects in computed thermodynamic properties of water for time-step sizes up to $5~\text{fs}$. This is of paramount importance as it allows one to increase the time-step size without sacrificing accuracy and, thus, to actually exploit the useful coarse-graining strategy provided by rigid-body MD.
 
 Finally, it is worth remarking that our method is not limited to rigid bodies.
 It can also be employed in conjunction with other constrained MD schemes, such as SHAKE \cite{Ryckaert_1977} and RATTLE \cite{Andersen_1983}, for instance.

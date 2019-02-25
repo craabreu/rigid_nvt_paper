@@ -3,6 +3,20 @@
 \usepackage{xcolor}
 \usepackage[version=4]{mhchem}
 \usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+
+\usepackage{array}
+\newcolumntype{L}{>{$}l<{$}}
+\newcolumntype{C}{>{$}c<{$}}
+\newcolumntype{R}{>{$}r<{$}}
+\usepackage{booktabs}    
+\usepackage[exponent-product=\times]{siunitx}
+\newcommand{\timestep}{h}
+
+
 %opening
 \title{\normalsize \textbf{Response to the Reviewers' Comments on Manuscript A18.12.0101}}
 \author{}
@@ -176,6 +190,7 @@ Done.
 
 \textbf{Answer}:
 Done.
+
 {\color{blue}{
 - p.4, after Eq. (11): ``stacked vector [p pi]". I think this should be [r, q]. Also, not sure why it is necessary to say ``stacked vector", maybe just enough to say ``with respect to [r q]'' 
 }}
@@ -196,12 +211,14 @@ We thank the reviewer for pointing this out. We now use “k” instead of “n�
 
 \textbf{Answer}:
 Done.
+
 {\color{blue}{
 - the next paragraph: ``intact'' \textrightarrow ``unchanged'' 
 }}
 
 \textbf{Answer}:
 Done.
+
 {\color{blue}{
 - p.6, middle of right column: Change ``poses the question whether'' to ``introduces the question of whether'' and delete ``or not". 
 }}
@@ -231,11 +248,11 @@ Done.
 Done.
 
 {\color{blue}{
-- p.8, right column, paragraph starting with ``Fig. 5(d) contains...". The conclusion in this paragraph seems dubious. The authors appear to confuse numerical artefacts, due to finite time step, with the physical phenomenon of heat capacity dependence on temperature. A much more plausible explanation is that statistical error in the measurement of $c_v$ (which is related to the variance of the total energy) is much larger (for the same simulation sample) than that in other quantities (like kinetic or potential energy). So, the statistical error masks the systematic error due to finite time step. In other words, the dependence of measured $c_v$ on time step size is present, but would require more simulation time in order to measure with sufficient precision. 
+- p.8, right column, paragraph starting with ``Fig. 5(d) contains...". The conclusion in this paragraph seems dubious. The authors appear to confuse numerical artifacts, due to finite time step, with the physical phenomenon of heat capacity dependence on temperature. A much more plausible explanation is that statistical error in the measurement of $c_v$ (which is related to the variance of the total energy) is much larger (for the same simulation sample) than that in other quantities (like kinetic or potential energy). So, the statistical error masks the systematic error due to finite time step. In other words, the dependence of measured $c_v$ on time step size is present, but would require more simulation time in order to measure with sufficient precision. 
 }}
 
 \textbf{Answer}:
-Our (unfulfilled) intention here was to suggest that the effect caused by the numerical artifact is similar to that of a small variation in temperature, in which the average $\langle H \rangle$ changes while $c_v$ remains practically unaltered. We have rewritten the paragraph so as to make this intention clearer. We also employed the expression “are not noticeably influenced” in place of “does not get affected”, in order to acknowledge the statistical nature of these measurements.
+Our (unfulfilled) intention here was to suggest that the effect caused by numerical artifact is similar to that associated with small temperature variations in experiments, where the average energy changes while $c_v$ remains practically unaltered. However, as pointed out by the reviewer,  $c_v$ is related to the variance of the total energy, and not to the center of its distribution, which is being affected by discretization errors. To emphasize this point, we have rewritten the paragraph avoiding the analogy with the physical phenomena. We have also employed the expression “are not noticeably influenced” in place of “does not get affected”, in order to acknowledge the statistical nature of these measurements.
 
 {\color{blue}{
 - Fig. 5 end of caption: replace ``consists in'' with ``is", as in ``Finally, the KLN scheme (triangle) is the double-thermostat method...". 
@@ -245,10 +262,11 @@ Our (unfulfilled) intention here was to suggest that the effect caused by the nu
 Done.
 
 {\color{blue}{
-- p.10, bottom of left column: ``Having overcome such barrier ...'' I'm not sure what ``barrier'' the authors have in mind. What they propose allows to increase the accuracy of the results (maybe double it, if we are talking about increasing the time step from 1fs to 4fs), or get the same accuracy with 25% of the computational resource (again from 1fs to 4fs), but this is not overcoming a ``barrier". So, I suggest either deleting this sentence as unnecessary, or modifying it to reflect more accurately the contribution of this work. 
+- p.10, bottom of left column: ``Having overcome such barrier ...'' I'm not sure what ``barrier'' the authors have in mind. What they propose allows to increase the accuracy of the results (maybe double it, if we are talking about increasing the time step from 1fs to 4fs), or get the same accuracy with 25\% of the computational resource (again from 1fs to 4fs), but this is not overcoming a ``barrier". So, I suggest either deleting this sentence as unnecessary, or modifying it to reflect more accurately the contribution of this work. 
 }}
 
 \textbf{Answer}:
+We were referring to the improvement in accuracy for time-step sizes up to 5 fs, so we deleted the sentence ``Having overcome such barrier'' and modified that paragraph to emphasize our contribution in that terms.
 
 
 \section{\textbf{Reviewer \#2}}
@@ -260,7 +278,7 @@ This is a nicely presented article that is likely to be of interest the readersh
 }}
 
 \textbf{Answer}:
-
+ We sincerely thank the reviewer for the kind comments and suggestions. They have all been considered and are answered below.
 
 {\color{blue}{
 (1) There is a recent paper by Smit and co-workers on equipartitioning in thermostatted MD simulations [Smit and co-workers J. Chem. Theory Comput., 2018, 14 (10), pp 5262-5272]. There is no direct overlap with the work presented here, but the authors may wish to add this reference for interested readers and discuss the results in the context of the current study. 
@@ -273,7 +291,30 @@ This is a nicely presented article that is likely to be of interest the readersh
 }}
 
 \textbf{Answer}:
+The reviewer is totally right. We have applied the numerical tests introduced in the suggested reference and verified that the sampled energies are in accordance with the canonical distribution. We have included this information on page 6 of the manuscript.
+For time-step sizes with considerable discretization errors, however, those numerical tests are not suitable for analyzing the potential and kinetic energies, since they assume that the Hamiltonian is separable into exclusively momentum- and position-dependent parts, which is no longer true. Thus, we applied the maximum likelihood approach on the total energies only. The results for the NVT-MD methods are reported in the table below. Note that the deviations from the true slope are generally 1$\sigma$ or less for time-step sizes up to 5 fs. This is intimately related to the effect observed when examining the constant-volume heat capacity, where the variance in total energy is not influenced by discretization errors as much as the mean of the distribution. We consider that this result is analogous to the ensemble validation test and, that is why we decided to not include the table below in the revised manuscript.
 
-%\bibliographystyle{ieeetr}
-%\bibliography{rigid_bodies.bib}
+\begin{table*}
+	\caption{Ensemble validation of the NVT-MD methods using the maximum likelihood approach for different time-step sizes}
+	\label{table:check_ens}
+		\centering
+		\resizebox{\columnwidth}{!}{%
+	\begin{tabular}{r c c c c c c}
+		{$\timestep$} & {estimated $\Delta T$} & {$\sigma$ deviations}  & {estimated $\Delta T$}  & {$\sigma$ deviations}  &    {estimated $\Delta T$}  & {$\sigma$ deviations} \\
+		{(fs)} & {(K)} &   & {(K)}  &  & {(K)}  & \\
+		\hline
+		&\multicolumn{2}{c}{Refined NHC} & \multicolumn{2}{c}{NHC }   &	\multicolumn{2}{c}{KLN}\\
+		1.0	& 3.02(2) & 1.07 & 2.98(2) & 0.66 &  2.97(2) & 1.16 \\
+		2.0 & 3.02(2) & 0.81 & 2.98(2) & 0.73 &  3.00(2) & 0.02 \\
+		3.0 & 2.98(2) & 0.73 & 2.95(2) & 2.33  & 2.99(4) & 0.18 \\
+		4.0 & 3.01(2) & 0.41 & 3.01(2) & 0.65 & 2.92(8) & 0.99 \\
+		5.0 & 3.02(2) & 0.79 & 2.93(2) & 3.05  & 3.02(5) & 0.40 \\
+		6.0 & 3.03(3) & 1.23  & 2.92(2) & 3.87  & 3.14(5) & 2.69  \\
+		7.0 & 2.98(2) & 0.74 & 2.89(2) & 5.35 & 3.03(4) & 0.73 \\
+		\hline
+	\end{tabular}
+}
+\end{table*}
+
+
 \end{document}
