@@ -11,8 +11,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{float}
-\usepackage{tikz}
-\usetikzlibrary{decorations.text}
+\usepackage{graphicx}
+\usepackage{epstopdf}
 
 \newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}          % matrix symbol
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}          % vector symbol
@@ -382,25 +382,8 @@ By virtual and incomplete we mean, respectively, that these steps are never inco
 Thus, we can obtain the estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]}$ without any additional force evaluation, which results in a small computational overhead.
 
 \begin{figure}
-\begin{tikzpicture}
-\draw[->, dashed]   (0,0.0) -- (7,0.0) node[right]{${\vt r}(t)$};
-\node(0) at (0,0)[shape=circle,draw,double,scale=0.5]        {};
-\node(1) at (2.2,0)[fill=black,shape=circle,draw,scale=0.5]        {};
-\node(2) at (4.4,0)[fill=black,shape=circle,draw,scale=0.5]        {};
-\node(3) at (6.6,0)[shape=circle,draw,double,scale=0.5] {};
-\node(4) at (3.4,0.8)[] {$e^{\timestep \Liu{\tiny NVE}}$};
-\node at (0.0,-0.2)[below]{${\vt r}_{t-2\timestep}$};
-\node at (2.2,-0.2)[below]{${\vt r}_{t-\timestep}$};
-\node at (4.4,-0.2)[below]{${\vt r}_{t}$};
-\node at (6.6,-0.2)[below]{${\vt r}_{t+\timestep}$};
-\path[->,thick] (1) edge [bend left=45] (2);
-\path[dashed,->,thick,postaction={decorate,decoration={raise=2.5ex,text along path,text align=center,text={|\small|virtual step}}}] (0) to [bend left=45] (1);
-\path[dashed,->,thick] (1) edge [bend right=45] (0);
-\path[dashed,->,thick,postaction={decorate,decoration={raise=2.5ex,text along path,text align=center,text={|\small|virtual step}}}] (2) to [bend left=45] (3);
-\path[dashed,->,thick] (2) edge [bend left=45] (3);
-\end{tikzpicture}
-\caption{Schematic representation of the executed steps in a single time-step of our refined NVT dynamics.
-The solid arrow represents the NVE part of the integration, while the dotted arrows emphasize that forward and backward steps are carried out for positions and orientations with the only purpose of approximating their time-derivatives at point $t$.}
+	\includegraphics{scheme}
+\caption{Schematic representation of the executed steps in a single time-step of our refined NVT dynamics. The solid arrow represents the NVE part of the integration, while the dotted arrows emphasize that forward and backward steps are carried out for positions and orientations with the only purpose of approximating their time-derivatives at point $t$.}
 \label{fig:virtual steps}
 \end{figure}
 
@@ -452,7 +435,7 @@ This is an indication that
 2) the neglected high-order terms of the Baker-Campbell-Hausdorff series (see Appendix \ref{sec:rigid body shadow hamiltonian}) would contribute notably to the shadow Hamiltonian.
 
 \begin{figure}
-	\includegraphics{NVE.eps}
+	\includegraphics{NVE}
 	\caption{Specified Hamiltonian $\Ham{}$ (solid lines) and refined Hamiltonian $\refined{\Ham{}}$ (dotted lines) for different time-step sizes ($\timestep$) obtained from NVE MD simulations of 903 TIP3P \cite{Jorgensen_1983} water molecules using the numerical scheme of Eq.~\eqref{eq:splitting NVE} with the unsplit rotation method \cite{Silveira_2017}.}
 	\label{fig:nve}
 \end{figure}
@@ -472,7 +455,7 @@ In Fig.~\ref{fig:energy_drift}, we present drift rates of these quantities compu
 As one can observe, long-term stability is slightly improved by our method if $\timestep \le 5~\text{fs}$, indicating that there is little or no impact of the lack of time-reversal symmetry on $R$.
 
 \begin{figure}
-	\includegraphics{energy_drift.eps}
+	\includegraphics{energy_drift}
 	\caption{Influence of the time-step size ($\timestep$) on the long-term drift rate ($R$) in: the extended energy ($\refined{H}$, black squares) and its refined Hamiltonian ($\refined{\Ham{}}$, green up triangles) part for our NVT method, as well as in the extended energy ($H$, red x) for the method due to Martyna \textit{et al}. \cite{Martyna_1996} and in the refined Hamiltonian ($\refined{\Ham{}}$, blue circles) for the numerical scheme of Eq.~\eqref{eq:splitting NVE} with unsplit solution of rotation.}
 	\label{fig:energy_drift}
 \end{figure}
@@ -498,7 +481,7 @@ Therefore, energy flows from this thermostat to the one coupled to the rotationa
 Interestingly, Fig.~\ref{fig:num_stab} shows that the rate at which the thermostats approach steady state decreases with $\timestep$. As far as we know, this behavior has not been reported before.
 
 \begin{figure}
-	\includegraphics{numerical_stability.eps}
+	\includegraphics{numerical_stability}
 	\caption{Time evolution of (a) the extended energy and (b) of each thermostat energy for the NVT method introduced by Kamberaj, Low, and Neal \cite{Kamberaj_2005}. In part (b), the negative values correspond to the thermostat coupled to the translational degrees of freedom.}
 	\label{fig:num_stab}
 \end{figure}
@@ -529,7 +512,7 @@ The horizontal dotted lines are meant to help us visualize the departure of the 
 Error bars represent 95\% confidence intervals estimated via overlapping batch means \cite{Meketon_1984, Flegal_2010} and standard uncertainty propagation formulas.
 
 \begin{figure*}
-	\includegraphics{thermodynamic_properties.eps}
+	\includegraphics{thermodynamic_properties}
 	\caption{Effect of the time-step size on (a) the estimated temperature, (b) the mean potential energy per molecule, (c) the mean internal virial per molecule, and (d) the constant-volume specific heat of water, as obtained from NVT-MD simulations of 903 TIP3P \cite{Jorgensen_1983} water molecules at $T=298~\mathrm{K}$ and $\rho=970~\mathrm{kg/m^3}$ and employing different numerical integration schemes.
 	The NHC scheme ($\bullet$) corresponds to the Nos\'{e}-Hoover Chain integrator of Martyna \textit{et al}. \cite{Martyna_1996} extended to rigid bodies with analytically computed free rotations \cite{Silveira_2017}.
 	The Refined NHC scheme ($\blacksquare$) is obtained by subjecting the preceding method to the refinement procedure described in Sec.~\ref{sec:refined_method}.
@@ -587,7 +570,7 @@ Note that $\Delta F$ corresponds to the logarithm of the denominator of Eq.~\eqr
 It should be mentioned that the other refined schemes yield similar results and, as expected, the free energy difference is non-negligible except for the smallest time steps.
 
 \begin{figure}
-	\includegraphics{Free_Energy.eps}
+	\includegraphics{Free_Energy}
 	\caption{Difference in free energy per water molecule between the actually sampled and the target states as a function of the time-step size. The sampling was done by employing the Refined NHC scheme, while the target state is consistent with a distribution proportional to $e^{-\beta \Ham{}}$, where $\Ham{}$ corresponds to the specified Hamiltonian.}
 	\label{fig:free_energy}
 \end{figure}
@@ -609,7 +592,7 @@ Finally, by observing Fig.~\ref{fig:energy_partition}(d), one can note that the 
 $\refined K_t = \frac{1}{2} \tr{\vt p} \dot{\vt r}^{[3]}$ and $\refined K_r = \frac{1}{2} \tr{\vt \pi} \dot{\vt q}^{[3]}$, being estimates of their ``shadow'' counterparts, comply with Tolman's equipartition theorem \cite{Tolman_1918} for time-step sizes up to $5~\text{fs}$.
 
 \begin{figure*}
-	\includegraphics{energy_partition.eps}
+	\includegraphics{energy_partition}
 		\caption{Influence of the time-step size on the kinetic energy partition in NVT-MD simulations of 903 TIP3P \cite{Jorgensen_1983} water molecules.
 		Part (a) contains results obtained from the KLN method \cite{Kamberaj_2005}.
 		The results in Part (b) were obtained by using the NHC method \cite{Martyna_1996} extended for rigid bodies and without any refinement.
