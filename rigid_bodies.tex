@@ -11,8 +11,11 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{float}
+%
 \usepackage{graphicx}
-\usepackage{epstopdf}
+\DeclareGraphicsExtensions{.pdf,.eps,.png}
+\graphicspath{{./}}
+\usepackage[outdir=./]{epstopdf}
 
 \newcommand{\mt}[1]{\boldsymbol{\mathbf{#1}}}          % matrix symbol
 \newcommand{\vt}[1]{\boldsymbol{\mathbf{#1}}}          % vector symbol
@@ -383,8 +386,8 @@ Thus, we can obtain the estimates $\dot{\vt r}^{[3]}$ and $\dot{\vt q}^{[3]}$ wi
 
 \begin{figure}
 	\includegraphics{scheme}
-\caption{Schematic representation of the executed steps in a single time-step of our refined NVT dynamics. The solid arrow represents the NVE part of the integration, while the dotted arrows emphasize that forward and backward steps are carried out for positions and orientations with the only purpose of approximating their time-derivatives at point $t$.}
-\label{fig:virtual steps}
+	\caption{Schematic representation of the executed steps in a single time-step of our refined NVT dynamics. The solid arrow represents the NVE part of the integration, while the dotted arrows emphasize that forward and backward steps are carried out for positions and orientations with the only purpose of approximating their time-derivatives at point $t$.}
+	\label{fig:virtual steps}
 \end{figure}
 
 In addition, $\refined K$ must be reevaluated after the action of propagator $e^{\frac{\timestep}{2n} {\mathcal L}_0}$, which scales both $\vt p$ and $\vt \pi$ by a factor $e^{-\alpha_1^\ast \frac{\timestep}{2n}}$.
