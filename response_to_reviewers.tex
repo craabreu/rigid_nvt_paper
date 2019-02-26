@@ -284,23 +284,33 @@ This is a nicely presented article that is likely to be of interest the readersh
 }}
 
 \textbf{Answer}:
- We sincerely thank the reviewer for the kind comments and helpful suggestions. They have been considered in full.
+ We sincerely thank the reviewer for the kind comments and helpful suggestions. They have been considered in full. Please find our answers below.
 
 {\color{blue}{
 (1) There is a recent paper by Smit and co-workers on equipartitioning in thermostatted MD simulations [Smit and co-workers J. Chem. Theory Comput., 2018, 14 (10), pp 5262-5272]. There is no direct overlap with the work presented here, but the authors may wish to add this reference for interested readers and discuss the results in the context of the current study. 
 }}
 
-\textbf{Answer}: We thank the reviewer for pointing out this reference, which has been included on page 1 of the manuscript. 
+\textbf{Answer}:
+We thank the reviewer for pointing out this reference.
+A citation has been included in the introductory section (on page 1 of the manuscript).
 
 {\color{blue}{
 (2) The authors assess the magnitude of sampling errors by examining the dependence of average thermodynamics properties on time step. This assumes that correct canonical sampling is recovered when using a small time step, but this may not be true in practice for a number of reasons (e.g., errors in thermostat implementation). The authors should consider analyzing the sample distributions rather than just the averages. To this end, they may wish to consider implementing some of the numerical tests described in J. Chem. Theory Comput., 2013, 9 (2), pp 909-926. 
 }}
 
 \textbf{Answer}:
-The reviewer is totally right. We have applied the numerical tests introduced in the suggested reference and verified that the sampled energies are in accordance with the canonical distribution. We have included this information on page 6 of the manuscript.
-For time-step sizes with considerable discretization errors, however, those numerical tests are not suitable for analyzing the potential and kinetic energies, since they assume that the Hamiltonian is separable into exclusively momentum- and position-dependent parts, which is no longer true. Thus, we applied the maximum likelihood approach on the total energies only. The results for the NVT-MD methods are reported in the table below. Note that the deviations from the true slope are generally 1$\sigma$ or less for time-step sizes up to 5 fs. This is intimately related to the effect observed when examining the constant-volume heat capacity, where the variance in total energy is not influenced by discretization errors as much as the mean of the distribution. We consider that this result is analogous to the ensemble validation test and, that is why we decided to not include the table below in the revised manuscript.
+The reviewer is right.
+We have applied the numerical tests introduced in the suggested reference (Shirts, 2013) and verified that the sampled energies are in accordance with the canonical distribution.
+We have included this information on page 6 of the manuscript.
+It is important to note that, for time-step sizes with noticeable discretization errors, the numerical tests are not suitable for analyzing the potential and kinetic energies separately.
+They assume that the Hamiltonian can be separated into exclusively momentum- and position-dependent parts, which is not true in these cases.
+Therefore, we applied the maximum likelihood approach only to the total energies.
+The results for the NVT-MD methods are reported in the table below.
+Note that the deviations from the true slope are always smaller than 3$\sigma$ for time-step sizes up to 5 fs.
+Higher deviations, according to Shirts (2013), would indicate inconsistency with the canonical ensemble (e.g. the author found values above 40$\sigma$ for the knowingly problematic Berendsen thermostat).
+Because the numerical values in the table below would not be essential to the discussions in the manuscript, we decided to leave them out.
 
-\begin{table*}
+\begin{table*}[h!]
 	\caption{Ensemble validation of the NVT-MD methods using the maximum likelihood approach for different time-step sizes}
 	\label{table:check_ens}
 		\centering
